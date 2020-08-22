@@ -123,3 +123,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+config.ini
+logos/audi.png
+logos/mclaren.png
+logos/porsche.png

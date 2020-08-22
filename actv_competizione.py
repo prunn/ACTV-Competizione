@@ -1,7 +1,7 @@
 '''###########################################################################
 #
-# Project ACTV
-# Version 2.1.0
+# Project ACTV Competizione
+# Version 1.0.0.0
 #
 ******************************************************************************
 *** .--. .-. ..- -. -. .--. .-. ..- -. -. .--. .-. ..- -. -. .--. .-. ..-  ***
@@ -65,7 +65,6 @@ def acMain(ac_version):
     try:
         config = Configuration()
         configInit = True
-        #ac.initFont(0, "Droid Sans Mono", 0, 0)
     except:
         Log.w("Error init config") 
     try:
@@ -147,4 +146,4 @@ def acUpdate(deltaT):
 
 
 def acShutdown():    
-    ac.console("shutting down actv")
+    ac.console("shutting down actv cp")
