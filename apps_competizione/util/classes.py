@@ -124,7 +124,75 @@ class Colors:
     carsClassesLoaded = False
     multiCarsClasses = False
     theme_files = []
-    # (0, 0, 0, 1, None)
+    car_classes = {
+        'default_bg': rgb([255, 255, 255]), # Red
+        'default_txt': rgb([0, 0, 0]),
+
+        'lmp1_title': 'LMP1',
+        'lmp1_bg': rgb([220, 0, 0]), # Red
+        'lmp1_txt': rgb([255, 255, 255]),
+
+        'lmp2_title': 'LMP2',
+        'lmp2_bg': rgb([0, 80, 150]), # Blue
+        'lmp2_txt': rgb([255, 255, 255]),
+
+        'lmp3_title': 'LMP3',
+        'lmp3_bg': rgb([102, 51, 102]), # Purple
+        'lmp3_txt': rgb([255, 255, 255]),
+
+        'proto c_title': 'PROTO C',
+        'proto c_bg': rgb([238, 234, 51]), # Yellow
+        'proto c_txt': rgb([0, 0, 0]),
+
+        'gte-gt3_title': 'GT3-GTE',
+        'gte-gt3_bg': rgb([0, 150, 54]), # Green
+        'gte-gt3_txt': rgb([0, 0, 0]),
+
+        'gt4_title': 'GT4',
+        'gt4_bg': rgb([252, 139, 1]), # Orange
+        'gt4_txt': rgb([255, 255, 255]),
+
+        'suv_title': 'SUV',
+        'suv_bg': rgb([242, 65, 225]), # Bad Pink
+        'suv_txt': rgb([0, 0, 0]),
+
+        'hypercars_title': 'HYP',
+        'hypercars_bg': rgb([227, 90, 90]), # Light red
+        'hypercars_txt': rgb([0, 0, 0]),
+
+        'hypercars r_title': 'HYP R',
+        'hypercars r_bg': rgb([127, 215, 127]), # Light green
+        'hypercars r_txt': rgb([0, 0, 0]),
+
+        'supercars_title': 'SUPER',
+        'supercars_bg': rgb([21, 141, 255]), # Dark blue
+        'supercars_txt': rgb([0, 0, 0]),
+
+        'sportscars_title': 'SPORTS',
+        'sportscars_bg': rgb([101, 101, 101]), # Grey
+        'sportscars_txt': rgb([255, 255, 255]),
+
+        'vintage supercars_title': 'V SUPER',
+        'vintage supercars_bg': rgb([65, 200, 220]), # Light blue
+        'vintage supercars_txt': rgb([0, 0, 0]),
+
+        'vintage gt_title': 'V GT',
+        'vintage gt_bg': rgb([212, 167, 206]), # Pink
+        'vintage gt_txt': rgb([0, 0, 0]),
+
+        'vintage touring_title': 'V TOURING',
+        'vintage touring_bg': rgb([236, 205, 96]), # Dark yellow
+        'vintage touring_txt': rgb([0, 0, 0]),
+
+        'small sports_title': 'SMALL',
+        'small sports_bg': rgb([0, 0, 0]), # Black
+        'small sports_txt': rgb([255, 255, 255]),
+
+        '90s touring_title': '90S T',
+        '90s touring_bg': rgb([96, 169, 184]), # Blue-Green
+        '90s touring_txt': rgb([0, 0, 0]),
+
+    }
     current_theme = {
         'tower_time_odd_txt': rgb([0, 0, 0]),
         'tower_time_highlight_txt': rgb([0, 0, 0]),
@@ -249,6 +317,17 @@ class Colors:
             car_name = ac.getCarName(i)
             if car_name not in loaded_cars:
                 loaded_cars.append(car_name)
+                #check car_classes first
+                for index, c in Colors.car_classes.items():
+                    if index.find("_cars") >= 0:
+                        if car_name in c:
+                            cur_class = index.replace("_cars","")
+                            Colors.dataCarsClasses.append({"c": car_name, "t": cur_class})
+                            if last_class != -1 and last_class != cur_class.lower():
+                                Colors.multiCarsClasses = True
+                            last_class = cur_class.lower()
+                            break
+
                 file_path = "content/cars/" + car_name + "/ui/ui_car.json"
                 try:
                     if os.path.exists(file_path):
@@ -307,6 +386,30 @@ class Colors:
                 value = cfg.get('THEME', f[0], 'string')
                 if value == -1:
                     Colors.current_theme[f[0]] = Colors.current_theme[f[1]]
+
+        # Car classes
+        cfg = Config('apps/python/actv_competizione/','car_classes.ini')
+        cfg_sections = cfg.sections()
+        for s in cfg_sections:
+            value = cfg.get(s,'bg','string')
+            if value != -1:
+                Colors.car_classes[s+'_bg'] = Colors.txt_to_rgba(value) # Translate value to rgba
+            value = cfg.get(s,'txt','string')
+            if value != -1:
+                Colors.car_classes[s+'_txt'] = Colors.txt_to_rgba(value) # Translate value to rgba
+            value = cfg.get(s,'title','string')
+            if value != -1:
+                Colors.car_classes[s+'_title'] = value
+            value = cfg.get(s,'cars','string')
+            if value != -1:
+                value_type = value.find(",")
+                if value_type > 0:
+                    array_values = value.split(',')
+                else:
+                    array_values = [value]
+                Colors.car_classes[s+'_cars'] = array_values
+
+            #ac.console(str(s))
 
     @staticmethod
     def export_theme_values():
@@ -826,39 +929,6 @@ class Colors:
             return Colors.get_color_for_key('timer_border_yellow_flag_bg')
         return Colors.black()
 
-    # --------------- Speedtrap ---------------
-    @staticmethod
-    def speedtrap_title_bg():
-        if Colors.general_theme > 0:
-            return Colors.get_color_for_key('speedtrap_title_bg')
-        return Colors.theme(a=0.64)
-
-    @staticmethod
-    def speedtrap_title_txt():
-        if Colors.general_theme > 0:
-            return Colors.get_color_for_key('speedtrap_title_txt')
-        return Colors.white()
-
-    @staticmethod
-    def speedtrap_speed_bg():
-        if Colors.general_theme > 0:
-            return Colors.get_color_for_key('speedtrap_speed_bg')
-        return rgb([55, 55, 55], a=0.64)
-
-    @staticmethod
-    def speedtrap_speed_txt():
-        if Colors.general_theme > 0:
-            return Colors.get_color_for_key('speedtrap_speed_txt')
-        return Colors.white()
-
-    @staticmethod
-    def speedtrap_border_bg():
-        if Colors.general_theme > 0:
-            return Colors.get_color_for_key('speedtrap_border_bg')
-        return Colors.theme(a=0.64)
-
-    # ----------------------------------------
-
     @staticmethod
     def border_opacity():
         return 0.7
@@ -1025,40 +1095,8 @@ class Colors:
         return rgb([1, 170, 89], bg=1, t='apps/python/actv_competizione/img/tower_status.png')
 
     @staticmethod
-    def yellow_time(bg=False):
-        return Colors.yellow(bg)
-
-    @staticmethod
     def yellow(bg=False):
         return rgb([240, 171, 1], bg=bg)
-
-    @staticmethod
-    def grey(bg=False):
-        return rgb([112, 112, 112], bg=bg)
-
-    @staticmethod
-    def orange(bg=False):
-        return rgb([250, 88, 0], bg=bg)
-
-    @staticmethod
-    def lmp1(a):
-        return rgb([205, 0, 0], a=a)
-
-    @staticmethod
-    def gte(a):
-        return rgb([0, 150, 54], a=a)
-
-    @staticmethod
-    def colorFromCar(car):
-        if os.path.exists('apps/python/actv_competizione/logos/' + car + '.png'):
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/' + car + '.png')
-        if car.find("mclaren") >= 0:
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/mclaren.png')
-        if car.find("audi") >= 0:
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/audi.png')
-        if car.find("porsche") >= 0:
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/porsche.png')
-        return rgb([0, 0, 0], a=0, t='content/cars/' + car + '/logo.png')
 
     @staticmethod
     def logo_for_car(car,skin):
@@ -1084,69 +1122,18 @@ class Colors:
             Colors.loadCarClasses()
         if Colors.multiCarsClasses:
             cl = Colors.getClassForCar(car)
-            if cl != "":
-                if cl == 'lmp1':
-                    #return rgb([218, 56, 50], a=1) # Red
-                    return rgb([220, 0, 0], a=1) # Red
-                if cl == 'lmp2':
-                    return rgb([0, 80, 150], a=1) # Blue
-                if cl == 'lmp3':
-                    return rgb([102, 51, 102], a=1) # Purple
-                    #return rgb([181, 2, 189], a=1) # Purple
-                if cl == 'proto c':
-                    return rgb([238, 234, 51], a=1) # Yellow
-                if cl == 'gte-gt3':
-                    #return rgb([0, 154, 61], a=1) # Green
-                    return rgb([0, 150, 54], a=1) # Green
-                    #return rgb([0, 197, 48], a=1) # Green 0, 150, 54
-                if cl == 'gt4':
-                    #return rgb([255, 102, 0], a=1) # Orange
-                    return rgb([252, 139, 1], a=1) # Orange
-                if cl == 'suv':
-                    return rgb([242, 65, 225], a=1) # Bad Pink
-                if cl == 'hypercars':
-                    return rgb([227, 90, 90], a=1) # Light red
-                if cl == 'hypercars r':
-                    return rgb([127, 215, 127], a=1) # Light green
-                if cl == 'supercars':
-                    return rgb([21, 141, 255], a=1) # Dark blue
-                if cl == 'sportscars':
-                    return rgb([101, 101, 101], a=1) # Grey
-                if cl == 'vintage supercars':
-                    return rgb([65, 200, 220], a=1) # Light blue
-                if cl == 'vintage gt':
-                    return rgb([212, 167, 206], a=1) # Pink
-                if cl == 'vintage touring':
-                    return rgb([236, 205, 96], a=1) # Dark yellow
-                if cl == 'small sports':
-                    return rgb([0, 0, 0], a=1) # Black
-                if cl == '90s touring':
-                    return rgb([96, 169, 184], a=1) # Blue-Green
-        return Colors.white(bg=True)
+            if cl != "" and cl+'_bg' in Colors.car_classes:
+                return Colors.car_classes[cl+'_bg']
+        #return Colors.white(bg=True)
+        return Colors.car_classes['default_bg']
 
     @staticmethod
     def car_class_name(car):
         if not Colors.carsClassesLoaded:
             Colors.loadCarClasses()
         cl = Colors.getClassForCar(car)
-        if cl == 'hypercars':
-            return "HYP"
-        if cl == 'sportscars':
-            return "SPORTS"
-        if cl == 'supercars':
-            return "SUPER"
-        if cl == 'hypercars r':
-            return "HYP R"
-        if cl == '90s touring':
-            return "90S T"
-        if cl == 'vintage supercars':
-            return "V SUPER"
-        if cl == 'vintage gt':
-            return "V GT"
-        if cl == 'vintage touring':
-            return "V TOURING"
-        if cl == 'small sports':
-            return "SMALL"
+        if cl != "" and cl + '_title' in Colors.car_classes:
+            return Colors.car_classes[cl + '_title']
         if len(cl) > 8:
             return cl[:9].upper()
         return cl.upper()
@@ -1157,46 +1144,10 @@ class Colors:
             Colors.loadCarClasses()
         if Colors.multiCarsClasses:
             cl = Colors.getClassForCar(car)
-            if cl != "":
-                '''
-                if cl == 'lmp1':
-                    return rgb([220, 0, 0], a=a) # Red
-                if cl == 'proto c':
-                    return rgb([238, 234, 51], a=1) # Yellow
-                if cl == 'gte-gt3':
-                    return rgb([0, 197, 48], a=a) # Green
-                if cl == 'gt4':
-                    return rgb([252, 139, 1], a=1) # Orange
-                if cl == 'suv':
-                    return rgb([242, 65, 225], a=1) # Bad Pink
-                if cl == 'hypercars':
-                    return rgb([227, 90, 90], a=1) # Light red
-                if cl == 'hypercars r':
-                    return rgb([127, 215, 127], a=1) # Light green
-                if cl == 'supercars':
-                    return rgb([21, 141, 255], a=1) # Dark blue
-                if cl == 'vintage supercars':
-                    return rgb([65, 200, 220], a=1) # Light blue
-                if cl == 'vintage gt':
-                    return rgb([212, 167, 206], a=1) # Pink
-                if cl == 'vintage touring':
-                    return rgb([236, 205, 96], a=1) # Dark yellow
-                if cl == '90s touring':
-                    return rgb([96, 169, 184], a=1) # Blue-Green
-                '''
-                if cl == 'lmp1':
-                    return rgb([255, 255, 255]) # Red
-                if cl == 'lmp2':
-                    return rgb([255, 255, 255]) # Blue
-                if cl == 'lmp3':
-                    return rgb([255, 255, 255]) # Purple
-                #if cl == 'gt4':
-                #    return rgb([255, 255, 255]) # Orange
-                if cl == 'sportscars':
-                    return rgb([255, 255, 255]) # Grey
-                if cl == 'small sports':
-                    return rgb([255, 255, 255]) # Black
-        return Colors.black_txt()
+            if cl != "" and cl+'_txt' in Colors.car_classes:
+                return Colors.car_classes[cl+'_txt']
+        #return Colors.black_txt()
+        return Colors.car_classes['default_txt']
 
 
 class Label:
@@ -1696,6 +1647,9 @@ class Config:
             self.parser.write(cfgFile)
 
     # PUBLIC METHODS
+
+    def sections(self):
+        return self.parser.sections()
 
     def has(self, section=None, option=None):
         if section is not None:
