@@ -40,6 +40,10 @@ class ACDelta:
         self.is_multiplayer = ac.getServerIP() != ''
         self.numCars=ac.getCarsCount()
         self.font_size=16
+        self.drivers_lap_count = []
+        for i in range(self.numCars):
+            self.drivers_lap_count.append(Value(0))
+        self.last_lap_start = [-1] * self.numCars
 
         self.lbl_flag = Label(self.window.app)\
             .set(w=77, h=50,
@@ -654,11 +658,15 @@ class ACDelta:
         self.lbl_laps_text_shadow.animate()
 
     def on_update(self, sim_info, standings):
+        session_time_left = sim_info.graphics.sessionTimeLeft
         if self.is_multiplayer:
             self.numCars=0
             for i in range(ac.getCarsCount()):
                 if ac.isConnected(i) > 0:
                     self.numCars+=1
+                    self.drivers_lap_count[i].setValue(ac.getCarState(i, acsys.CS.LapCount))
+                    if self.drivers_lap_count[i].hasChanged() and not math.isinf(session_time_left):
+                        self.last_lap_start[i] = session_time_left
         self.standings = standings
         if not self.deltaLoaded and Configuration.save_delta:
             thread_load = threading.Thread(target=self.load_delta)
@@ -697,7 +705,6 @@ class ACDelta:
 
         sim_info_status = sim_info.graphics.status
         if sim_info_status == 2:  # LIVE
-            session_time_left = sim_info.graphics.sessionTimeLeft
             if math.isinf(session_time_left) or (self.session.value == 2 and sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
                 self.reset_data()
                 if not Configuration.save_delta:
@@ -708,8 +715,11 @@ class ACDelta:
             elif self.currentVehicle.value == 0 and bool(ac.isCarInPitline(0)) or bool(ac.isCarInPit(0)):
                 self.reset_data()
             self.spline.setValue(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition), 3))
-
-            self.lbl_current_time_text.setText(self.time_splitting_full(ac.getCarState(self.currentVehicle.value,acsys.CS.LapTime)))
+            #Current lap time
+            if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1:
+                self.lbl_current_time_text.setText(self.time_splitting_full(self.last_lap_start[self.currentVehicle.value] - session_time_left))
+            else:
+                self.lbl_current_time_text.setText(self.time_splitting_full(ac.getCarState(self.currentVehicle.value,acsys.CS.LapTime)))
             if self.currentVehicle.value == 0 and not self.lastLapIsValid:
                 self.lbl_current_time_text.set(color=Colors.red(), animated=True)
             else:
