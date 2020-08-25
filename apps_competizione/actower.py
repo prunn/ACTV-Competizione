@@ -267,8 +267,10 @@ class ACTower:
                 self.lbl_title_mode_txt.setText("Gaps")
             elif self.qual_mode.value == 1:
                 self.lbl_title_mode_txt.setText("Times")
-            else:
+            elif self.qual_mode.value == 2:
                 self.lbl_title_mode_txt.setText("Compact")
+            else:
+                self.lbl_title_mode_txt.setText("Realtime")
             self.title_mode_visible_end = self.sessionTimeLeft - 6000
         if self.title_mode_visible_end != 0 and self.title_mode_visible_end < self.sessionTimeLeft:
             self.lbl_title_mode.show()
@@ -282,6 +284,7 @@ class ACTower:
             needs_tlc = False
 
         for driver in self.drivers:
+            driver.isCurrentVehicule.setValue(driver.identifier == self.currentVehicule.value)
             c = 0
             p = [i for i, v in enumerate(self.standings) if v[0] == driver.identifier]
             check_pos = 0
@@ -657,7 +660,7 @@ class ACTower:
                             if driver.completedLapsChanged and driver.completedLaps.value > 1:
                                 driver.last_lap_visible_end = self.sessionTimeLeft - 5000
                             if driver.finished.value:
-                                driver.show(needs_tlc=False)#, compact=True
+                                driver.show(needs_tlc=needs_tlc)#, compact=True
                                 driver.update_pit(self.sessionTimeLeft)
                             elif driver.last_lap_visible_end != 0 and driver.last_lap_visible_end < self.sessionTimeLeft and driver.isAlive.value and not driver.isInPit.value:
                                 lastlap = ac.getCarState(driver.identifier, acsys.CS.LastLap)
