@@ -38,12 +38,18 @@ class ACDelta:
         self.standings = None
         self.rowHeight = Value(-1)
         self.is_multiplayer = ac.getServerIP() != ''
-        self.numCars=ac.getCarsCount()
+        self.numCars=self.cars_count=ac.getCarsCount()
         self.font_size=16
+        self.current_lap_others = []
+        self.spline_others = []
         self.drivers_lap_count = []
-        for i in range(self.numCars):
+        self.reference_lap_time_others = []
+        for i in range(self.cars_count):
             self.drivers_lap_count.append(Value(0))
-        self.last_lap_start = [-1] * self.numCars
+            self.spline_others.append(Value(0))
+            self.current_lap_others.append([])
+            self.reference_lap_time_others.append([])
+        self.last_lap_start = [-1] * self.cars_count
 
         self.lbl_flag = Label(self.window.app)\
             .set(w=77, h=50,
@@ -461,6 +467,19 @@ class ACDelta:
                 Log.w("Error tower")  
      
     def get_performance_gap(self, sector, time):
+        if self.currentVehicle.value > 0:
+            if len(self.reference_lap_time_others[self.currentVehicle.value]) < 10:
+                return round(ac.getCarState(self.currentVehicle.value, acsys.CS.PerformanceMeter) * 1000)
+            if sector > 0.5:
+                reference_lap = reversed(self.reference_lap_time_others[self.currentVehicle.value])
+            else:
+                reference_lap = self.reference_lap_time_others[self.currentVehicle.value]
+            for l in reference_lap:
+                if l.sector == sector:
+                    return time - l.time
+            return False  # do not update
+        
+        # Car user
         if len(self.referenceLap) < 10:
             return round(ac.getCarState(0, acsys.CS.PerformanceMeter)*1000)
         if sector > 0.5:
@@ -471,6 +490,7 @@ class ACDelta:
             if l.sector == sector:
                 return time - l.time
         return False  # do not update
+
 
     def set_drivers_info(self, info):
         self.drivers_info = info
@@ -552,6 +572,7 @@ class ACDelta:
         session_changed = self.session.hasChanged()
         if session_changed:
             self.reset_data()
+            self.reset_others()
             if not Configuration.save_delta:
                 self.referenceLapTime.setValue(0)
                 self.referenceLap = []
@@ -571,6 +592,18 @@ class ACDelta:
         self.lastLapIsValid = True
         self.last_yellow_flag_end = False
         self.lapCount = 0
+
+    def reset_others(self):
+        #self.current_lap_others = []
+        #self.spline_others = []
+        #self.drivers_lap_count = []
+        #self.reference_lap_time_others = []
+        for i in range(self.cars_count):
+            self.drivers_lap_count[i].setValue(0)
+            self.spline_others[i].setValue(0)
+            self.current_lap_others[i]=[]
+            self.reference_lap_time_others[i]=[]
+        self.last_lap_start = [-1] * self.cars_count
 
     def format_name_tlc(self, name):
         space = name.find(" ")
@@ -659,15 +692,35 @@ class ACDelta:
 
     def on_update(self, sim_info, standings):
         session_time_left = sim_info.graphics.sessionTimeLeft
+        sim_info_status = sim_info.graphics.status
+        self.standings = standings
         if self.is_multiplayer:
             self.numCars=0
-            for i in range(ac.getCarsCount()):
-                if ac.isConnected(i) > 0:
+        for i in range(self.cars_count):
+            if ac.isConnected(i) > 0:
+                if self.is_multiplayer:
                     self.numCars+=1
-                    self.drivers_lap_count[i].setValue(ac.getCarState(i, acsys.CS.LapCount))
-                    if self.drivers_lap_count[i].hasChanged() and not math.isinf(session_time_left):
-                        self.last_lap_start[i] = session_time_left
-        self.standings = standings
+                self.drivers_lap_count[i].setValue(ac.getCarState(i, acsys.CS.LapCount))
+                if self.last_lap_start[i] == -1 and not math.isinf(session_time_left) and session_time_left != 0:
+                    self.last_lap_start[i] = session_time_left
+                if self.drivers_lap_count[i].hasChanged() and not math.isinf(session_time_left):
+                    self.last_lap_start[i] = session_time_left
+                    # if PB save delta
+                    if ac.getCarState(i, acsys.CS.LastLap) <= ac.getCarState(i, acsys.CS.BestLap):
+                        self.reference_lap_time_others[i]=list(self.current_lap_others[i])
+                        if len(self.reference_lap_time_others[i]) > 2000:  # 2laps in
+                            how_much = math.floor(len(self.reference_lap_time_others[i]) / 1000)
+                            del self.reference_lap_time_others[i][0:math.floor(len(self.reference_lap_time_others[i]) / how_much)]
+                    # reset
+                    self.current_lap_others[i]=[]
+                # Deltas
+                self.spline_others[i].setValue(round(ac.getCarState(i, acsys.CS.NormalizedSplinePosition),3))
+                if ac.isCarInPit(i) or ac.isCarInPitline(i):
+                    self.current_lap_others[i] = []
+                if self.spline_others[i].hasChanged() and not math.isinf(session_time_left):
+                    self.current_lap_others[i].append(raceGaps(self.spline_others[i].value, self.last_lap_start[i] - session_time_left))
+
+
         if not self.deltaLoaded and Configuration.save_delta:
             thread_load = threading.Thread(target=self.load_delta)
             thread_load.daemon = True      
@@ -693,6 +746,7 @@ class ACDelta:
             self.lbl_number_bg.set(background=Colors.color_for_car_class(car_name),init=True)
             self.lbl_number_text.set(color=Colors.txt_color_for_car_class(car_name),init=True)
             self.current_car_class=Colors.getClassForCar(car_name)
+            self.performance_display=0
         completed_laps = ac.getCarState(self.currentVehicle.value, acsys.CS.LapCount)
         self.lbl_laps_completed_text.setText(str(completed_laps))
         self.lbl_laps_completed_text_shadow.setText(str(completed_laps))
@@ -703,10 +757,10 @@ class ACDelta:
             self.lbl_laps_text.setText("LAP")
             self.lbl_laps_text_shadow.setText("LAP")
 
-        sim_info_status = sim_info.graphics.status
         if sim_info_status == 2:  # LIVE
             if math.isinf(session_time_left) or (self.session.value == 2 and sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
                 self.reset_data()
+                self.reset_others()
                 if not Configuration.save_delta:
                     self.referenceLapTime.setValue(0)
                     self.referenceLap = []
@@ -716,7 +770,7 @@ class ACDelta:
                 self.reset_data()
             self.spline.setValue(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition), 3))
             #Current lap time
-            if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1:
+            if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1 and not math.isinf(session_time_left):
                 self.lbl_current_time_text.setText(self.time_splitting_full(self.last_lap_start[self.currentVehicle.value] - session_time_left))
             else:
                 self.lbl_current_time_text.setText(self.time_splitting_full(ac.getCarState(self.currentVehicle.value,acsys.CS.LapTime)))
@@ -768,8 +822,12 @@ class ACDelta:
                     self.best_lap_time = self.referenceLapTime.value
                     self.performance_display = self.performance.value
                 else:
+                    gap = self.get_performance_gap(self.spline.value, self.last_lap_start[self.currentVehicle.value] - session_time_left)
+                    if gap != False:
+                        self.performance_display = gap
+                    #else:
+                    #    self.performance_display = ac.getCarState(self.currentVehicle.value, acsys.CS.PerformanceMeter)
                     self.best_lap_time = ac.getCarState(self.currentVehicle.value, acsys.CS.BestLap)
-                    self.performance_display = ac.getCarState(self.currentVehicle.value, acsys.CS.PerformanceMeter)
                     last_lap = ac.getCarState(self.currentVehicle.value, acsys.CS.LastLap)
                     if last_lap > 0:
                         self.lbl_last_time_text.setText(self.time_splitting(last_lap, "yes"))
@@ -842,7 +900,7 @@ class ACDelta:
                     self.lbl_best_time_text.setText(self.time_splitting(self.best_lap_time, "yes"))
                 else:
                     self.lbl_best_time_text.setText("--:--.---")
-                if self.best_lap_time > 0 and self.currentVehicle.value == 0:
+                if self.best_lap_time > 0:# and self.currentVehicle.value == 0
                     time_prefix = "+"
                     color = Colors.delta_neutral()
                     if self.performance_display >= 10:
