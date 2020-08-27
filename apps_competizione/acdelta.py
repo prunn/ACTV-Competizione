@@ -11,6 +11,7 @@ from .configuration import Configuration
         
 class ACDelta:
     resetPressed = False
+    importPressed = False
 
     # INITIALIZATION
     def __init__(self): 
@@ -256,11 +257,22 @@ class ACDelta:
             .setAlign("center")\
             .setBgColor(rgb([255, 12, 12], bg=True))\
             .setVisible(0)
+
+        self.btn_import_from = Button(self.window.app, self.on_import_from_press)\
+            .setPos(90, 68).setSize(120, 20)\
+            .setText("Import Delta")\
+            .setAlign("center")\
+            .setBgColor(rgb([255, 12, 12], bg=True))\
+            .setVisible(0)
         self.load_cfg()
         
     @staticmethod
     def on_reset_press(a, b):
         ACDelta.resetPressed = True
+
+    @staticmethod
+    def on_import_from_press(a, b):
+        ACDelta.importPressed = True
                 
     # PUBLIC METHODS
     def load_cfg(self):
@@ -280,13 +292,6 @@ class ACDelta:
         self.lbl_position_total_text_multi_shadow.update_font()
         self.lbl_laps_completed_text.update_font()
         self.lbl_laps_completed_text_shadow.update_font()
-        #self.lbl_current_time_text.setFont("Inconsolata CondensedMedium", 0, 0)
-        #self.lbl_best_time_text.setFont("M+ 1m", 0, 0)
-        #self.lbl_last_time_text.setFont("Inconsolata", 0, 0)
-        #self.lbl_prediction_time_text.setFont("Inconsolata CondensedMedium", 0, 0)
-        #theme changed
-        #self.lbl_number_bg.set(background=Colors.white(bg=True), animated=True,init=True).show()
-        #self.lbl_number_text.set(color=Colors.black_txt(), animated=True,init=True)
         self.lbl_name_bg.set(background=Colors.info_timing_bg(), animated=True,init=True).show()
         self.lbl_current_time_bg.set(background=Colors.delta_time(), animated=True,init=True).show()
         self.lbl_best_time_title_bg.set(background=Colors.delta_laps(), animated=True,init=True).show()
@@ -298,9 +303,13 @@ class ACDelta:
         self.lbl_number_bg.show()
         if self.rowHeight.hasChanged():
             self.font_size = font_size = Font.get_font_size(self.rowHeight.value + Font.get_font_offset())
-            self.btn_reset.setSize(160, 30)\
-                .setPos(10, 266)\
-                .setFontSize(20)
+            self.window.setSize(self.rowHeight.value*392/38,self.rowHeight.value*208/38)
+            self.btn_reset.setSize(self.rowHeight.value*160/38, self.rowHeight.value*32/38)\
+                .setPos(10, self.rowHeight.value*170/38)\
+                .setFontSize(font_size)
+            self.btn_import_from.setSize(self.rowHeight.value*160/38, self.rowHeight.value*32/38)\
+                .setPos(10, self.rowHeight.value*170/38)\
+                .setFontSize(font_size)
             self.lbl_flag.set(w=self.rowHeight.value*392/38,h=self.rowHeight.value*16/38, y=-self.rowHeight.value*22/38)
             #col 1
             self.lbl_number_bg.set(w=self.rowHeight.value * 77/38,
@@ -579,12 +588,19 @@ class ACDelta:
                 self.lastLapTime.setValue(0)
                 self.spline.setValue(0)
         if self.cursor.hasChanged() or session_changed:
-            if self.cursor.value and self.currentVehicle.value == 0:
+            if self.cursor.value:
                 self.window.setBgOpacity(0.4).border(0)
-                self.btn_reset.setVisible(1)
+                if self.currentVehicle.value == 0:
+                    self.btn_reset.setVisible(1)
+                    self.btn_import_from.setVisible(0)
+                else:
+                    self.btn_reset.setVisible(0)
+                    if len(self.reference_lap_time_others[self.currentVehicle.value]) > 800:
+                        self.btn_import_from.setVisible(1)
             else:
                 self.window.setBgOpacity(0).border(0)
                 self.btn_reset.setVisible(0)
+                self.btn_import_from.setVisible(0)
             self.window.showTitle(False)
                 
     def reset_data(self):
@@ -594,16 +610,12 @@ class ACDelta:
         self.lapCount = 0
 
     def reset_others(self):
-        #self.current_lap_others = []
-        #self.spline_others = []
-        #self.drivers_lap_count = []
-        #self.reference_lap_time_others = []
         for i in range(self.cars_count):
             self.drivers_lap_count[i].setValue(0)
             self.spline_others[i].setValue(0)
             self.current_lap_others[i]=[]
             self.reference_lap_time_others[i]=[]
-        self.last_lap_start = [-1] * self.cars_count
+            self.last_lap_start[i] = -1
 
     def format_name_tlc(self, name):
         space = name.find(" ")
@@ -731,6 +743,14 @@ class ACDelta:
             self.lastLapTime.setValue(0)
             self.spline.setValue(0)
             self.__class__.resetPressed = False
+        if self.__class__.importPressed:
+            self.referenceLap = self.reference_lap_time_others[self.currentVehicle.value]
+            self.referenceLapTime.setValue(ac.getCarState(self.currentVehicle.value, acsys.CS.BestLap))
+            '''
+            self.lastLapTime.setValue(0)
+            self.spline.setValue(0)
+            '''
+            self.__class__.importPressed = False
         self.session.setValue(sim_info.graphics.session)
         self.manage_window()
         self.animate()
@@ -790,12 +810,12 @@ class ACDelta:
                     gap = self.get_performance_gap(self.spline.value, self.laptime.value)
                     if gap != False:
                         self.performance.setValue(gap)
+                    if self.lastLapTime.value > 0:
+                        self.lbl_last_time_text.setText(self.time_splitting(self.lastLapTime.value, "yes"))
+                    else:
+                        self.lbl_last_time_text.setText("--:--.---")
                     # new lap
                     if self.lastLapTime.hasChanged():
-                        if self.lastLapTime.value > 0:
-                            self.lbl_last_time_text.setText(self.time_splitting(self.lastLapTime.value, "yes"))
-                        else:
-                            self.lbl_last_time_text.setText("--:--.---")
                         if (self.referenceLapTime.value == 0 or self.lastLapTime.value < self.referenceLapTime.value) and self.lastLapIsValid and self.lastLapTime.value > 0 and self.lapCount < ac.getCarState(0, acsys.CS.LapCount):
                             #if self.lastLapTime.value > 0:
                             #    self.lbl_last_time_text.setText(self.time_splitting(self.lastLapTime.value, "yes"))

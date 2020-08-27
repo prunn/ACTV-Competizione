@@ -48,6 +48,11 @@ class Window:
         ac.addRenderCallback(self.app, func)
         return self
 
+    def setSize(self, width, height):
+        self.width = width
+        self.height = height
+        ac.setSize(self.app, math.floor(self.width), math.floor(self.height))
+
     def setBgOpacity(self, alpha):
         ac.setBackgroundOpacity(self.app, alpha)
         return self
