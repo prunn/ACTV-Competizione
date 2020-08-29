@@ -28,7 +28,7 @@ class ACDelta:
         self.lastLapTime = Value(0)
         self.lapCount = 0
         self.performance_display = 0
-        self.current_car_class=""
+        self.current_car_class=Value("")
         self.lastLapIsValid = True
         self.best_lap_time=0
         self.currentLap = []
@@ -41,6 +41,11 @@ class ACDelta:
         self.is_multiplayer = ac.getServerIP() != ''
         self.numCars=self.cars_count=ac.getCarsCount()
         self.font_size=16
+        self.is_touristenfahrten = False
+        track = ac.getTrackName(0)
+        config = ac.getTrackConfiguration(0)
+        if track.find("ks_nordschleife") >= 0 and config.find("touristenfahrten") >= 0:
+            self.is_touristenfahrten = True
         self.current_lap_others = []
         self.spline_others = []
         self.drivers_lap_count = []
@@ -652,7 +657,7 @@ class ACDelta:
             #filter
             standings = []
             for s in self.standings:
-                if s[2]==self.current_car_class and ac.isConnected(s[0]) > 0:
+                if s[2]==self.current_car_class.value and ac.isConnected(s[0]) > 0:
                     standings.append((s[0], s[1]))
             p = [i for i, v in enumerate(standings) if v[0] == identifier]
             if len(p) > 0:
@@ -669,6 +674,13 @@ class ACDelta:
             if len(p) > 0:
                 return p[0] + 1
         return ac.getCarLeaderboardPosition(identifier)# + 1
+
+    def get_class_id(self, identifier):
+        if len(self.standings):
+            for s in self.standings:
+                if s[0] == identifier:
+                    return s[2]
+        return Colors.getClassForCar(ac.getCarName(identifier))
 
     def animate(self):
         self.lbl_delta_bg.animate()
@@ -727,6 +739,9 @@ class ACDelta:
                     self.current_lap_others[i]=[]
                 # Deltas
                 self.spline_others[i].setValue(round(ac.getCarState(i, acsys.CS.NormalizedSplinePosition),3))
+                if self.is_touristenfahrten and self.spline_others[i].value == 0.953:
+                    self.last_lap_start[i] = session_time_left
+                    self.current_lap_others[i] = []
                 if ac.isCarInPit(i) or ac.isCarInPitline(i):
                     self.current_lap_others[i] = []
                 if self.spline_others[i].hasChanged() and not math.isinf(session_time_left):
@@ -755,17 +770,17 @@ class ACDelta:
         self.manage_window()
         self.animate()
         self.currentVehicle.setValue(ac.getFocusedCar())
-        if self.currentVehicle.hasChanged():
+        self.current_car_class.setValue(self.get_class_id(self.currentVehicle.value))
+        if self.currentVehicle.hasChanged() or self.current_car_class.hasChanged():
             # number, curtime...
             if Configuration.names == 1:
                 self.lbl_name_text.setText(self.format_name_tlc2(ac.getDriverName(self.currentVehicle.value)))
             else:
                 self.lbl_name_text.setText(self.format_name_tlc(ac.getDriverName(self.currentVehicle.value)))
             self.lbl_number_text.setText(self.get_driver_number())
-            car_name=ac.getCarName(self.currentVehicle.value)
-            self.lbl_number_bg.set(background=Colors.color_for_car_class(car_name),init=True)
-            self.lbl_number_text.set(color=Colors.txt_color_for_car_class(car_name),init=True)
-            self.current_car_class=Colors.getClassForCar(car_name)
+            #car_name=ac.getCarName(self.currentVehicle.value)
+            self.lbl_number_bg.set(background=Colors.color_for_car_class(self.current_car_class.value),init=True)
+            self.lbl_number_text.set(color=Colors.txt_color_for_car_class(self.current_car_class.value),init=True)
             self.performance_display=0
         completed_laps = ac.getCarState(self.currentVehicle.value, acsys.CS.LapCount)
         self.lbl_laps_completed_text.setText(str(completed_laps))
@@ -828,7 +843,7 @@ class ACDelta:
                                 ac.log("too many laps in reference----")
                                 how_much = math.floor(len(self.referenceLap)/1000)
                                 del self.referenceLap[0:math.floor(len(self.referenceLap)/how_much)]
-                            if self.currentVehicle.value == 0 and Configuration.save_delta:
+                            if self.currentVehicle.value == 0 and Configuration.save_delta and len(self.referenceLap) > 20:
                                 thread_save = threading.Thread(target=self.save_delta)
                                 thread_save.daemon = True
                                 thread_save.start()

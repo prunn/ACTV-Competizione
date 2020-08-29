@@ -13,6 +13,8 @@ class Driver:
         self.gas=Value()
         self.wheelSpeed=Value()
         self.last_ping=-1
+        self.steam_id=None
+        self.steam_id_changed=Value(None)
         self.skin_loaded=False
         self.is_touristenfahrten=is_touristenfahrten
         self.rowHeight = Configuration.ui_row_height
@@ -561,13 +563,14 @@ class Driver:
         self.set_border()
 
     def set_border(self):
+        #self.car_class_name = Colors.getClassForCar(self.carName,self.steam_id)
         self.lbl_logo_bg.set(background=Colors.logo_bg(),
                             init=True)
         self.lbl_logo.set(background=Colors.logo_for_car(self.carName,self.car_skin_path),
                             init=True)
-        self.lbl_number.set(background=Colors.color_for_car_class(self.carName),
+        self.lbl_number.set(background=Colors.color_for_car_class(self.car_class_name),
                             init=True)
-        self.lbl_number_txt.set(color=Colors.txt_color_for_car_class(self.carName),
+        self.lbl_number_txt.set(color=Colors.txt_color_for_car_class(self.car_class_name),
                             init=True)
 
     def show_full_name(self):
@@ -669,6 +672,10 @@ class Driver:
             del self.race_gaps[0:len(self.race_gaps) - 132]
 
     def update_mandatory_pitstop(self,pit_window_active):
+        self.steam_id_changed.setValue(self.steam_id)
+        if self.steam_id_changed.hasChanged():
+            self.car_class_name = Colors.getClassForCar(self.carName,self.steam_id)
+            self.set_border()
         self.isInPitLane.setValue(bool(ac.isCarInPitline(self.identifier)))
         self.isInPitBox.setValue(bool(ac.isCarInPit(self.identifier)))
         pit_value = self.isInPitLane.value or self.isInPitBox.value or (self.is_touristenfahrten and 0.923 < self.raceProgress < 0.939) # or Nord Tourist 0.923 < position > 0.939

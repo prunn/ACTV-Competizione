@@ -327,11 +327,13 @@ class Colors:
                     if index.find("_cars") >= 0:
                         if car_name in c:
                             cur_class = index.replace("_cars","")
-                            Colors.dataCarsClasses.append({"c": car_name, "t": cur_class})
-                            if last_class != -1 and last_class != cur_class.lower():
-                                Colors.multiCarsClasses = True
-                            last_class = cur_class.lower()
-                            break
+                            driver_index = index.replace("_cars", "_drivers")
+                            if not driver_index in Colors.car_classes.keys():
+                                Colors.dataCarsClasses.append({"c": car_name, "t": cur_class})
+                                if last_class != -1 and last_class != cur_class.lower():
+                                    Colors.multiCarsClasses = True
+                                last_class = cur_class.lower()
+                                break
 
                 file_path = "content/cars/" + car_name + "/ui/ui_car.json"
                 try:
@@ -350,7 +352,19 @@ class Colors:
         Colors.carsClassesLoaded = True
 
     @staticmethod
-    def getClassForCar(car):
+    def getClassForCar(car,steam_id=None):
+        if not Colors.carsClassesLoaded:
+            Colors.loadCarClasses()
+        #Driver class
+        if steam_id is not None:
+            for index, c in Colors.car_classes.items():
+                if index.find("_drivers") >= 0 and steam_id in c:
+                    # drivers + cars
+                    car_index = index.replace("_drivers", "_cars")
+                    if (not car_index in Colors.car_classes.keys()) or (car_index in Colors.car_classes.keys() and car in Colors.car_classes[car_index]):
+                        Colors.multiCarsClasses=True #?? how to know for sure?
+                        return index.replace("_drivers", "")
+
         for c in Colors.dataCarsClasses:
             if c["c"] == car:
                 return c["t"]
@@ -407,14 +421,18 @@ class Colors:
                 Colors.car_classes[s+'_title'] = value
             value = cfg.get(s,'cars','string')
             if value != -1:
-                value_type = value.find(",")
-                if value_type > 0:
+                if value.find(",") > 0:
                     array_values = value.split(',')
                 else:
                     array_values = [value]
                 Colors.car_classes[s+'_cars'] = array_values
-
-            #ac.console(str(s))
+            value = cfg.get(s,'drivers','string')
+            if value != -1:
+                if value.find(",") > 0:
+                    array_values = value.split(',')
+                else:
+                    array_values = [value]
+                Colors.car_classes[s+'_drivers'] = array_values
 
     @staticmethod
     def export_theme_values():
@@ -939,35 +957,7 @@ class Colors:
         return 0.7
 
     @staticmethod
-    def bmw(a):
-        return rgb([187, 187, 187], a=a)
-
-    @staticmethod
-    def ford(a):
-        return rgb([187, 187, 187], a=a)
-
-    @staticmethod
-    def mercedes(a):
-        return rgb([187, 187, 187], a=a)
-
-    @staticmethod
     def corvette(a):
-        return rgb([187, 187, 187], a=a)
-
-    @staticmethod
-    def lamborghini(a):
-        return rgb([187, 187, 187], a=a)
-
-    @staticmethod
-    def ktm(a):
-        return rgb([187, 187, 187], a=a)
-
-    @staticmethod
-    def nissan(a):
-        return rgb([187, 187, 187], a=a)
-
-    @staticmethod
-    def alfa(a):
         return rgb([187, 187, 187], a=a)
 
     @staticmethod
@@ -1122,36 +1112,25 @@ class Colors:
         return rgb([0, 0, 0], a=0, t='content/cars/' + car + '/logo.png')
 
     @staticmethod
-    def color_for_car_class(car):
-        if not Colors.carsClassesLoaded:
-            Colors.loadCarClasses()
+    def color_for_car_class(car_class):
         if Colors.multiCarsClasses:
-            cl = Colors.getClassForCar(car)
-            if cl != "" and cl+'_bg' in Colors.car_classes:
-                return Colors.car_classes[cl+'_bg']
-        #return Colors.white(bg=True)
+            if car_class != "" and car_class+'_bg' in Colors.car_classes:
+                return Colors.car_classes[car_class+'_bg']
         return Colors.car_classes['default_bg']
 
     @staticmethod
-    def car_class_name(car):
-        if not Colors.carsClassesLoaded:
-            Colors.loadCarClasses()
-        cl = Colors.getClassForCar(car)
-        if cl != "" and cl + '_title' in Colors.car_classes:
-            return Colors.car_classes[cl + '_title']
-        if len(cl) > 8:
-            return cl[:9].upper()
-        return cl.upper()
+    def car_class_name(car_class):
+        if car_class != "" and car_class + '_title' in Colors.car_classes:
+            return Colors.car_classes[car_class + '_title']
+        if len(car_class) > 8:
+            return car_class[:9].upper()
+        return car_class.upper()
 
     @staticmethod
-    def txt_color_for_car_class(car):
-        if not Colors.carsClassesLoaded:
-            Colors.loadCarClasses()
+    def txt_color_for_car_class(car_class):
         if Colors.multiCarsClasses:
-            cl = Colors.getClassForCar(car)
-            if cl != "" and cl+'_txt' in Colors.car_classes:
-                return Colors.car_classes[cl+'_txt']
-        #return Colors.black_txt()
+            if car_class != "" and car_class+'_txt' in Colors.car_classes:
+                return Colors.car_classes[car_class+'_txt']
         return Colors.car_classes['default_txt']
 
 

@@ -935,13 +935,16 @@ class ACTower:
                             if d[0] == 'ID':
                                 continue
                             ping=-1
+                            steam_id=None
                             if d[4] != "DC":
                                 ping = int(d[4])
+                                steam_id = str(d[9])
                             for driver in self.drivers:
                                 if driver.isAlive.value:
                                     norm_d1 = self.normalize_string(d[1])
                                     if norm_d1 == self.normalize_string(driver.fullName.value) and str(d[2]) == driver.carName:
                                         driver.last_ping = ping #random.randint(3, 600)
+                                        driver.steam_id = steam_id
                                         break
                 except:
                     Log.w("Error tower")
