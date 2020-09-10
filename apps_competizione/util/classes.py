@@ -412,23 +412,23 @@ class Colors:
             cfg_sections = cfg.sections()
             for s in cfg_sections:
                 value = cfg.get(s,'bg','string')
-                if value != -1:
+                if value != -1 and value != "":
                     Colors.car_classes[s+'_bg'] = Colors.txt_to_rgba(value) # Translate value to rgba
                 value = cfg.get(s,'txt','string')
-                if value != -1:
+                if value != -1 and value != "":
                     Colors.car_classes[s+'_txt'] = Colors.txt_to_rgba(value) # Translate value to rgba
                 value = cfg.get(s,'title','string')
-                if value != -1:
+                if value != -1 and value != "":
                     Colors.car_classes[s+'_title'] = value
                 value = cfg.get(s,'cars','string')
-                if value != -1:
+                if value != -1 and value != "":
                     if value.find(",") > 0:
                         array_values = value.split(',')
                     else:
                         array_values = [value]
                     Colors.car_classes[s+'_cars'] = array_values
                 value = cfg.get(s,'drivers','string')
-                if value != -1:
+                if value != -1 and value != "":
                     if value.find(",") > 0:
                         array_values = value.split(',')
                     else:
