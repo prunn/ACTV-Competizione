@@ -121,7 +121,6 @@ def acUpdate(deltaT):
             tower.on_update(sim_info)
             fl = tower.get_fastest_lap()
             standings = tower.get_standings()
-            drivers_sectors = tower.get_drivers_sectors()
             if not drivers_info_init or tower.drivers_info_is_updated():
                 drivers_info = tower.get_drivers_info()
         except:
@@ -131,7 +130,6 @@ def acUpdate(deltaT):
             if len(drivers_info):
                 info.set_drivers_info(drivers_info)
                 drivers_info_init = True
-            info.set_drivers_sectors(drivers_sectors)
             info.on_update(sim_info, fl, standings)
         except:
             Log.w("Error info")
@@ -145,5 +143,11 @@ def acUpdate(deltaT):
             Log.w("Error delta")
 
 
-def acShutdown():    
+def acShutdown():
+    global info, infoInit
+    if infoInit:
+        try:
+            info.on_shutdown()
+        except:
+            Log.w("Error info")
     ac.console("shutting down actv cp")
