@@ -28,6 +28,7 @@ class ACInfo:
         self.visible_end = 0
         self.lapCanBeInvalidated = True
         self.fastestLapBorderActive = False
+        self.driver_in_pit_active = False
         self.forceViewAlways = False
         self.minLapCount = 1
         self.sectorCount = -1
@@ -83,15 +84,19 @@ class ACInfo:
         self.drivers_sector_times = []
         self.drivers_sector_times_last_lap = []
         self.drivers_best_lap_sector_times = []
+        self.drivers_is_in_pit = []
         for _ in range(self.cars_count):
             self.drivers_lap_count.append(Value(0))
             self.drivers_sector.append(Value(0))
             self.drivers_sector_times.append([])
             self.drivers_sector_times_last_lap.append([])
             self.drivers_best_lap_sector_times.append([])
+            self.drivers_is_in_pit.append(Value(0))
         self.last_lap_start = [-1] * self.cars_count
         self.last_sector_start = [-1] * self.cars_count
         self.drivers_last_lap_pit = [0] * self.cars_count
+        self.drivers_pit_lane_start_time = [0] * self.cars_count
+        self.drivers_pit_stop_start_time = [0] * self.cars_count
 
         self.timing_visible = Value(0)
         self.lbl_timing = Label(self.window.app)\
@@ -612,7 +617,7 @@ class ACInfo:
             self.lbl_logo.show()
             if self.fastestLapBorderActive:
                 self.lbl_fastest_lap_bg.show()
-                self.lbl_split.show()
+                self.lbl_split.setText("Fastest Lap").show()
                 team = self.get_team(self.race_fastest_lap_driver.value)
                 if team != '':
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 4 / 38,
@@ -623,8 +628,12 @@ class ACInfo:
                                                   font_size=font_size + self.row_height.value * 14 / 38, animated=True)
                     self.lbl_team_txt.hide()
             else:
-                self.lbl_split.hide()
-                self.lbl_fastest_lap_bg.hide()
+                if self.driver_in_pit_active:
+                    self.lbl_fastest_lap_bg.show()
+                    self.lbl_split.setText("Pit Lane").show()
+                else:
+                    self.lbl_split.hide()
+                    self.lbl_fastest_lap_bg.hide()
                 team = self.get_team(self.currentVehicle.value)
                 if team != '':
                     self.lbl_team_txt.setText(str(team)).show()
@@ -699,15 +708,19 @@ class ACInfo:
             self.drivers_sector_times = []
             self.drivers_sector_times_last_lap = []
             self.drivers_best_lap_sector_times = []
+            self.drivers_is_in_pit = []
             for _ in range(self.cars_count):
                 self.drivers_lap_count.append(Value(0))
                 self.drivers_sector.append(Value(0))
                 self.drivers_sector_times.append([])
                 self.drivers_sector_times_last_lap.append([])
                 self.drivers_best_lap_sector_times.append([])
+                self.drivers_is_in_pit.append(Value(0))
             self.last_lap_start = [-1] * self.cars_count
             self.last_sector_start = [-1] * self.cars_count
             self.drivers_last_lap_pit = [0] * self.cars_count
+            self.drivers_pit_lane_start_time = [0] * self.cars_count
+            self.drivers_pit_stop_start_time = [0] * self.cars_count
         if self.cursor.hasChanged() or session_changed:
             if self.cursor.value and self.driver_name_visible.value == 0:
                 self.window.setBgOpacity(0.4).border(0)
@@ -960,26 +973,32 @@ class ACInfo:
                         self.info_position.hide()
                         self.info_position_txt.hide()
                     elif bestlap > 0:
-                        self.driver_name_visible.setValue(1)
-                        self.timing_visible.setValue(1)
-                        self.timing_text.setValue(self.time_splitting(bestlap, "yes"))
-                        pos = ac.getCarLeaderboardPosition(self.currentVehicle.value)
-                        if pos == -1:
-                            pos = self.get_standings_position(self.currentVehicle.value)
-                        self.pos = pos
-                        self.info_position.set(background=Colors.info_position_bg(), animated=True, init=True)
-                        self.info_position_txt.set(color=Colors.info_position_txt(), animated=True, init=True)
+                        if Configuration.forceInfoVisible == 1:
+                            self.driver_name_visible.setValue(1)
+                            self.timing_visible.setValue(1)
+                            self.timing_text.setValue(self.time_splitting(bestlap, "yes"))
+                            pos = ac.getCarLeaderboardPosition(self.currentVehicle.value)
+                            if pos == -1:
+                                pos = self.get_standings_position(self.currentVehicle.value)
+                            self.pos = pos
+                            self.info_position.set(background=Colors.info_position_bg(), animated=True, init=True)
+                            self.info_position_txt.set(color=Colors.info_position_txt(), animated=True, init=True)
 
-                        self.info_position.show()
-                        self.info_position_txt.setText(str(pos)).show()
-                        self.lbl_position_text.setValue(str(pos))
+                            self.info_position.show()
+                            self.info_position_txt.setText(str(pos)).show()
+                            self.lbl_position_text.setValue(str(pos))
+                        else:
+                            self.driver_name_visible.setValue(0)
+                            self.timing_visible.setValue(0)
+                            self.info_position.hide()
+                            self.info_position_txt.hide()
                     elif is_in_pit:
                         self.driver_name_visible.setValue(Configuration.forceInfoVisible)
                         self.timing_visible.setValue(0)
                         self.info_position.hide()
                         self.info_position_txt.hide()
                     else:
-                        self.driver_name_visible.setValue(1)
+                        self.driver_name_visible.setValue(Configuration.forceInfoVisible)
                         self.timing_visible.setValue(0)
                         self.info_position.hide()
                         self.info_position_txt.hide()
@@ -996,6 +1015,13 @@ class ACInfo:
                 # fastest lap
                 completed = 0
                 for x in range(self.cars_count):
+                    pit_lane = bool(ac.isCarInPitline(x))
+                    pit_box = bool(ac.isCarInPit(x))
+                    self.drivers_is_in_pit[x].setValue(pit_lane or pit_box)
+                    if self.drivers_is_in_pit[x].hasChanged():
+                        if self.drivers_is_in_pit[x].value:
+                            self.drivers_pit_lane_start_time[x] = session_time_left
+
                     c = ac.getCarState(x, acsys.CS.LapCount)
                     if c > completed:
                         completed = c
@@ -1009,8 +1035,10 @@ class ACInfo:
                             self.race_fastest_lap.setValue(bl)
                             self.race_fastest_lap_driver.setValue(i)
 
-                if self.race_fastest_lap.hasChanged() and self.race_fastest_lap.value > 0:
+                is_in_pit = self.drivers_is_in_pit[self.currentVehicle.value].value
+                if self.race_fastest_lap.hasChanged() and self.race_fastest_lap.value > 0 and not is_in_pit:
                     self.fastestLapBorderActive = True
+                    self.lbl_split.setText("Fastest Lap")
                     car_name = ac.getCarName(self.race_fastest_lap_driver.value)
                     self.lbl_logo.setBgColor(Colors.logo_for_car(car_name,self.get_driver_skin(self.race_fastest_lap_driver.value)))
                     self.visible_end = session_time_left - 10000
@@ -1025,9 +1053,17 @@ class ACInfo:
                     self.info_number_txt.set(color=Colors.txt_color_for_car_class(class_id), animated=True)
                     self.lbl_car_class_txt.setText(Colors.car_class_name(class_id))
 
-                elif current_vehicle_changed or (self.forceViewAlways and not self.fastestLapBorderActive):
+                elif current_vehicle_changed or (self.forceViewAlways and not self.fastestLapBorderActive) or is_in_pit:
                     # driver info
-                    if not self.forceViewAlways:
+                    if is_in_pit:
+                        self.driver_in_pit_active = True
+                        self.lbl_split.setText("Pit Lane")
+                        pit_lane_time = self.drivers_pit_lane_start_time[self.currentVehicle.value] - session_time_left
+                        self.lbl_fastest_split.setText(self.time_splitting(pit_lane_time)).show()
+                    elif session_time_left < self.visible_end:
+                        self.lbl_fastest_split.hide()
+
+                    if not self.forceViewAlways or is_in_pit:
                         self.visible_end = session_time_left - 8000
                     self.driver_name_visible.setValue(1)
                     self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
@@ -1060,13 +1096,14 @@ class ACInfo:
                     self.info_position.show()
                     self.info_position_txt.setText(str(pos)).show()
                     self.timing_visible.setValue(0)
-                    self.lbl_fastest_split.hide()
                 elif self.visible_end == 0 or session_time_left < self.visible_end or (sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
                     self.driver_name_visible.setValue(0)
                     self.info_position.hide()
                     self.info_position_txt.hide()
                     self.timing_visible.setValue(0)
                     self.lbl_fastest_split.hide()
+                if session_time_left < self.visible_end:
+                    self.driver_in_pit_active = False
                 self.visibility_race()
         elif sim_info_status == 1 and self.session.value != 2:
             # Replay Qualif

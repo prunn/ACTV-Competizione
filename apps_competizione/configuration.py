@@ -34,7 +34,7 @@ class Configuration:
 
 
 
-        self.window = Window(name="ACTV CP Config", icon=False, width=251, height=480, texture="").setBgOpacity(0)
+        self.window = Window(name="ACTV CP Config", icon=False, width=251, height=470, texture="").setBgOpacity(0)
 
         y = 50
         self.spin_race_mode = ac.addSpinner(self.window.app, "Race tower mode :")
@@ -93,13 +93,13 @@ class Configuration:
             .setFontSize(16).setAlign("left")\
             .setVisible(1)
 
-        y += 52
+        y += 33
         self.chk_save_delta = ac.addCheckBox(self.window.app, "")
         ac.setPosition(self.chk_save_delta, 20, y)
         ac.addOnCheckBoxChanged(self.chk_save_delta, self.on_check_save_delta_changed)
         self.lbl_title_save_delta = Label(self.window.app, "Save delta between sessions")\
-            .setSize(200, 26).setPos(65, y + 1)\
-            .setFontSize(16).setAlign("left")\
+            .setSize(200, 26).setPos(65, y + 3)\
+            .setFontSize(14).setAlign("left")\
             .setVisible(1)
 
         self.cfg_loaded = False

@@ -3,7 +3,7 @@ import acsys
 import ctypes
 import os, threading, json, math
 import gzip
-#import time
+import time
 from .util.func import rgb
 from .util.classes import Window, Label, Value, POINT, Colors, Font, Config, Log, Button, raceGaps
 from .configuration import Configuration
@@ -31,6 +31,7 @@ class ACDelta:
         self.current_car_class=Value("")
         self.lastLapIsValid = True
         self.best_lap_time=0
+        self.visual_timeout = -1
         self.currentLap = []
         self.drivers_info = []
         self.deltaLoaded = False
@@ -585,6 +586,7 @@ class ACDelta:
             self.cursor.setValue(False)
         session_changed = self.session.hasChanged()
         if session_changed:
+            self.visual_timeout = -1
             self.reset_data()
             self.reset_others()
             if not Configuration.save_delta:
@@ -594,19 +596,24 @@ class ACDelta:
                 self.spline.setValue(0)
         if self.cursor.hasChanged() or session_changed:
             if self.cursor.value:
-                self.window.setBgOpacity(0.4).border(0)
-                if self.currentVehicle.value == 0:
-                    self.btn_reset.setVisible(1)
-                    self.btn_import_from.setVisible(0)
-                else:
-                    self.btn_reset.setVisible(0)
-                    if len(self.reference_lap_time_others[self.currentVehicle.value]) > 800:
-                        self.btn_import_from.setVisible(1)
-            else:
-                self.window.setBgOpacity(0).border(0)
-                self.btn_reset.setVisible(0)
-                self.btn_import_from.setVisible(0)
+                if self.visual_timeout < 0:
+                    self.visual_timeout = time.time() + 6
             self.window.showTitle(False)
+        if self.cursor.value and 0 < self.visual_timeout > time.time():
+            self.window.setBgOpacity(0.1).border(0)
+            if self.currentVehicle.value == 0:
+                self.btn_reset.setVisible(1)
+                self.btn_import_from.setVisible(0)
+            else:
+                self.btn_reset.setVisible(0)
+                if len(self.reference_lap_time_others[self.currentVehicle.value]) > 800:
+                    self.btn_import_from.setVisible(1)
+        else:
+            self.window.setBgOpacity(0).border(0)
+            self.btn_reset.setVisible(0)
+            self.btn_import_from.setVisible(0)
+            self.visual_timeout = -1
+
                 
     def reset_data(self):
         self.currentLap = []
