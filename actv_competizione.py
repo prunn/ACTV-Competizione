@@ -37,6 +37,7 @@ try:
     from apps_competizione.acinfo import ACInfo
     from apps_competizione.actower import ACTower
     from apps_competizione.acdelta import ACDelta
+    from apps_competizione.acweather import ACWeather
     from apps_competizione.configuration import Configuration
     from apps_competizione.util.classes import Log
     sim_info = SimInfo()
@@ -58,10 +59,12 @@ towerInit = False
 configInit = False
 deltaInit = False
 drivers_info_init = False
+weather = 0
+weatherInit = False
 
 
 def acMain(ac_version):
-    global timer, info, tower, timerInit, infoInit, towerInit, config, configInit, delta, deltaInit
+    global timer, info, tower, timerInit, infoInit, towerInit, config, configInit, delta, deltaInit, weather, weatherInit
     try:
         config = Configuration()
         configInit = True
@@ -87,16 +90,20 @@ def acMain(ac_version):
         deltaInit = True
     except:
         Log.w("Error init delta")
+    try:
+        weather = ACWeather()
+        weatherInit = True
+    except:
+        Log.w("Error init weather")
 
     return "ACTV Competizione"
 
 
 def acUpdate(deltaT):
-    global timer, info, tower, timerInit, infoInit, towerInit, config, configInit, delta, deltaInit, drivers_info_init
+    global timer, info, tower, timerInit, infoInit, towerInit, config, configInit, delta, deltaInit, drivers_info_init, weather, weatherInit
     fl = 0
     standings = []
     drivers_info = []
-    drivers_sectors = []
     if configInit:     
         try:
             config_changed = config.on_update(sim_info)
@@ -109,6 +116,8 @@ def acUpdate(deltaT):
                     tower.load_cfg()
                 if deltaInit:
                     delta.load_cfg()
+                if weatherInit:
+                    weather.load_cfg()
         except:
             Log.w("Error config")
     if timerInit:
@@ -141,7 +150,11 @@ def acUpdate(deltaT):
             delta.on_update(sim_info, standings)
         except:
             Log.w("Error delta")
-
+    if weatherInit:
+        try:
+            weather.on_update(sim_info)
+        except:
+            Log.w("Error weather")
 
 def acShutdown():
     global info, infoInit

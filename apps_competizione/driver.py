@@ -10,8 +10,6 @@ class Driver:
     def __init__(self, app, identifier, name, pos, is_touristenfahrten):
         self.identifier = identifier
         self.is_multiplayer = ac.getServerIP() != ''
-        self.gas=Value()
-        self.wheelSpeed=Value()
         self.last_ping=-1
         self.steam_id=None
         self.steam_id_changed=Value(None)
@@ -292,7 +290,7 @@ class Driver:
 
         self.lbl_logo_bg.set(w=self.rowHeight - 2, h=self.rowHeight - 2,
                                 x=x, y=self.final_y)
-        self.lbl_logo.set(w=(self.rowHeight - 2) *28/38, h=(self.rowHeight - 2) *28/38,
+        self.lbl_logo.set(w=round((self.rowHeight - 2) *28/38), h=round((self.rowHeight - 2) *28/38),
                                 x=x + (self.rowHeight - 2) *5/38,
                                 y=self.final_y + (self.rowHeight - 2) *5/38)
         x += self.rowHeight - 2

@@ -615,7 +615,7 @@ class ACInfo:
             # 2 lines, name team
             self.lbl_border.show()
             self.lbl_logo.show()
-            if self.fastestLapBorderActive:
+            if self.fastestLapBorderActive and not self.driver_in_pit_active:
                 self.lbl_fastest_lap_bg.show()
                 self.lbl_split.setText("Fastest Lap").show()
                 team = self.get_team(self.race_fastest_lap_driver.value)
@@ -779,7 +779,7 @@ class ACInfo:
                 self.sector_map_current.setValue(sim_info.graphics.currentSectorIndex)
                 if self.sector_map_current.hasChanged():
                     #ac.console("Sector map:" + str(self.sector_map_current.value) + " - " + str(round(sim_info.graphics.normalizedCarPosition,4)))
-                    self.sector_map[self.sector_map_current.value] = round(sim_info.graphics.normalizedCarPosition,3)
+                    self.sector_map[self.sector_map_current.value] = max(round(sim_info.graphics.normalizedCarPosition,3) - 0.001,0)
 
                 self.sector_mapping=False
                 for s in self.sector_map:
@@ -926,7 +926,7 @@ class ACInfo:
                                         best_split = self.driver_old_fastest_sectors[i]
                                     l.set(background=Colors.info_split_best_bg(), animated=True)
                                     self.lbl_sectors_text[i].setText("-" + self.time_splitting(best_split - driver_current_lap_sector, "yes"))
-                                elif driver_best_sector > 0 and driver_best_sector >= driver_current_lap_sector:
+                                elif driver_best_sector <= 0 or driver_best_sector >= driver_current_lap_sector:
                                     l.set(background=Colors.info_split_personal_bg(), animated=True)
                                     self.lbl_sectors_text[i].setText("+" + self.time_splitting(driver_current_lap_sector - best_split, "yes"))
                                 else:
@@ -1055,7 +1055,7 @@ class ACInfo:
 
                 elif current_vehicle_changed or (self.forceViewAlways and not self.fastestLapBorderActive) or is_in_pit:
                     # driver info
-                    if is_in_pit:
+                    if is_in_pit and not ac.getCarState(self.currentVehicle.value,acsys.CS.RaceFinished):
                         self.driver_in_pit_active = True
                         self.lbl_split.setText("Pit Lane")
                         pit_lane_time = self.drivers_pit_lane_start_time[self.currentVehicle.value] - session_time_left
