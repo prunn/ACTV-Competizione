@@ -1047,6 +1047,13 @@ class Colors:
         return Colors.get_color_for_key('info_split_personal_bg')
 
     @staticmethod
+    def weather_data_bg():
+        #return rgb([192, 0, 0], a=0.2)
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('tower_time_odd_bg')
+        return rgb([32, 32, 32], a=0.72)
+
+    @staticmethod
     def black_txt():
         return rgb([0, 0, 0])
 

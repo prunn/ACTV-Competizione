@@ -68,6 +68,7 @@ class Driver:
         self.highlight = Value()
         self.pit_highlight_end = 0
         self.pit_stops = 0
+        self.last_lap_in_pit = -1
         self.pit_highlight = Value()
         self.position = Value()
         self.position_offset = Value()
@@ -444,6 +445,8 @@ class Driver:
                 self.lbl_name_txt.setColor(Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
             elif not self.isCurrentVehicule.value and self.race and realtime_target_laps > -1 and self.race_current_sector.value + 50 < realtime_target_laps:
                 self.lbl_name_txt.setColor(Colors.tower_driver_blue_txt(), animated=True, init=True)
+            elif not self.race and self.last_lap_in_pit==self.completedLaps.value and Configuration.race_mode==6 and not self.is_touristenfahrten: # outlap
+                self.lbl_name_txt.setColor(Colors.tower_driver_blue_txt(), animated=True, init=True)
             elif not self.isCurrentVehicule.value and self.race and realtime_target_laps > -1 and self.race_current_sector.value - 50 > realtime_target_laps:
                 self.lbl_name_txt.setColor(Colors.tower_driver_lap_up_txt(), animated=True, init=True)
             else:
@@ -678,6 +681,8 @@ class Driver:
         self.isInPitBox.setValue(bool(ac.isCarInPit(self.identifier)))
         pit_value = self.isInPitLane.value or self.isInPitBox.value or (self.is_touristenfahrten and 0.923 < self.raceProgress < 0.939) # or Nord Tourist 0.923 < position > 0.939
         self.isInPit.setValue(pit_value)
+        if pit_value:
+            self.last_lap_in_pit=self.completedLaps.value
         if self.race:
             self.pit_window_active=pit_window_active
             if self.isInPitBox.hasChanged():
