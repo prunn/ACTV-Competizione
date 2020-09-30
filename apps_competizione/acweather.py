@@ -3,7 +3,6 @@ import acsys
 import ctypes
 import math
 import os
-from .util.func import rgb
 from .util.classes import Window, Label, Value, POINT, Font, Colors
 from .configuration import Configuration
 
@@ -19,100 +18,81 @@ class ACWeather:
         self.cursor.setValue(False)
         self.ui_row_height = Value(-1)
         self.font = Value(0)
-        self.window = Window(name="ACTV Weather", icon=False, width=345, height=42, texture="")
+        self.window = Window(name="ACTV CP Weather", icon=False, width=345, height=42, texture="")
 
         ###################### Track condition ######################
         self.lbl_track_bg = Label(self.window.app, "")\
             .set(w=75, h=18, x=0, y=-80,
-                 background=rgb([202, 202, 200],bg=True),
                  opacity=1,visible=1)
         self.lbl_track_txt = Label(self.window.app, "TRACK")\
             .set(w=75, h=0, x=0, y=-81,
                  font_size=13, align="center",
-                 color=rgb([0, 0, 0]),
                  opacity=0,visible=1)
         self.lbl_track_condition_bg = Label(self.window.app, "")\
             .set(w=75, h=24, x=0, y=18,
-                 background=rgb([32, 32, 32], a=0.72),
                  opacity=1,visible=1)
         self.lbl_track_condition_txt = Label(self.window.app, "FLOODED")\
             .set(w=75, h=0, x=0, y=-60,
                  font_size=13, align="center",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
 
         ###################### Temperature ######################
         self.lbl_temperature_bg = Label(self.window.app, "")\
             .set(w=125, h=18, x=80, y=-80,
-                 background=rgb([202, 202, 200],bg=True),
                  opacity=1,visible=1)
         self.lbl_temperature_txt = Label(self.window.app, "TEMPERATURE")\
             .set(w=125, h=0, x=80, y=-81,
                  font_size=13, align="center",
-                 color=rgb([0, 0, 0]),
                  opacity=0,visible=1)
         self.lbl_temperature_data_bg = Label(self.window.app, "")\
             .set(w=125, h=24, x=80, y=18,
-                 background=rgb([0, 0, 0],a=0.8,bg=True),
                  opacity=1,visible=1)
         self.lbl_temperature_track_txt = Label(self.window.app, "Track")\
             .set(w=0, h=0, x=80, y=-60,
                  font_size=13, align="right",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
         self.lbl_temperature_ambient_txt = Label(self.window.app, "19c")\
             .set(w=0, h=0, x=80, y=-60,
                  font_size=13, align="right",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
         self.lbl_temperature_ambient_unit_txt = Label(self.window.app, u"\u2103")\
             .set(w=0, h=0, x=80, y=-60,
                  font_size=13, align="left",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
         self.lbl_temperature_road_txt = Label(self.window.app, "19")\
             .set(w=0, h=0, x=80, y=-60,
                  font_size=13, align="right",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
         self.lbl_temperature_road_unit_txt = Label(self.window.app, u"\u2103")\
             .set(w=0, h=0, x=80, y=-60,
                  font_size=13, align="left",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
 
         ###################### Wind ######################
         self.lbl_wind_bg = Label(self.window.app, "")\
             .set(w=115, h=18, x=210, y=-80,
-                 background=rgb([202, 202, 200],bg=True),
                  opacity=1,visible=1)
         self.lbl_wind_txt = Label(self.window.app, "WIND")\
             .set(w=115, h=0, x=210, y=-81,
                  font_size=13, align="center",
-                 color=rgb([0, 0, 0]),
                  opacity=0,visible=1)
         self.lbl_wind_data_bg = Label(self.window.app, "")\
             .set(w=115, h=24, x=210, y=18,
-                 background=rgb([22, 22, 20],bg=True),
                  opacity=1,visible=1)
         self.lbl_wind_data_txt = Label(self.window.app, "9")\
             .set(w=0, h=0, x=210, y=-60,
                  font_size=13, align="right",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
         self.lbl_wind_unit_txt = Label(self.window.app, "KM/H")\
             .set(w=0, h=0, x=210, y=-60,
                  font_size=13, align="left",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
         self.lbl_wind_direction_img = Label(self.window.app, "") \
             .set(w=26, h=13, x=86, y=-60,
-                 background=rgb([0, 0, 0], a=0, bg=True, t='apps/python/actv_competizione/img/winddir.png'),
                  opacity=0, visible=1)
         self.lbl_wind_direction_txt = Label(self.window.app, u"\u2193")\
             .set(w=0, h=0, x=210, y=-60,
                  font_size=13, align="left",
-                 color=rgb([255, 255, 255]),
                  opacity=0,visible=1)
         self.load_cfg()
 
@@ -138,84 +118,86 @@ class ACWeather:
             #self.lbl_wind_direction_txt.setFont('Segoe UI',0,1)
 
             # UI
+            self.lbl_wind_direction_img.set(background=Colors.weather_wind_direction_img())
+
             font_size = Font.get_font_size(self.ui_row_height.value+Font.get_font_offset()) - self.ui_row_height.value * 6/38
             row2_font_size = Font.get_font_size(self.ui_row_height.value+Font.get_font_offset()) - self.ui_row_height.value * 3/38
 
             row1_height = self.ui_row_height.value * 18/38
             row1_y_offset = -80
             row1_font_offset = -76 - self.ui_row_height.value*4/38
-            row1_background=rgb([202, 202, 200], bg=True)
-            row1_color=rgb([0, 0, 0])
             row2_height = self.ui_row_height.value * 24/38
             row2_y_offset = -80 + row1_height
             row2_font_offset = -78 + self.ui_row_height.value*17/38
-            row2_color=rgb([255, 255, 255])
             ###################### Track condition ######################
             width = self.ui_row_height.value * 135/38
             x_offset=0
             self.lbl_track_bg.set(w=width, h=row1_height, x=x_offset, y=row1_y_offset,
-                     background=row1_background, opacity=1)
+                     background=Colors.weather_header_bg(), opacity=1)
             self.lbl_track_txt.set(w=width, x=x_offset, y=row1_font_offset,
                      font_size=font_size,
-                     color=row1_color)
+                     color=Colors.black_txt())
             self.lbl_track_condition_bg.set(w=width, h=row2_height, x=x_offset, y=row2_y_offset,
                      background=Colors.weather_data_bg())
             self.lbl_track_condition_txt.set(w=width, x=x_offset, y=row2_font_offset,
                      font_size=row2_font_size,
-                     color=row2_color)
+                     color=Colors.white())
 
             ###################### Temperature ######################
             width = self.ui_row_height.value * 125/38
             x_offset=self.ui_row_height.value * 140/38
             self.lbl_temperature_bg.set(w=width, h=row1_height, x=x_offset, y=row1_y_offset,
-                     background=row1_background, opacity=1)
+                     background=Colors.weather_header_bg(), opacity=1)
             self.lbl_temperature_txt.set(w=width, x=x_offset, y=row1_font_offset,
                      font_size=font_size,
-                     color=row1_color)
+                     color=Colors.black_txt())
             self.lbl_temperature_data_bg.set(w=width, h=row2_height, x=x_offset, y=row2_y_offset,
                      background=Colors.weather_data_bg())
             x_offset = self.ui_row_height.value * 166 / 38
-            self.lbl_temperature_ambient_txt.set(x=x_offset, y=row2_font_offset, font_size=row2_font_size, color=row2_color)
+            self.lbl_temperature_ambient_txt.set(x=x_offset, y=row2_font_offset, font_size=row2_font_size,
+                                                 color=Colors.white())
             x_offset = self.ui_row_height.value * 167 / 38
-            self.lbl_temperature_ambient_unit_txt.set(x=x_offset, y=row2_font_offset + self.ui_row_height.value * 2/38, font_size=row2_font_size - self.ui_row_height.value * 3/38, color=row2_color)
+            self.lbl_temperature_ambient_unit_txt.set(x=x_offset, y=row2_font_offset + self.ui_row_height.value * 2/38,
+                                                      font_size=row2_font_size - self.ui_row_height.value * 3/38,
+                                                      color=Colors.white())
 
             x_offset = self.ui_row_height.value * 220 / 38
             self.lbl_temperature_track_txt.set(x=x_offset, y=row2_font_offset + self.ui_row_height.value * 2 / 38,
                                               font_size=row2_font_size - self.ui_row_height.value * 3 / 38,
-                                              color=row2_color)
+                                              color=Colors.white())
             x_offset = self.ui_row_height.value * 239 / 38
             self.lbl_temperature_road_txt.set(x=x_offset, y=row2_font_offset,
                                               font_size=row2_font_size,
-                                              color=row2_color)
+                                              color=Colors.white())
             x_offset = self.ui_row_height.value * 240 / 38
             self.lbl_temperature_road_unit_txt.set(x=x_offset, y=row2_font_offset + self.ui_row_height.value * 2/38,
                                                    font_size=row2_font_size - self.ui_row_height.value * 3/38,
-                                                   color=row2_color)
+                                                   color=Colors.white())
 
             ###################### Wind ######################
             width = self.ui_row_height.value * 115/38
             x_offset=self.ui_row_height.value * 270/38
             self.lbl_wind_bg.set(w=width, h=row1_height, x=x_offset, y=row1_y_offset,
-                     background=row1_background, opacity=1)
+                     background=Colors.weather_header_bg(), opacity=1)
             self.lbl_wind_txt.set(w=width, x=x_offset, y=row1_font_offset,
                      font_size=font_size,
-                     color=row1_color)
+                     color=Colors.black_txt())
             self.lbl_wind_data_bg.set(w=width, h=row2_height, x=x_offset, y=row2_y_offset,
                      background=Colors.weather_data_bg())
 
             x_offset=self.ui_row_height.value * 343/38
             self.lbl_wind_data_txt.set(x=x_offset, y=row2_font_offset,
                      font_size=row2_font_size,
-                     color=row2_color)#w=width,
+                     color=Colors.white())#w=width,
             x_offset=self.ui_row_height.value * 344/38
             self.lbl_wind_unit_txt.set(x=x_offset, y=row2_font_offset + self.ui_row_height.value * 2/38,
                      font_size=row2_font_size - self.ui_row_height.value * 3/38,
-                     color=row2_color)#w=width,
+                     color=Colors.white())#w=width,
             self.lbl_wind_direction_img.set(w=self.ui_row_height.value * 26/38 , h=self.ui_row_height.value * 13/38,
                                             x=self.ui_row_height.value * 275/38, y=row2_font_offset + self.ui_row_height.value*5/38)
             self.lbl_wind_direction_txt.set(x=self.ui_row_height.value * 307/38, y=row2_font_offset,
                                             font_size=row2_font_size,
-                                            color=row2_color)# - self.ui_row_height.value * 1/38
+                                            color=Colors.white())# - self.ui_row_height.value * 1/38
 
     def manageWindow(self):
         pt=POINT()

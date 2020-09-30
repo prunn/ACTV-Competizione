@@ -445,7 +445,7 @@ class Driver:
                 self.lbl_name_txt.setColor(Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
             elif not self.isCurrentVehicule.value and self.race and realtime_target_laps > -1 and self.race_current_sector.value + 50 < realtime_target_laps:
                 self.lbl_name_txt.setColor(Colors.tower_driver_blue_txt(), animated=True, init=True)
-            elif not self.race and self.last_lap_in_pit==self.completedLaps.value and Configuration.race_mode==6 and not self.is_touristenfahrten: # outlap
+            elif not self.race and self.last_lap_in_pit==self.completedLaps.value and Configuration.race_mode==6 and not self.is_touristenfahrten and not self.isInPit.value: # outlap
                 self.lbl_name_txt.setColor(Colors.tower_driver_blue_txt(), animated=True, init=True)
             elif not self.isCurrentVehicule.value and self.race and realtime_target_laps > -1 and self.race_current_sector.value - 50 > realtime_target_laps:
                 self.lbl_name_txt.setColor(Colors.tower_driver_lap_up_txt(), animated=True, init=True)

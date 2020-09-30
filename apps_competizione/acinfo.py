@@ -182,10 +182,15 @@ class ACInfo:
         # saving sector map
         section = "sectors_map"
         if len(self.sector_map) > 0:
-            cfg = Config("apps/python/actv_competizione/", "actv_data.ini")
-            if not cfg.has(section):
-                cfg.set(section)
-            cfg.set(section, self.track_name + "_" + self.track_config, ';'.join(map(str, self.sector_map)))
+            valid=True
+            for m in self.sector_map:
+                if m < 0:
+                    valid=False
+            if valid:
+                cfg = Config("apps/python/actv_competizione/", "actv_data.ini")
+                if not cfg.has(section):
+                    cfg.set(section)
+                cfg.set(section, self.track_name + "_" + self.track_config, ';'.join(map(str, self.sector_map)))
 
     # PUBLIC METHODS
     # ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -393,7 +398,7 @@ class ACInfo:
                 return "{0}.{1}".format(int(s), int(d))
 
     def get_sector(self,sim_info,vehicle):
-        if len(self.sector_map):
+        if not self.sector_mapping and len(self.sector_map):
             i=len(self.sector_map)
             spline=ac.getCarState(vehicle, acsys.CS.NormalizedSplinePosition)
             for s in reversed(self.sector_map):
@@ -681,7 +686,7 @@ class ACInfo:
                     return s[2]
         return Colors.getClassForCar(ac.getCarName(identifier))
 
-    def manage_window(self):
+    def manage_window(self, session_time_left):
         pt = POINT()
         result = ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
         win_x = self.window.getPos().x
@@ -709,15 +714,16 @@ class ACInfo:
             self.drivers_sector_times_last_lap = []
             self.drivers_best_lap_sector_times = []
             self.drivers_is_in_pit = []
-            for _ in range(self.cars_count):
+            self.last_sector_start = [-1] * self.cars_count #add session_time_left
+            for i in range(self.cars_count):
                 self.drivers_lap_count.append(Value(0))
                 self.drivers_sector.append(Value(0))
                 self.drivers_sector_times.append([])
                 self.drivers_sector_times_last_lap.append([])
                 self.drivers_best_lap_sector_times.append([])
                 self.drivers_is_in_pit.append(Value(0))
+                self.last_sector_start[i] = session_time_left
             self.last_lap_start = [-1] * self.cars_count
-            self.last_sector_start = [-1] * self.cars_count
             self.drivers_last_lap_pit = [0] * self.cars_count
             self.drivers_pit_lane_start_time = [0] * self.cars_count
             self.drivers_pit_stop_start_time = [0] * self.cars_count
@@ -737,7 +743,7 @@ class ACInfo:
         if (sim_info_status != 1 and sim_info_status != 3 and session_time_left != 0 and session_time_left != -1 and session_time_left + 100 < sim_info.graphics.sessionTimeLeft) or sim_info_status == 0:
             self.session.setValue(-1)
             self.session.setValue(sim_info.graphics.session)
-        self.manage_window()
+        self.manage_window(session_time_left)
         self.animate()
         self.currentVehicle.setValue(ac.getFocusedCar())
 
@@ -766,20 +772,33 @@ class ACInfo:
             self.info_number_txt.setText(self.get_driver_number(self.currentVehicle.value))
             self.info_number_txt.set(color=Colors.txt_color_for_car_class(self.current_car_class.value), animated=True)
             self.lbl_car_class_txt.setText(Colors.car_class_name(self.current_car_class.value))
+            self.driver_in_pit_active = False
+            if self.sector_mapping:
+                self.sector_map = []
 
         if sim_info_status == 2:
             # LIVE
             #mapping sectors
-            if self.currentVehicle.value == 0 and self.sector_mapping:
+            if self.sector_mapping:
                 if len(self.sector_map) < sim_info.static.sectorCount:
                     self.sector_map = []
                     for _ in range(sim_info.static.sectorCount):
                         self.sector_map.append(-1)
-
-                self.sector_map_current.setValue(sim_info.graphics.currentSectorIndex)
+                if self.currentVehicle.value == 0:
+                    self.sector_map_current.setValue(sim_info.graphics.currentSectorIndex)
+                else:
+                    # mapping with other cars
+                    splits = ac.getCurrentSplits(self.currentVehicle.value)
+                    i = 0
+                    sector = 0
+                    for c in splits:
+                        i += 1
+                        if c > 0:
+                            sector = i
+                    self.sector_map_current.setValue(sector)
                 if self.sector_map_current.hasChanged():
-                    #ac.console("Sector map:" + str(self.sector_map_current.value) + " - " + str(round(sim_info.graphics.normalizedCarPosition,4)))
-                    self.sector_map[self.sector_map_current.value] = max(round(sim_info.graphics.normalizedCarPosition,3) - 0.001,0)
+                    #ac.console("Sector map:" + str(self.sector_map_current.value) + " - " + str(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition),4)))
+                    self.sector_map[self.sector_map_current.value] = max(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition),3) - 0.001,0)
 
                 self.sector_mapping=False
                 for s in self.sector_map:
@@ -802,7 +821,6 @@ class ACInfo:
                         self.drivers_lap_count[i].setValue(ac.getCarState(i, acsys.CS.LapCount))
                         self.drivers_sector[i].setValue(self.get_sector(sim_info,i))
                         if self.drivers_sector[i].hasChanged():
-                            #ac.console("sector:" + str(self.drivers_sector[i].value) + " : " + str(self.last_sector_start[i]) + " - " + str(session_time_left) + " = " + str(self.last_sector_start[i] - session_time_left))
                             self.drivers_sector_times[i].append(self.last_sector_start[i] - session_time_left)
                             self.last_sector_start[i] = session_time_left
 

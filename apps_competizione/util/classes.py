@@ -210,7 +210,10 @@ class Colors:
         'tower_time_pit_txt': rgb([0, 0, 0]),
         'tower_time_highlight_odd_bg': rgb([0, 0, 0]),
         'tower_time_odd_bg': rgb([0, 0, 0]),
+        'weather_header_bg': rgb([0, 0, 0]),
+        'weather_data_bg': rgb([0, 0, 0]),
         'tower_time_retired_bg': rgb([0, 0, 0]),
+        'tower_time_green_txt': rgb([0, 0, 0]),
         'tower_driver_odd_bg': rgb([0, 0, 0]),
         'tower_driver_odd_txt': rgb([0, 0, 0]),
         'tower_driver_highlight_odd_bg': rgb([0, 0, 0]),
@@ -273,6 +276,7 @@ class Colors:
         'speedtrap_speed_bg': rgb([0, 0, 0]),
         'speedtrap_speed_txt': rgb([0, 0, 0]),
         'speedtrap_border_bg': rgb([0, 0, 0]),
+        'logo_bg': rgb([0, 0, 0]),
         'info_split_best_bg': rgb([126, 32, 164], a=1),
         'info_split_personal_bg': rgb([42, 142, 42], a=1),
         'info_split_slow_bg': rgb([223, 142, 36], a=1),
@@ -518,14 +522,12 @@ class Colors:
     # --------------- Driver -------------
     @staticmethod
     def tower_time_odd_bg():
-        #return rgb([192, 0, 0], a=0.2)
         if Colors.general_theme > 0:
             return Colors.get_color_for_key('tower_time_odd_bg')
         return rgb([32, 32, 32], a=0.72)
 
     @staticmethod
     def tower_time_retired_bg():
-        #return rgb([192, 0, 0], a=0.2)
         if Colors.general_theme > 0:
             return Colors.get_color_for_key('tower_time_retired_bg')
         return rgb([32, 32, 32], a=0.72)
@@ -538,8 +540,8 @@ class Colors:
 
     @staticmethod
     def tower_time_green_txt():
-        #if Colors.general_theme > 0:
-        #    return Colors.get_color_for_key('tower_time_green_txt')
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('tower_time_green_txt')
         return rgb([95, 180, 157], a=1)
 
     @staticmethod
@@ -971,7 +973,6 @@ class Colors:
 
     @staticmethod
     def delta_neutral():
-        #return rgb([140, 151, 157], bg=True, a=1)
         return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/delta_neutral.png')
 
     @staticmethod
@@ -988,6 +989,8 @@ class Colors:
 
     @staticmethod
     def logo_bg(bg=True, a=1):
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('logo_bg')
         return rgb([187, 187, 187], bg=bg, a=a)
 
     @staticmethod
@@ -1047,11 +1050,16 @@ class Colors:
         return Colors.get_color_for_key('info_split_personal_bg')
 
     @staticmethod
+    def weather_header_bg():
+        return Colors.get_color_for_key('weather_header_bg')
+
+    @staticmethod
     def weather_data_bg():
-        #return rgb([192, 0, 0], a=0.2)
-        if Colors.general_theme > 0:
-            return Colors.get_color_for_key('tower_time_odd_bg')
-        return rgb([32, 32, 32], a=0.72)
+        return Colors.get_color_for_key('weather_data_bg')
+
+    @staticmethod
+    def weather_wind_direction_img():
+        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/winddir.png')
 
     @staticmethod
     def black_txt():
