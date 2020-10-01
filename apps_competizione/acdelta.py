@@ -303,7 +303,7 @@ class ACDelta:
         self.lbl_best_time_title_bg.set(background=Colors.delta_laps(), animated=True,init=True).show()
         self.lbl_last_title_bg.set(background=Colors.delta_laps(), animated=True,init=True).show()
         self.lbl_prediction_title_bg.set(background=Colors.delta_laps(), animated=True,init=True).show()
-        self.lbl_name_text.set(color=Colors.white(), animated=True,init=True)
+        self.lbl_name_text.set(color=Colors.delta_name_txt(), animated=True,init=True)
         self.lbl_delta_bg.show()
         self.lbl_delta_text.show()
         self.lbl_number_bg.show()

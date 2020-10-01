@@ -211,7 +211,9 @@ class Colors:
         'tower_time_highlight_odd_bg': rgb([0, 0, 0]),
         'tower_time_odd_bg': rgb([0, 0, 0]),
         'weather_header_bg': rgb([0, 0, 0]),
+        'weather_header_txt': rgb([0, 0, 0]),
         'weather_data_bg': rgb([0, 0, 0]),
+        'weather_data_txt': rgb([0, 0, 0]),
         'tower_time_retired_bg': rgb([0, 0, 0]),
         'tower_time_green_txt': rgb([0, 0, 0]),
         'tower_driver_odd_bg': rgb([0, 0, 0]),
@@ -248,12 +250,18 @@ class Colors:
         'info_split_txt': rgb([255, 255, 255]),
         'info_split_positive_txt': rgb([255, 255, 255]),
         'info_split_negative_txt': rgb([255, 255, 255]),
+        'delta_name_bg': rgb([0, 0, 0]),
+        'delta_name_txt': rgb([0, 0, 0]),
         'info_timing_bg': rgb([0, 0, 0]),
         'info_timing_txt': rgb([0, 0, 0]),
         'info_position_bg': rgb([0, 0, 0]),
         'info_position_txt': rgb([0, 0, 0]),
         'info_fastest_time_txt': rgb([0, 0, 0]),
         'info_border_default_bg': rgb([0, 0, 0]),
+        'info_car_class_bg': rgb([0, 0, 0]),
+        'info_car_class_txt': rgb([0, 0, 0]),
+        'info_sector_title_bg': rgb([0, 0, 0]),
+        'info_sector_title_txt': rgb([0, 0, 0]),
         'timer_title_bg': rgb([0, 0, 0]),
         'timer_title_txt': rgb([0, 0, 0]),
         'timer_title_yellow_flag_bg': rgb([0, 0, 0]),
@@ -835,6 +843,18 @@ class Colors:
         return rgb([55, 55, 55], a=0.64)
 
     @staticmethod
+    def delta_name_bg():
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('delta_name_bg')
+        return rgb([55, 55, 55], a=0.64)
+
+    @staticmethod
+    def delta_name_txt():
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('delta_name_txt')
+        return rgb([255, 255, 255], a=1)
+
+    @staticmethod
     def info_timing_txt():
         if Colors.general_theme > 0:
             return Colors.get_color_for_key('info_timing_txt')
@@ -1050,12 +1070,36 @@ class Colors:
         return Colors.get_color_for_key('info_split_personal_bg')
 
     @staticmethod
+    def info_car_class_bg():
+        return Colors.get_color_for_key('info_car_class_bg')
+
+    @staticmethod
+    def info_car_class_txt():
+        return Colors.get_color_for_key('info_car_class_txt')
+
+    @staticmethod
+    def info_sector_title_bg():
+        return Colors.get_color_for_key('info_sector_title_bg')
+
+    @staticmethod
+    def info_sector_title_txt():
+        return Colors.get_color_for_key('info_sector_title_txt')
+
+    @staticmethod
     def weather_header_bg():
         return Colors.get_color_for_key('weather_header_bg')
 
     @staticmethod
+    def weather_header_txt():
+        return Colors.get_color_for_key('weather_header_txt')
+
+    @staticmethod
     def weather_data_bg():
         return Colors.get_color_for_key('weather_data_bg')
+
+    @staticmethod
+    def weather_data_txt():
+        return Colors.get_color_for_key('weather_data_txt')
 
     @staticmethod
     def weather_wind_direction_img():
