@@ -928,7 +928,7 @@ class ACDelta:
                 elif flag == 4:
                     # AC_WHITE_FLAG
                     self.lbl_flag.set(background=Colors.white(bg=True)).show()
-                elif flag == 5:
+                elif ac.getCarState(self.currentVehicle.value, acsys.CS.RaceFinished) == 1:#flag == 5
                     # AC_CHECKERED_FLAG
                     self.lbl_flag.set(background=Colors.flag_finish()).show()
                 elif self.last_yellow_flag_end != False and self.last_yellow_flag_end - 4000 <= session_time_left:

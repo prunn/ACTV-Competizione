@@ -7,10 +7,26 @@ for Assetto Corsa
 * Delta
 * Driver info (driver info - qualification time - fastest lap)
 * Timer (Session info)
+* Weather (Track conditions)
 * Config (Configuration)
 
 
 ###Changelog.
+1.1.0.0
+* Added configurable car/driver classes - rename car_classes.template.ini to car_classes.ini to get started, exemples inside the file
+* Added weather/track conditions widget
+* Delta - fixed current lap time / calculated delta for other cars
+* Delta - import delta from other car (full lap needed, otherwise no button)
+* Delta - Resize window from row height
+* Delta - fix incorrect last lap after browsing others
+* Delta - Timing out background and buttons, annoyance
+* Delta - fixed finish flag only when driver has finished
+* Tower - fixed name mode was changing at the end of the race
+* Tower - realtime out laps marked in blue
+* Tower - realtime more realistic gaps when no reference laps was done, specially on longer tracks
+* Info - fix qualify/practice sector timing for all cars
+* Info - Pit lane timer
+
 1.0.0.0
 * Initial release
 

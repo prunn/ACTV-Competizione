@@ -63,6 +63,7 @@ class ACTower:
         self.window = Window(name="ACTV CP Tower", width=268, height=60)
         self.minLapCount = 1
         self.is_touristenfahrten = False
+        self.track_length = -1
         self.title_mode_visible_end = 0
         self.title_mode_visible_end_replay = 0
         self.lbl_title_mode = Label(self.window.app) \
@@ -349,10 +350,8 @@ class ACTower:
                 ref = d1.get_best_lap() # d1 best
 
             if ref <= 0:
-                if self.is_touristenfahrten:
-                    ref = 60000 * 8 # 8 mins
-                else:
-                    ref = 60000 * 2 # 2 mins
+                # about realistic time based on track length
+                ref = 60000 * (self.track_length / 2600)
             return gap * ref
 
         ##################### Race ##################
@@ -372,7 +371,8 @@ class ACTower:
             max_d1 = (d1.raceProgress * 100) % 100
             max_d2 = (d2.raceProgress * 100) % 100
             # if behind get his time as ref else your best time
-            ref = 60000 * 2  # 2 mins
+            # about realistic time based on track length
+            ref = 60000 * (self.track_length / 2600)
             if max_d2 - max_d1 > 50:
                 gap = (max_d1 + 100 - max_d2) / 100
             elif max_d2 - max_d1 < -50:
@@ -1016,6 +1016,8 @@ class ACTower:
         t_update_drivers = 0
         t_update_drivers_end = 0
         '''
+        if self.track_length < 0:
+            self.track_length = sim_info.static.trackSPlineLength
         self.session.setValue(sim_info.graphics.session)
         sim_info_status = sim_info.graphics.status
         if (sim_info_status != 1 and sim_info_status != 3 and self.sessionTimeLeft != 0 and self.sessionTimeLeft != -1 and self.sessionTimeLeft + 100 < sim_info.graphics.sessionTimeLeft) or sim_info_status == 0:
