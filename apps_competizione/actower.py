@@ -393,13 +393,9 @@ class ACTower:
         # Generate standings from -0.5 to 0.5 for the start of race
         standings = []
         for i in range(self.numCars.value):
-            bl = ac.getCarState(i, acsys.CS.LapCount) + ac.getCarState(i, acsys.CS.NormalizedSplinePosition)
-            if bl < 0.5:
-                bl += 0.5  # 0.1 = 0.6
-            elif 0.5 <= bl < 1:
-                bl -= 0.5  # 0.9 = 0.4
+            bl = ac.getCarLeaderboardPosition(i)
             standings.append((i, bl))
-        self.standings_start_race = sorted(standings, key=lambda student: student[1], reverse=True)
+        self.standings_start_race = sorted(standings, key=lambda student: student[1], reverse=False)
 
     def get_standings_pos_before_race(self, driver):
         # Get position
@@ -445,6 +441,10 @@ class ACTower:
             elif self.race_mode.value == 4:
                 self.lbl_title_mode_txt.setText("Progress")
             elif self.race_mode.value == 5:
+                self.lbl_title_mode_txt.setText("Pit Stops")
+            elif self.race_mode.value == 6:
+                self.lbl_title_mode_txt.setText("Tires")
+            elif self.race_mode.value == 7:
                 self.lbl_title_mode_txt.setText("Off")
             else:
                 self.lbl_title_mode_txt.setText("Realtime")
@@ -569,7 +569,7 @@ class ACTower:
         needs_tlc = True
         if Configuration.names >= 2:
             needs_tlc = False
-        if 0 < self.race_mode.value < 6 and not self.force_hidden:
+        if 0 < self.race_mode.value < 8 and not self.force_hidden:
             # Full tower with gaps(1) or without(2)
             tick_limit = 40
             if not math.isinf(self.sessionTimeLeft) and int(
@@ -640,7 +640,17 @@ class ACTower:
                                 driver.set_time_race_battle("0 NEUTRAL", -1)
                             driver.show(needs_tlc)
                             driver.update_pit(self.sessionTimeLeft)
-                        elif Configuration.race_mode == 5:  # Timing off
+                        elif Configuration.race_mode == 5:  # pit stops
+                            driver.set_time_race_battle(driver.pit_stops_count, -1)
+                            driver.show(needs_tlc)
+                            driver.update_pit(self.sessionTimeLeft)
+                        elif Configuration.race_mode == 6:  # Tires
+                            age = driver.completedLaps.value - max(driver.last_lap_in_pit, 0)
+                            lastlap = ac.getCarTyreCompound(driver.identifier) + ' (' + str(age) + ' L)'
+                            driver.set_time_race_battle(lastlap, -1)
+                            driver.show(needs_tlc)
+                            driver.update_pit(self.sessionTimeLeft)
+                        elif Configuration.race_mode == 7:  # Timing off
                             driver.show(needs_tlc, compact=True)
                             driver.update_pit(self.sessionTimeLeft)
                         else:
@@ -668,7 +678,7 @@ class ACTower:
                                 # else:
                                 #    driver.hide()
             self.tick_race_mode += 1
-        elif self.race_mode.value == 6:# and not self.force_hidden
+        elif self.race_mode.value == 8:# and not self.force_hidden
             # Realtime
             realtime_target = [i for i, v in enumerate(self.realtime_standings) if v[0] == self.currentVehicule.value]
             if len(realtime_target) > 0:

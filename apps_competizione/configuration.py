@@ -224,6 +224,10 @@ class Configuration:
         elif self.__class__.race_mode == 4:
             self.lbl_race_mode.setText("Progress")
         elif self.__class__.race_mode == 5:
+            self.lbl_race_mode.setText("Pit Stops")
+        elif self.__class__.race_mode == 6:
+            self.lbl_race_mode.setText("Tires")
+        elif self.__class__.race_mode == 7:
             self.lbl_race_mode.setText("Off")
         else:
             self.lbl_race_mode.setText("Realtime")
@@ -333,7 +337,7 @@ class Configuration:
 
     def hotkey_pressed(self):
         if self.session.value == 2:
-            if self.__class__.race_mode >= 6:
+            if self.__class__.race_mode >= 8:
                 self.__class__.race_mode = 0
             else:
                 self.__class__.race_mode += 1
