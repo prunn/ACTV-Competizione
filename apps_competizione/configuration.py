@@ -38,7 +38,7 @@ class Configuration:
 
         y = 50
         self.spin_race_mode = ac.addSpinner(self.window.app, "Race tower mode :")
-        ac.setRange(self.spin_race_mode, 0, 6)
+        ac.setRange(self.spin_race_mode, 0, 8)
         ac.setPosition(self.spin_race_mode, 20, y)
         ac.setValue(self.spin_race_mode, self.__class__.race_mode)
         ac.addOnValueChangeListener(self.spin_race_mode, self.on_spin_race_mode_changed)
@@ -211,7 +211,7 @@ class Configuration:
         elif self.__class__.qual_mode == 2:
             self.lbl_qual_mode.setText("Compact")
         else:
-            self.lbl_qual_mode.setText("Realtime")
+            self.lbl_qual_mode.setText("Relative")
         # Race mode
         if self.__class__.race_mode == 0:
             self.lbl_race_mode.setText("Auto")
@@ -230,7 +230,7 @@ class Configuration:
         elif self.__class__.race_mode == 7:
             self.lbl_race_mode.setText("Off")
         else:
-            self.lbl_race_mode.setText("Realtime")
+            self.lbl_race_mode.setText("Relative")
 
         # Names mode
         if self.__class__.names == 0:
