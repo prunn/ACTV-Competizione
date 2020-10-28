@@ -204,7 +204,8 @@ class ACTower:
                         offset -= lbl.w + (Configuration.ui_row_height - 2) * 10 / 36
                 for lbl in self.cars_classes:
                     lbl.setX(offset)
-                    offset+=lbl.w + (Configuration.ui_row_height - 2) * 10 / 36
+                    if lbl.active:
+                        offset+=lbl.w + (Configuration.ui_row_height - 2) * 10 / 36
                 Colors.multiCarsClasses = (ct > 1)
 
     def next_driver_is_shown(self, pos):

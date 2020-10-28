@@ -2000,7 +2000,9 @@ class CarClass:
             .set(w=35, h=2,
                  x=0, y=-2,
                  background=color, opacity=Colors.tower_border_default_bg_opacity())
-
+        self.lbl_title_bg.setAnimationMode("x", "spring")
+        self.lbl_title_txt.setAnimationMode("x", "spring")
+        self.lbl_title_border.setAnimationMode("x", "spring")
         self.redraw_size(ui_row_height, offset)
         self.partial_func = functools.partial(self.on_click_func, identifier=self.identifier)
         ac.addOnClickedListener(self.lbl_title_bg.label, self.partial_func)
