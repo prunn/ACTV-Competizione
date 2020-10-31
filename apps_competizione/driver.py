@@ -215,7 +215,7 @@ class Driver:
             else:
                 self.lbl_pit.set(color=Colors.tower_pit_txt(), animated=True, init=True)
             self.lbl_p2p.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
-            if ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==3)) and self.isCurrentVehicule.value:
+            if ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==4)) and self.isCurrentVehicule.value:
                 self.lbl_name.set(background=Colors.tower_driver_highlight_odd_bg(), animated=True, init=True)
                 self.lbl_name_txt.set(color=Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
                 self.lbl_time.set(background=Colors.tower_time_highlight_odd_bg(), animated=True, init=True)
@@ -447,7 +447,7 @@ class Driver:
                 self.lbl_name_txt.setColor(Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
             elif not self.isCurrentVehicule.value and self.race and realtime_target_laps > -1 and self.race_current_sector.value + 50 < realtime_target_laps:
                 self.lbl_name_txt.setColor(Colors.tower_driver_blue_txt(), animated=True, init=True)
-            elif not self.race and self.last_lap_in_pit==self.completedLaps.value and Configuration.qual_mode==3 and not self.is_touristenfahrten and not self.isInPit.value: # outlap
+            elif not self.race and self.last_lap_in_pit==self.completedLaps.value and Configuration.qual_mode==4 and not self.is_touristenfahrten and not self.isInPit.value: # outlap
                 self.lbl_name_txt.setColor(Colors.tower_driver_blue_txt(), animated=True, init=True)
             elif not self.isCurrentVehicule.value and self.race and realtime_target_laps > -1 and self.race_current_sector.value - 50 > realtime_target_laps:
                 self.lbl_name_txt.setColor(Colors.tower_driver_lap_up_txt(), animated=True, init=True)
@@ -591,7 +591,7 @@ class Driver:
 
     def set_time(self, time, leader, session_time, mode):
         if self.highlight.value:
-            if mode == 0:
+            if mode == 0 or mode == 2:
                 mode = 1
         self.qual_mode.setValue(mode)
         self.time.setValue(time)
@@ -600,7 +600,9 @@ class Driver:
         #if time_changed or self.gap.hasChanged() or self.qual_mode.hasChanged():
         if time_changed:
             self.time_highlight_end = session_time - 5000
-        if self.time.value == 0:
+        if mode == 2: #tires
+            self.lbl_time_txt.change_font_if_needed().setText(str(ac.getCarTyreCompound(self.identifier))).setColor(Colors.tower_time_qualification_highlight_txt())
+        elif self.time.value == 0:
             self.lbl_time_txt.change_font_if_needed().setText("--").setColor(Colors.tower_time_green_txt())
         elif self.position.value == 1 or mode == 1:
             self.lbl_time_txt.change_font_if_needed().setText(self.format_time(self.time.value)).setColor(Colors.tower_time_qualification_highlight_txt())
@@ -645,7 +647,7 @@ class Driver:
         elif isinstance(time, str) and time.find("NEUTRAL") >= 0:
             self.lbl_time_txt.change_font_if_needed(1).setText(time.replace("NEUTRAL", u"\u25C0")).setColor(normal_color, animated=True, init=True)
         elif self.identifier == identifier or time == 600000:
-            if ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==3)) or time == 600000:# or self.completedLaps.value == 0
+            if ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==4)) or time == 600000:# or self.completedLaps.value == 0
                 self.lbl_time_txt.change_font_if_needed().setText("--.-").setColor(Colors.tower_time_green_txt(), animated=True, init=True)
             else:
                 laps = " Lap"
@@ -780,7 +782,7 @@ class Driver:
             self.lbl_logo.setY(self.final_y + (self.rowHeight - 2) *5/38, True)
             self.lbl_number.setY(self.final_y, True)
             # ------------------- Colors -----------------
-            if battles and ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==3)) and self.isCurrentVehicule.value:
+            if battles and ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==4)) and self.isCurrentVehicule.value:
                 self.lbl_name.set(background=Colors.tower_driver_highlight_odd_bg(), animated=True, init=True)
                 self.lbl_name_txt.set(color=Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
                 self.lbl_position.set(background=Colors.tower_position_highlight_odd_bg(), animated=True, init=True)
@@ -934,7 +936,7 @@ class Driver:
             return prefix + "{0}.{1}".format(int(s), str(int(d)))
 
     def is_compact_mode(self):
-        if not self.race and Configuration.qual_mode==2 and not self.highlight.value:
+        if not self.race and Configuration.qual_mode==3 and not self.highlight.value:
             return True
         if self.race and Configuration.race_mode==7:
             return True

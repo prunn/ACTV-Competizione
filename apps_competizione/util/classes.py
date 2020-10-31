@@ -344,9 +344,6 @@ class Colors:
                 #check car_classes first
                 for index, c in Colors.car_classes.items():
                     if index.find("_cars") >= 0:
-                        tmp=""
-                        for test in c:
-                            tmp += test
                         if car_name in c:
                             cur_class = index.replace("_cars","")
                             driver_index = index.replace("_cars", "_drivers")
