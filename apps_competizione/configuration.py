@@ -224,7 +224,7 @@ class Configuration:
         elif self.__class__.qual_mode == 1:
             self.lbl_qual_mode.setText("Times")
         elif self.__class__.qual_mode == 2:
-            self.lbl_qual_mode.setText("Tires")
+            self.lbl_qual_mode.setText("Sectors")
         elif self.__class__.qual_mode == 3:
             self.lbl_qual_mode.setText("Compact")
         else:

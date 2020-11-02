@@ -121,7 +121,7 @@ class ACTower:
             height = self.ui_row_height.value - 2
             font_size2 = Font.get_font_size(height - 2 + font_offset)
             width=self.ui_row_height.value * 170/38
-            self.window.setSize(width, self.ui_row_height.value * 5)
+            self.window.setSize(width, self.ui_row_height.value * 3)
             self.lbl_title_mode.set(w=width, h=height - 2, y=-(height - 2))
             self.lbl_title_mode_txt.set(w=width, h=height - 2,
                                         y=-(height - 2) + Font.get_font_x_offset(),
@@ -224,7 +224,7 @@ class ACTower:
             elif self.qual_mode.value == 1:
                 self.lbl_title_mode_txt.setText("Times")
             elif self.qual_mode.value == 2:
-                self.lbl_title_mode_txt.setText("Tires")
+                self.lbl_title_mode_txt.setText("Sectors")
             elif self.qual_mode.value == 3:
                 self.lbl_title_mode_txt.setText("Compact")
             else:
@@ -255,8 +255,11 @@ class ACTower:
 
         ##########################################
         display_offset = cur_driver_pos = 0
+        fastest_driver_sectors = []
         for driver in self.drivers:
             driver.isAlive.setValue(bool(ac.isConnected(driver.identifier)))
+            if len(current_standings) > 0 and driver.identifier == current_standings[0][0]:
+                fastest_driver_sectors = driver.bestLap_sectors
             if driver.identifier == self.currentVehicule.value:
                 driver.isCurrentVehicule.setValue(True)
                 cur_driver = driver
@@ -332,9 +335,9 @@ class ACTower:
                         driver.set_position(p[0] + 1, display_offset, False)
                     driver.show(needs_tlc=needs_tlc, race=False, compact=Configuration.qual_mode == 3)
                     if c > 0:# and driver.completedLaps.value > self.minLapCount
-                        driver.set_time(c, current_standings[0][1], self.sessionTimeLeft, self.qual_mode.value)
+                        driver.set_time(c, current_standings[0][1], self.sessionTimeLeft, self.qual_mode.value, fastest_driver_sectors)
                     else:
-                        driver.set_time(0, current_standings[0][1], self.sessionTimeLeft, self.qual_mode.value)
+                        driver.set_time(0, current_standings[0][1], self.sessionTimeLeft, self.qual_mode.value, fastest_driver_sectors)
                     driver.update_pit(self.sessionTimeLeft)
                 else:
                     driver.hide()
@@ -346,7 +349,7 @@ class ACTower:
             elif self.qual_mode.value == 1:
                 self.lbl_title_mode_txt.setText("Times")
             elif self.qual_mode.value == 2:
-                self.lbl_title_mode_txt.setText("Tires")
+                self.lbl_title_mode_txt.setText("Sectors")
             elif self.qual_mode.value == 3:
                 self.lbl_title_mode_txt.setText("Compact")
             else:
@@ -1105,7 +1108,7 @@ class ACTower:
         if self.cars_classes_mouse.hasChanged() and self.cars_classes_triggered:
             self.cars_classes_timeout = self.sessionTimeLeft - 5000
         for i, lbl in enumerate(self.cars_classes):
-            if not lbl.active or (self.session.value == 2 and Configuration.race_mode == 8) or (self.session.value < 2 and Configuration.qual_mode==4):# realtime
+            if not Colors.multiCarsClasses or not lbl.active or (self.session.value == 2 and Configuration.race_mode == 8) or (self.session.value < 2 and Configuration.qual_mode==4):# realtime
                 lbl.hide()
             elif i > 0 and i == Colors.cars_classes_current + 1: # current not overall
                 lbl.show()

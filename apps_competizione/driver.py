@@ -337,15 +337,17 @@ class Driver:
         self.lbl_pit_bg.set(w=self.rowHeight * 11/38, h=self.rowHeight - 2,
                          x=x - self.rowHeight * 11/38,
                          animated=True)
-        self.lbl_pit.set(w=self.rowHeight * 15/38, h=self.rowHeight - 2,
-                         x=x - self.rowHeight * 12/38,
+        self.lbl_pit.set(w=self.rowHeight * 14/38, h=self.rowHeight - 2,
+                         x=x - self.rowHeight * 11/38,
                          font_size=font_size - self.rowHeight*8/38, animated=True)
         if self.is_compact_mode():
             x -= self.rowHeight * 11/38
-        self.lbl_tires_bg.set(w=self.rowHeight * 15/38, h=self.rowHeight - 2,
+        t = str(ac.getCarTyreCompound(self.identifier))
+        w=self.rowHeight * 15/38*len(t)
+        self.lbl_tires_bg.set(w=w, h=self.rowHeight - 2,
                          x=x,
                          animated=True)
-        self.lbl_tires_txt.set(w=self.rowHeight * 15/38, h=self.rowHeight - 2,
+        self.lbl_tires_txt.set(w=w, h=self.rowHeight - 2,
                          x=x,
                          font_size=font_size - self.rowHeight*8/38, animated=True)
 
@@ -500,7 +502,7 @@ class Driver:
             x=self.get_pit_x()
 
             self.lbl_pit_bg.set(x=x - self.rowHeight * 11 / 38)
-            self.lbl_pit.set(x=x - self.rowHeight * 12 / 38)
+            self.lbl_pit.set(x=x - self.rowHeight * 11 / 38)
 
             self.lbl_pit.show()
             self.lbl_pit_bg.show()
@@ -513,8 +515,8 @@ class Driver:
                 if self.is_compact_mode():
                     x-=self.rowHeight * 11 / 38
                 w = self.rowHeight * 15/38 * len(t)
-                self.lbl_tires_bg.set(x=x,w=w)
-                self.lbl_tires_txt.set(x=x,w=w)
+                self.lbl_tires_bg.set(x=x,w=w, animated=True)
+                self.lbl_tires_txt.set(x=x,w=w, animated=True)
                 self.lbl_tires_txt.setText(t).show()
                 self.lbl_tires_bg.show()
             else:
@@ -631,7 +633,7 @@ class Driver:
         else:
             self.lbl_name_txt.setText(offset + self.format_last_name(self.fullName.value))
 
-    def set_time(self, time, leader, session_time, mode):
+    def set_time(self, time, leader, session_time, mode, fastest_driver_sectors=[]):
         if self.highlight.value:
             if mode == 0 or mode == 2:
                 mode = 1
@@ -642,8 +644,47 @@ class Driver:
         #if time_changed or self.gap.hasChanged() or self.qual_mode.hasChanged():
         if time_changed:
             self.time_highlight_end = session_time - 5000
-        if mode == 2: #tires
-            self.lbl_time_txt.change_font_if_needed().setText(str(ac.getCarTyreCompound(self.identifier))).setColor(Colors.tower_time_qualification_highlight_txt())
+        if mode == 2: #----- sector? delta?
+            splits = ac.getCurrentSplits(self.identifier)
+            sector_time=best_time=pb_time=0
+            for i,c in enumerate(splits):
+                if c == 0:
+                    break
+                sector_time+=c
+                if len(self.bestLap_sectors) > i:
+                    pb_time += self.bestLap_sectors[i]
+                if len(fastest_driver_sectors) > i:
+                    best_time += fastest_driver_sectors[i]
+
+            display_color = Colors.tower_time_qualification_highlight_txt()
+            if self.isInPit.value and self.time.value == 0:
+                display_time = "--"
+                display_color = Colors.tower_time_green_txt()
+            elif self.isInPit.value:
+                display_time = self.format_time(self.time.value)
+            elif best_time > 0 and sector_time > 0:
+                #if comparable
+                if sector_time < best_time:
+                    # Purple
+                    display_time = "-" + self.format_time(best_time - sector_time)
+                    display_color = Colors.tower_time_best_lap_txt()
+                elif pb_time==0 or sector_time < pb_time:
+                    # Green
+                    display_time = "+" + self.format_time(sector_time - best_time)
+                    display_color = Colors.tower_time_green_txt()
+                else:
+                    # Slow
+                    display_time = "+" + self.format_time(sector_time - best_time)
+                    display_color = Colors.tower_time_odd_txt()
+            elif self.time.value == 0:
+                display_time = "--"
+                display_color = Colors.tower_time_green_txt()
+            elif sector_time == 0:
+                display_time = self.format_time(self.time.value)
+            else:
+                display_time = self.format_time(sector_time)
+
+            self.lbl_time_txt.change_font_if_needed().setText(display_time).setColor(display_color)
         elif self.time.value == 0:
             self.lbl_time_txt.change_font_if_needed().setText("--").setColor(Colors.tower_time_green_txt())
         elif self.position.value == 1 or mode == 1:
@@ -982,7 +1023,7 @@ class Driver:
             return prefix + "{0}.{1}".format(int(s), str(int(d)))
 
     def is_compact_mode(self):
-        if not self.race and Configuration.qual_mode==3 and not self.highlight.value:
+        if not self.race and Configuration.qual_mode==3:# and not self.highlight.value:
             return True
         if self.race and Configuration.race_mode==7:
             return True
@@ -1036,16 +1077,19 @@ class Driver:
                 if self.highlight.hasChanged():
                     if self.highlight.value or Configuration.qual_mode==1:
                         self.lbl_time_txt.setColor(Colors.tower_time_qualification_highlight_txt(), animated=True, init=True)
-                        self.lbl_time.show()
-                        self.lbl_time_txt.show()
+                        #self.lbl_time.show()
+                        #self.lbl_time_txt.show()
                     else:
                         self.lbl_time_txt.setColor(Colors.tower_time_odd_txt(), animated=True, init=True)
+                        '''
                         if self.is_compact_mode():
                             self.lbl_time.hide()
                             self.lbl_time_txt.hide()
                         else:
                             self.lbl_time.show()
                             self.lbl_time_txt.show()
+                        
+                        '''
                 self.lbl_name.set(w=self.get_name_width(), animated=True)
                 #self.lbl_pit.setX(self.get_pit_x(), True)
             '''
