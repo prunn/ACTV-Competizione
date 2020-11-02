@@ -117,6 +117,16 @@ class Driver:
                  font_size=fontSize - 3,
                  align="center",
                  opacity=0)
+        self.lbl_tires_bg = Label(app) \
+            .set(w=self.rowHeight * 0.6, h=self.rowHeight - 2,
+                 x=self.rowHeight * 6, y=self.final_y + 2,
+                 opacity=1)
+        self.lbl_tires_txt = Label(app, "") \
+            .set(w=self.rowHeight * 0.6, h=self.rowHeight - 2,
+                 x=self.rowHeight * 6, y=self.final_y + 2,
+                 font_size=fontSize - 3,
+                 align="center",
+                 opacity=0)
         self.lbl_status = Label(app) \
             .set(w=self.rowHeight * 2.8, h=2,
                  x=0, y=self.rowHeight - 2,
@@ -135,6 +145,8 @@ class Driver:
         self.lbl_p2p.setAnimationMode("y", "spring")
         self.lbl_pit_bg.setAnimationMode("y", "spring")
         self.lbl_pit.setAnimationMode("y", "spring")
+        self.lbl_tires_bg.setAnimationMode("y", "spring")
+        self.lbl_tires_txt.setAnimationMode("y", "spring")
         self.lbl_time_txt = Label(app, "+0.000") \
             .set(w=self.rowHeight * 4.7, h=self.rowHeight,
                  x=self.rowHeight, y=0,
@@ -214,6 +226,8 @@ class Driver:
                 self.lbl_pit.set(color=Colors.tower_pit_highlight_txt(), animated=True, init=True)
             else:
                 self.lbl_pit.set(color=Colors.tower_pit_txt(), animated=True, init=True)
+            self.lbl_tires_bg.set(background=Colors.tower_tires_bg(), animated=True, init=True)
+            self.lbl_tires_txt.set(color=Colors.tower_tires_txt(), animated=True, init=True)
             self.lbl_p2p.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
             if ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==4)) and self.isCurrentVehicule.value:
                 self.lbl_name.set(background=Colors.tower_driver_highlight_odd_bg(), animated=True, init=True)
@@ -268,6 +282,7 @@ class Driver:
             self.lbl_number_txt.update_font()
             self.lbl_pit.update_font()
             self.lbl_p2p.update_font()
+            self.lbl_tires_txt.update_font()
         # UI
         #self.position.setValue(-1) + border_offset
         x=0
@@ -322,8 +337,16 @@ class Driver:
         self.lbl_pit_bg.set(w=self.rowHeight * 11/38, h=self.rowHeight - 2,
                          x=x - self.rowHeight * 11/38,
                          animated=True)
-        self.lbl_pit.set(w=self.rowHeight * 11/38, h=self.rowHeight - 2,
-                         x=x - self.rowHeight * 11/38,
+        self.lbl_pit.set(w=self.rowHeight * 15/38, h=self.rowHeight - 2,
+                         x=x - self.rowHeight * 12/38,
+                         font_size=font_size - self.rowHeight*8/38, animated=True)
+        if self.is_compact_mode():
+            x -= self.rowHeight * 11/38
+        self.lbl_tires_bg.set(w=self.rowHeight * 15/38, h=self.rowHeight - 2,
+                         x=x,
+                         animated=True)
+        self.lbl_tires_txt.set(w=self.rowHeight * 15/38, h=self.rowHeight - 2,
+                         x=x,
                          font_size=font_size - self.rowHeight*8/38, animated=True)
 
         if self.isDisplayed:
@@ -335,9 +358,11 @@ class Driver:
             self.lbl_position_txt.setText(str(self.position.value))
             self.lbl_position.setY(self.final_y, True)
             self.lbl_pit_bg.setY(self.final_y, True)
+            self.lbl_tires_bg.setY(self.final_y, True)
             self.lbl_position_txt.setY(self.final_y + Font.get_font_x_offset(), True)
             self.lbl_number_txt.setY(self.final_y + Font.get_font_x_offset(), True)
             self.lbl_pit.setY(self.final_y + self.rowHeight*5/38 + Font.get_font_x_offset(), True)
+            self.lbl_tires_txt.setY(self.final_y + self.rowHeight*5/38 + Font.get_font_x_offset(), True)
             self.lbl_p2p.setY(self.final_y + self.rowHeight*5/38 + Font.get_font_x_offset(), True)
 
             self.lbl_logo_bg.setY(self.final_y, True)
@@ -470,16 +495,31 @@ class Driver:
             else:
                 x += self.get_time_width(), animated=True, animated=True
             '''
+            self.lbl_tires_txt.hide()
+            self.lbl_tires_bg.hide()
             x=self.get_pit_x()
 
             self.lbl_pit_bg.set(x=x - self.rowHeight * 11 / 38)
-            self.lbl_pit.set(x=x - self.rowHeight * 11 / 38)
+            self.lbl_pit.set(x=x - self.rowHeight * 12 / 38)
 
             self.lbl_pit.show()
             self.lbl_pit_bg.show()
         else:
             self.lbl_pit.hide()
             self.lbl_pit_bg.hide()
+            if Configuration.show_tires:
+                t = str(ac.getCarTyreCompound(self.identifier))
+                x = self.get_pit_x()# - self.rowHeight * 11 / 38
+                if self.is_compact_mode():
+                    x-=self.rowHeight * 11 / 38
+                w = self.rowHeight * 15/38 * len(t)
+                self.lbl_tires_bg.set(x=x,w=w)
+                self.lbl_tires_txt.set(x=x,w=w)
+                self.lbl_tires_txt.setText(t).show()
+                self.lbl_tires_bg.show()
+            else:
+                self.lbl_tires_txt.hide()
+                self.lbl_tires_bg.hide()
 
         if session_time == -1:
             self.pit_highlight_end = 0
@@ -493,6 +533,8 @@ class Driver:
     def hide(self, reset=False):
         self.lbl_position.hide()
         self.lbl_pit_bg.hide()
+        self.lbl_tires_bg.hide()
+        self.lbl_tires_txt.hide()
         self.lbl_position_txt.hide()
         self.lbl_number_txt.hide()
         self.lbl_pit.hide()
@@ -745,9 +787,11 @@ class Driver:
                 self.lbl_name_txt.setY(self.final_y + Font.get_font_x_offset())
                 self.lbl_position.setY(self.final_y)
                 self.lbl_pit_bg.setY(self.final_y)
+                self.lbl_tires_bg.setY(self.final_y)
                 self.lbl_position_txt.setY(self.final_y + Font.get_font_x_offset())
                 self.lbl_number_txt.setY(self.final_y + Font.get_font_x_offset())
                 self.lbl_pit.setY(self.final_y + self.rowHeight*5/38 + Font.get_font_x_offset())
+                self.lbl_tires_txt.setY(self.final_y + self.rowHeight*5/38 + Font.get_font_x_offset())
                 self.lbl_p2p.setY(self.final_y + self.rowHeight*5/38 + Font.get_font_x_offset())
                 self.lbl_time.setY(self.final_y)
                 self.lbl_time_txt.setY(self.final_y + Font.get_font_x_offset())
@@ -766,9 +810,11 @@ class Driver:
             self.lbl_name_txt.setY(self.final_y + Font.get_font_x_offset(), True)
             self.lbl_position.setY(self.final_y, True)
             self.lbl_pit_bg.setY(self.final_y, True)
+            self.lbl_tires_bg.setY(self.final_y, True)
             self.lbl_position_txt.setY(self.final_y + Font.get_font_x_offset(), True)
             self.lbl_number_txt.setY(self.final_y + Font.get_font_x_offset(), True)
             self.lbl_pit.setY(self.final_y + Font.get_font_x_offset() + self.rowHeight*5/38, True)  #  + self.rowHeight/10 +3
+            self.lbl_tires_txt.setY(self.final_y + Font.get_font_x_offset() + self.rowHeight*5/38, True)  #  + self.rowHeight/10 +3
             self.lbl_p2p.setY(self.final_y + Font.get_font_x_offset() + self.rowHeight*5/38, True)  # + 5
 
             self.lbl_time.setY(self.final_y, True)
@@ -1015,6 +1061,8 @@ class Driver:
         # not isLapLabel
         self.lbl_position.animate()
         self.lbl_pit_bg.animate()
+        self.lbl_tires_bg.animate()
+        self.lbl_tires_txt.animate()
         self.lbl_position_txt.animate()
         self.lbl_number_txt.animate()
         self.lbl_pit.animate()

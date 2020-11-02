@@ -22,6 +22,7 @@ class Configuration:
     theme_green = 0
     theme_blue = 0
     tower_highlight = 0
+    show_tires = 1
     theme_ini = 'apps/python/actv_competizione/themes/cp.ini'
 
     # INITIALIZATION
@@ -34,7 +35,7 @@ class Configuration:
 
 
 
-        self.window = Window(name="ACTV CP Config", icon=False, width=251, height=470, texture="").setBgOpacity(0)
+        self.window = Window(name="ACTV CP Config", icon=False, width=251, height=500, texture="").setBgOpacity(0)
 
         y = 50
         self.spin_race_mode = ac.addSpinner(self.window.app, "Race tower mode :")
@@ -102,6 +103,15 @@ class Configuration:
             .setFontSize(14).setAlign("left")\
             .setVisible(1)
 
+        y += 33
+        self.chk_show_tires = ac.addCheckBox(self.window.app, "")
+        ac.setPosition(self.chk_show_tires, 20, y)
+        ac.addOnCheckBoxChanged(self.chk_show_tires, self.on_check_show_tires_changed)
+        self.lbl_title_show_tires = Label(self.window.app, "Show tires (tower)")\
+            .setSize(200, 26).setPos(65, y + 3)\
+            .setFontSize(14).setAlign("left")\
+            .setVisible(1)
+
         self.cfg_loaded = False
         self.cfg = Config("apps/python/actv_competizione/", "config.ini")
         self.load_cfg()
@@ -121,6 +131,9 @@ class Configuration:
         self.__class__.save_delta = self.cfg.get("SETTINGS", "save_delta", "int")
         if self.__class__.save_delta == -1:
             self.__class__.save_delta = 1
+        self.__class__.show_tires = self.cfg.get("SETTINGS", "show_tires", "int")
+        if self.__class__.show_tires == -1:
+            self.__class__.show_tires = 1
         self.__class__.max_num_cars = self.cfg.get("SETTINGS", "num_cars_tower", "int")
         if self.__class__.max_num_cars == -1:
             self.__class__.max_num_cars = 10
@@ -186,6 +199,7 @@ class Configuration:
         ac.setValue(self.spin_row_height, self.__class__.ui_row_height)
         ac.setValue(self.chk_force_info, self.__class__.forceInfoVisible)
         ac.setValue(self.chk_save_delta, self.__class__.save_delta)
+        ac.setValue(self.chk_show_tires, self.__class__.show_tires)
         self.set_labels()
         self.cfg_loaded = True
 
@@ -196,6 +210,7 @@ class Configuration:
         self.cfg.set("SETTINGS", "names", self.__class__.names)
         self.cfg.set("SETTINGS", "force_info_visible", self.__class__.forceInfoVisible)
         self.cfg.set("SETTINGS", "save_delta", self.__class__.save_delta)
+        self.cfg.set("SETTINGS", "show_tires", self.__class__.show_tires)
         self.cfg.set("SETTINGS", "num_cars_tower", self.__class__.max_num_cars)
         self.cfg.set("SETTINGS", "ui_row_height", self.__class__.ui_row_height)
         #self.cfg.set("SETTINGS", "font_ini", Font.font_ini)
@@ -260,8 +275,10 @@ class Configuration:
         ac.setVisible(self.spin_row_height, 0)
         ac.setVisible(self.chk_force_info, 0)
         ac.setVisible(self.chk_save_delta, 0)
+        ac.setVisible(self.chk_show_tires, 0)
         self.lbl_title_force_info.setVisible(0)
         self.lbl_title_save_delta.setVisible(0)
+        self.lbl_title_show_tires.setVisible(0)
         self.lbl_race_mode.setVisible(0)
         self.lbl_qual_mode.setVisible(0)
         self.lbl_names.setVisible(0)
@@ -274,8 +291,10 @@ class Configuration:
         ac.setVisible(self.spin_row_height, 1)
         ac.setVisible(self.chk_force_info, 1)
         ac.setVisible(self.chk_save_delta, 1)
+        ac.setVisible(self.chk_show_tires, 1)
         self.lbl_title_force_info.setVisible(1)
         self.lbl_title_save_delta.setVisible(1)
+        self.lbl_title_show_tires.setVisible(1)
         self.lbl_race_mode.setVisible(1)
         self.lbl_qual_mode.setVisible(1)
         self.lbl_names.setVisible(1)
@@ -360,6 +379,11 @@ class Configuration:
     @staticmethod
     def on_check_save_delta_changed(name, state):
         Configuration.save_delta = state
+        Configuration.configChanged = True
+
+    @staticmethod
+    def on_check_show_tires_changed(name, state):
+        Configuration.show_tires = state
         Configuration.configChanged = True
 
     @staticmethod

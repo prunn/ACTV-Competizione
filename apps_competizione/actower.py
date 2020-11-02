@@ -1094,11 +1094,12 @@ class ACTower:
                     show = False
                     break
             if self.cursor.value and show:
-                self.window.setBgOpacity(0.1).border(0)
+                #self.window.setBgOpacity(0.1).border(0)
                 self.window.showTitle(True)
             else:
-                self.window.setBgOpacity(0).border(0)
+                #self.window.setBgOpacity(0).border(0)
                 self.window.showTitle(False)
+        self.window.setBgOpacity(0).border(0)
         # Classes swap
         self.cars_classes_mouse.setValue(pt.x + pt.y)
         if self.cars_classes_mouse.hasChanged() and self.cars_classes_triggered:

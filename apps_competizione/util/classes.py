@@ -233,6 +233,8 @@ class Colors:
         'tower_position_retired_txt': rgb([0, 0, 0]),
         'tower_position_retired_bg': rgb([0, 0, 0]),
         'tower_pit_txt': rgb([0, 0, 0]),
+        'tower_tires_txt': rgb([0, 0, 0]),
+        'tower_tires_bg': rgb([0, 0, 0]),
         'tower_pit_highlight_txt': rgb([0, 0, 0]),
         'tower_stint_lap_invalid_txt': rgb([0, 0, 0]),
         'tower_p2p_txt': rgb([0, 0, 0]),
@@ -726,6 +728,14 @@ class Colors:
         if Colors.general_theme > 0:
             return Colors.get_color_for_key('tower_pit_txt')
         return rgb([225, 225, 225])
+
+    @staticmethod
+    def tower_tires_txt():
+        return Colors.get_color_for_key('tower_tires_txt')
+
+    @staticmethod
+    def tower_tires_bg():
+        return Colors.get_color_for_key('tower_tires_bg')
 
     @staticmethod
     def tower_pit_highlight_txt():
