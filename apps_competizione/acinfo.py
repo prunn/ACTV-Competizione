@@ -84,6 +84,7 @@ class ACInfo:
         self.drivers_sector_times = []
         self.drivers_sector_times_last_lap = []
         self.drivers_best_lap_sector_times = []
+        self.drivers_best_lap_splits = []
         self.drivers_is_in_pit = []
         for _ in range(self.cars_count):
             self.drivers_lap_count.append(Value(0))
@@ -91,6 +92,7 @@ class ACInfo:
             self.drivers_sector_times.append([])
             self.drivers_sector_times_last_lap.append([])
             self.drivers_best_lap_sector_times.append([])
+            self.drivers_best_lap_splits.append([])
             self.drivers_is_in_pit.append(Value(0))
         self.last_lap_start = [-1] * self.cars_count
         self.last_sector_start = [-1] * self.cars_count
@@ -398,6 +400,7 @@ class ACInfo:
                 return "{0}.{1}".format(int(s), int(d))
 
     def get_sector(self,sim_info,vehicle):
+        '''
         if not self.sector_mapping and len(self.sector_map):
             i=len(self.sector_map)
             spline=ac.getCarState(vehicle, acsys.CS.NormalizedSplinePosition)
@@ -408,6 +411,7 @@ class ACInfo:
             return 0
         if vehicle == 0:
             return sim_info.graphics.currentSectorIndex
+        '''
 
         splits = ac.getCurrentSplits(vehicle)
         i = 0
@@ -714,6 +718,7 @@ class ACInfo:
             self.drivers_sector_times = []
             self.drivers_sector_times_last_lap = []
             self.drivers_best_lap_sector_times = []
+            self.drivers_best_lap_splits = []
             self.drivers_is_in_pit = []
             self.last_sector_start = [-1] * self.cars_count #add session_time_left
             for i in range(self.cars_count):
@@ -722,6 +727,7 @@ class ACInfo:
                 self.drivers_sector_times.append([])
                 self.drivers_sector_times_last_lap.append([])
                 self.drivers_best_lap_sector_times.append([])
+                self.drivers_best_lap_splits.append([])
                 self.drivers_is_in_pit.append(Value(0))
                 self.last_sector_start[i] = session_time_left
             self.last_lap_start = [-1] * self.cars_count
@@ -833,6 +839,7 @@ class ACInfo:
                             if ac.getCarState(i, acsys.CS.LastLap) <= ac.getCarState(i, acsys.CS.BestLap):
                                 # save fastest lap sectors
                                 self.drivers_best_lap_sector_times[i] = self.drivers_sector_times[i]
+                                self.drivers_best_lap_splits[i] = ac.getLastSplits(i)
                             #Reset
                             self.drivers_sector_times_last_lap[i]=self.drivers_sector_times[i]
                             self.drivers_sector_times[i]=[]
@@ -916,16 +923,24 @@ class ACInfo:
                             self.info_position.hide()
                             self.info_position_txt.hide()
                             #keep old best lap sectors for lap en compare
-                            if len(self.drivers_best_lap_sector_times[fastest_lap_driver_id]) > 0:
-                                self.driver_old_fastest_sectors = self.drivers_best_lap_sector_times[fastest_lap_driver_id]
+                            #if len(self.drivers_best_lap_sector_times[fastest_lap_driver_id]) > 0:
+                            #self.driver_old_fastest_sectors = self.drivers_best_lap_sector_times[fastest_lap_driver_id]
+                            if len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > 0:
+                                self.driver_old_fastest_sectors = self.drivers_best_lap_splits[fastest_lap_driver_id]
 
                     ################################## Sectors ###########################
                     if self.timing_visible.value == 1:
+                        if sector < self.sectorCount:
+                            splits = ac.getCurrentSplits(self.currentVehicle.value)
+                        else:
+                            splits = ac.getLastSplits(self.currentVehicle.value)
                         i = 0
                         for l in self.lbl_sectors_bg:
-                            if i < sector and len(self.drivers_best_lap_sector_times[fastest_lap_driver_id]) > i:
+                            if i < sector and len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i:
+
                                 driver_best_sector=driver_current_lap_sector=-1
-                                best_split = self.drivers_best_lap_sector_times[fastest_lap_driver_id][i]
+                                '''
+                                #best_split = self.drivers_best_lap_sector_times[fastest_lap_driver_id][i]
                                 if sector == self.sectorCount:
                                     #ac.console("----------test--- last")
                                     if len(self.drivers_sector_times_last_lap[self.currentVehicle.value]) > i:
@@ -935,9 +950,17 @@ class ACInfo:
                                         driver_current_lap_sector = self.drivers_sector_times[self.currentVehicle.value][i]
                                 #driver_best_sector = self.get_driver_best_sector(self.currentVehicle.value, i) and len(self.drivers_best_lap_sector_times[fastest_lap_driver_id]) > i
 
-                                if len(self.drivers_best_lap_sector_times[self.currentVehicle.value]) > i:
-                                    driver_best_sector = self.drivers_best_lap_sector_times[self.currentVehicle.value][i]
+                                #if len(self.drivers_best_lap_sector_times[self.currentVehicle.value]) > i:
+                                #    driver_best_sector = self.drivers_best_lap_sector_times[self.currentVehicle.value][i]
                                 #ac.console("B:" + str(best_split) + " PB:" + str(driver_best_sector) + " Cur:" + str(driver_current_lap_sector))
+                                '''
+
+                                if len(splits) > i:
+                                    driver_current_lap_sector = splits[i]
+                                if len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i:
+                                    best_split = self.drivers_best_lap_splits[fastest_lap_driver_id][i]
+                                if len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i:
+                                    driver_best_sector = self.drivers_best_lap_splits[self.currentVehicle.value][i]
 
                                 if best_split >= driver_current_lap_sector:
                                     #old fastest lap
