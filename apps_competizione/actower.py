@@ -949,8 +949,10 @@ class ACTower:
 
     def load_drivers_info(self, sim_info):
         PitWindowStart=sim_info.static.PitWindowStart
+        pitWindowEnd = sim_info.static.PitWindowEnd
         for driver in self.drivers:
-            driver.PitWindowStart=PitWindowStart
+            if PitWindowStart > 0 or pitWindowEnd > 0:
+                driver.PitWindowStart=PitWindowStart
         # Offline only
         if not self.is_multiplayer:
             # Open race.ini

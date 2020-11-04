@@ -519,7 +519,7 @@ class ACTimer:
                 if self.numberOfLaps > 0:
                     self.numberOfLapsCompleted.setValue(completed)
                     if self.numberOfLapsCompleted.hasChanged():
-                        if self.numberOfLapsCompleted.value == self.pitWindowStart:
+                        if self.numberOfLapsCompleted.value == self.pitWindowStart and not (sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
                             self.pitWindowVisibleEnd = session_time_left - 8000
                             self.pitWindowActive = True
                         elif self.numberOfLapsCompleted.value == self.pitWindowEnd:
@@ -533,7 +533,7 @@ class ACTimer:
                 else:
                     if self.sessionMaxTime < 0:
                         self.sessionMaxTime = round(session_time_left, -3)
-                    if not self.pitWindowActive and session_time_left <= self.sessionMaxTime - self.pitWindowStart * 60 * 1000 and session_time_left >= self.sessionMaxTime - self.pitWindowEnd * 60 * 1000:
+                    if not self.pitWindowActive and session_time_left <= self.sessionMaxTime - self.pitWindowStart * 60 * 1000 and session_time_left >= self.sessionMaxTime - self.pitWindowEnd * 60 * 1000 and not (sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
                         self.pitWindowVisibleEnd = session_time_left - 8000
                         self.pitWindowActive = True
                     elif self.pitWindowActive and session_time_left < self.sessionMaxTime - self.pitWindowEnd * 60 * 1000:

@@ -27,7 +27,7 @@ class Driver:
         self.isLapTimeValid=True
         self.row_height = Value(-1)
         self.hasStartedRace = False
-        self.PitWindowStart=False
+        self.PitWindowStart=-1
         self.inPitFromPitLane = False
         self.isInPitLane = Value(False)
         self.isInPitLaneOld = False
@@ -68,7 +68,7 @@ class Driver:
         self.position_highlight_end = 0
         self.highlight = Value()
         self.pit_highlight_end = 0
-        self.pit_stops = 0
+        self.pit_stops_mandatory_done = False
         self.pit_stops_count = 0
         self.last_lap_in_pit = -1
         self.pit_highlight = Value()
@@ -391,24 +391,13 @@ class Driver:
             self.lbl_status.set(background=Colors.status_stopped_ontrack(), animated=True, init=True) # yellow flag on driver
             if self.push_2_pass_left.value > 0:
                 self.push_2_pass_status.setValue(-1)
-        elif self.PitWindowStart > 0 and self.pit_stops == 0:
+        elif self.race and self.PitWindowStart >= 0 and not self.pit_stops_mandatory_done:
             self.lbl_p2p.setText("1").show()
             self.lbl_status.set(background=Colors.status_pitstop(), animated=True, init=True)
         else:
             # P2P
             if self.push_2_pass_status.value > 0 and self.push_2_pass_left.value > 0:
                 self.lbl_p2p.show()
-                '''
-                if self.push_2_pass_status.value == 1:  # COOLING = 1
-                    #self.lbl_p2p.setColor(Colors.tower_p2p_cooling(), animated=True, init=True)
-                    self.lbl_status.set(background=Colors.status_pitstop(), animated=True, init=True).show()
-                elif self.push_2_pass_status.value == 2:  # AVAILABLE = 2
-                    #self.lbl_p2p.setColor(Colors.tower_p2p_txt(), animated=True, init=True)
-                    self.lbl_status.set(background=Colors.green_bg(), animated=True, init=True).show()
-                elif self.push_2_pass_status.value == 3:  # ACTIVE = 3
-                    #self.lbl_p2p.setColor(Colors.tower_p2p_active(), animated=True, init=True)
-                    self.lbl_status.set(background=Colors.tower_p2p_active(), animated=True, init=True).show()
-                '''
             else:
                 self.lbl_p2p.hide()
                 self.lbl_status.set(background=Colors.status_green(), animated=True, init=True) #todo: green png + border
@@ -583,7 +572,7 @@ class Driver:
             self.last_lap_visible_end = 0
             self.time_highlight_end = 0
             self.bestLap = 0
-            self.pit_stops = 0
+            self.pit_stops_mandatory_done = False
             self.pit_stops_count = 0
             self.bestLapServer = 0
             self.position_highlight_end = 0
@@ -811,7 +800,7 @@ class Driver:
                         self.last_lap_in_pit = self.completedLaps.value
                     self.inPitFromPitLane = self.isInPitLaneOld
                     if self.pit_window_active and self.inPitFromPitLane:
-                        self.pit_stops = 1
+                        self.pit_stops_mandatory_done = True
                 else:
                     self.inPitFromPitLane = False
             self.isInPitLaneOld = self.isInPitLane.value
