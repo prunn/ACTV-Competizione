@@ -38,7 +38,6 @@ class ACInfo:
             self.lapTimesArray.append(lapTimeStart(0, 0, 0))
             self.driversLap.append(Value(0))
         self.drivers_info = []
-        self.drivers_best_sectors = []
         self.standings = None
         self.track_name = ac.getTrackName(0)
         self.track_config = ac.getTrackConfiguration(0)
@@ -68,30 +67,19 @@ class ACInfo:
                  align="left",
                  opacity=0)
         self.driver_name_visible = Value()
-        self.driver_name_visible_fin = Value(0)
         self.driver_name_text = Value("")
         self.position_visible = Value(0)
         self.timing_text = Value()
         self.race_fastest_lap = Value(0)
         self.race_fastest_lap_driver = Value()
-        self.sector_mapping = True
-        self.sector_map = []
-        self.sector_map_current = Value()
-
         self.driver_old_fastest_sectors = []
         self.drivers_lap_count = []
         self.drivers_sector = []
-        self.drivers_sector_times = []
-        self.drivers_sector_times_last_lap = []
-        self.drivers_best_lap_sector_times = []
         self.drivers_best_lap_splits = []
         self.drivers_is_in_pit = []
         for _ in range(self.cars_count):
             self.drivers_lap_count.append(Value(0))
             self.drivers_sector.append(Value(0))
-            self.drivers_sector_times.append([])
-            self.drivers_sector_times_last_lap.append([])
-            self.drivers_best_lap_sector_times.append([])
             self.drivers_best_lap_splits.append([])
             self.drivers_is_in_pit.append(Value(0))
         self.last_lap_start = [-1] * self.cars_count
@@ -168,31 +156,12 @@ class ACInfo:
         self.lbl_sectors_title_bg = []
         self.lbl_sectors_title_txt = []
         self.lbl_sectors_init = False
-        cfg_sectors_map = Config("apps/python/actv_competizione/", "actv_data.ini")
-        sectors_map = cfg_sectors_map.get("sectors_map", self.track_name + "_" + self.track_config, "string")
-        if sectors_map != -1:
-            self.sector_map = list(map(float, sectors_map.split(";")))
-
         self.load_cfg()
         self.info_position.setAnimationSpeed("o", 0.1)
         self.info_number.setAnimationSpeed("o", 0.1)
         self.lbl_car_class_bg.setAnimationSpeed("o", 0.1)
         self.lbl_split.setAnimationSpeed("a", 0.1)
         self.lbl_fastest_split.setAnimationSpeed("a", 0.1)
-
-    def on_shutdown(self):
-        # saving sector map
-        section = "sectors_map"
-        if len(self.sector_map) > 0:
-            valid=True
-            for m in self.sector_map:
-                if m < 0:
-                    valid=False
-            if valid:
-                cfg = Config("apps/python/actv_competizione/", "actv_data.ini")
-                if not cfg.has(section):
-                    cfg.set(section)
-                cfg.set(section, self.track_name + "_" + self.track_config, ';'.join(map(str, self.sector_map)))
 
     # PUBLIC METHODS
     # ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -399,27 +368,12 @@ class ACInfo:
             else:
                 return "{0}.{1}".format(int(s), int(d))
 
-    def get_sector(self,sim_info,vehicle):
-        '''
-        if not self.sector_mapping and len(self.sector_map):
-            i=len(self.sector_map)
-            spline=ac.getCarState(vehicle, acsys.CS.NormalizedSplinePosition)
-            for s in reversed(self.sector_map):
-                i-=1
-                if 0 < s < spline:
-                    return i
-            return 0
-        if vehicle == 0:
-            return sim_info.graphics.currentSectorIndex
-        '''
-
+    def get_sector(self,vehicle):
         splits = ac.getCurrentSplits(vehicle)
-        i = 0
         sector = 0
         for c in splits:
-            i += 1
             if c > 0:
-                sector = i
+                sector += 1
         return sector
 
     def get_standings_position(self, vehicle):
@@ -487,7 +441,6 @@ class ACInfo:
         self.lbl_fastest_lap_bg.hide()
         self.lbl_driver_name_text.hide()
         self.lbl_border.hide()
-        self.driver_name_visible_fin.setValue(0)
         self.lbl_timing.hide()
         self.lbl_timing_text.hide()
         self.lbl_team_txt.hide()
@@ -548,7 +501,6 @@ class ACInfo:
         self.lbl_split.hide()
         self.lbl_fastest_split.hide()
         self.lbl_fastest_lap_bg.hide()
-        self.driver_name_visible_fin.setValue(self.driver_name_visible.value)
         # if driver name is shown
         if self.driver_name_visible.value == 1:
             self.lbl_driver_name.show()
@@ -675,14 +627,6 @@ class ACInfo:
             self.lbl_car_class_txt.hide()
             self.lbl_team_txt.hide()
 
-    def get_driver_best_sector(self, identifier, sector):
-        for driver in self.drivers_best_sectors:
-            if driver['id'] == identifier:
-                if len(driver['sectors']) > sector:
-                    return driver['sectors'][sector]
-                break
-        return 0
-
     def get_class_id(self, identifier):
         if len(self.standings):
             for s in self.standings:
@@ -715,18 +659,12 @@ class ACInfo:
             self.driver_old_fastest_sectors = []
             self.drivers_lap_count = []
             self.drivers_sector = []
-            self.drivers_sector_times = []
-            self.drivers_sector_times_last_lap = []
-            self.drivers_best_lap_sector_times = []
             self.drivers_best_lap_splits = []
             self.drivers_is_in_pit = []
             self.last_sector_start = [-1] * self.cars_count #add session_time_left
             for i in range(self.cars_count):
                 self.drivers_lap_count.append(Value(0))
                 self.drivers_sector.append(Value(0))
-                self.drivers_sector_times.append([])
-                self.drivers_sector_times_last_lap.append([])
-                self.drivers_best_lap_sector_times.append([])
                 self.drivers_best_lap_splits.append([])
                 self.drivers_is_in_pit.append(Value(0))
                 self.last_sector_start[i] = session_time_left
@@ -780,38 +718,9 @@ class ACInfo:
             self.info_number_txt.set(color=Colors.txt_color_for_car_class(self.current_car_class.value), animated=True)
             self.lbl_car_class_txt.setText(Colors.car_class_name(self.current_car_class.value))
             self.driver_in_pit_active = False
-            if self.sector_mapping:
-                self.sector_map = []
 
         if sim_info_status == 2:
             # LIVE
-            #mapping sectors
-            if self.sector_mapping:
-                if len(self.sector_map) < sim_info.static.sectorCount:
-                    self.sector_map = []
-                    for _ in range(sim_info.static.sectorCount):
-                        self.sector_map.append(-1)
-                if self.currentVehicle.value == 0:
-                    self.sector_map_current.setValue(sim_info.graphics.currentSectorIndex)
-                else:
-                    # mapping with other cars
-                    splits = ac.getCurrentSplits(self.currentVehicle.value)
-                    i = 0
-                    sector = 0
-                    for c in splits:
-                        i += 1
-                        if c > 0:
-                            sector = i
-                    self.sector_map_current.setValue(sector)
-                if self.sector_map_current.hasChanged():
-                    #ac.console("Sector map:" + str(self.sector_map_current.value) + " - " + str(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition),4)))
-                    self.sector_map[self.sector_map_current.value] = max(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition),3) - 0.001,0)
-
-                self.sector_mapping=False
-                for s in self.sector_map:
-                    if s < 0:
-                        self.sector_mapping = True
-
             if self.session.value != 2:
                 # NOT RACE
                 # qtime
@@ -826,9 +735,8 @@ class ACInfo:
                             fastest_lap_driver_id=i
 
                         self.drivers_lap_count[i].setValue(ac.getCarState(i, acsys.CS.LapCount))
-                        self.drivers_sector[i].setValue(self.get_sector(sim_info,i))
+                        self.drivers_sector[i].setValue(self.get_sector(i))
                         if self.drivers_sector[i].hasChanged():
-                            self.drivers_sector_times[i].append(self.last_sector_start[i] - session_time_left)
                             self.last_sector_start[i] = session_time_left
 
                         if self.last_lap_start[i] == -1 and not math.isinf(session_time_left) and session_time_left != 0:
@@ -838,14 +746,8 @@ class ACInfo:
                             # if PB save delta
                             if ac.getCarState(i, acsys.CS.LastLap) <= ac.getCarState(i, acsys.CS.BestLap):
                                 # save fastest lap sectors
-                                self.drivers_best_lap_sector_times[i] = self.drivers_sector_times[i]
                                 self.drivers_best_lap_splits[i] = ac.getLastSplits(i)
-                            #Reset
-                            self.drivers_sector_times_last_lap[i]=self.drivers_sector_times[i]
-                            self.drivers_sector_times[i]=[]
                         if ac.isCarInPit(i) or ac.isCarInPitline(i):
-                            self.drivers_sector_times_last_lap[i]=self.drivers_sector_times[i]
-                            self.drivers_sector_times[i] = []
                             self.drivers_last_lap_pit[i] = self.drivers_lap_count[i].value
 
                 self.fastestLap.setValue(fl)
@@ -874,7 +776,7 @@ class ACInfo:
 
                 if self.drivers_last_lap_pit[self.currentVehicle.value] + self.minLapCount <= self.drivers_lap_count[self.currentVehicle.value].value and (self.currentVehicle.value!=0 or (self.currentVehicle.value==0 and not lap_invalidated)):
 
-                    sector = self.get_sector(sim_info,self.currentVehicle.value)
+                    sector = self.get_sector(self.currentVehicle.value)
                     self.driver_name_visible.setValue(1)
                     self.timing_visible.setValue(1)
 
@@ -923,8 +825,6 @@ class ACInfo:
                             self.info_position.hide()
                             self.info_position_txt.hide()
                             #keep old best lap sectors for lap en compare
-                            #if len(self.drivers_best_lap_sector_times[fastest_lap_driver_id]) > 0:
-                            #self.driver_old_fastest_sectors = self.drivers_best_lap_sector_times[fastest_lap_driver_id]
                             if len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > 0:
                                 self.driver_old_fastest_sectors = self.drivers_best_lap_splits[fastest_lap_driver_id]
 
@@ -938,22 +838,7 @@ class ACInfo:
                         for l in self.lbl_sectors_bg:
                             if i < sector and len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i:
 
-                                driver_best_sector=driver_current_lap_sector=-1
-                                '''
-                                #best_split = self.drivers_best_lap_sector_times[fastest_lap_driver_id][i]
-                                if sector == self.sectorCount:
-                                    #ac.console("----------test--- last")
-                                    if len(self.drivers_sector_times_last_lap[self.currentVehicle.value]) > i:
-                                        driver_current_lap_sector = self.drivers_sector_times_last_lap[self.currentVehicle.value][i]
-                                else:
-                                    if len(self.drivers_sector_times[self.currentVehicle.value]) > i:
-                                        driver_current_lap_sector = self.drivers_sector_times[self.currentVehicle.value][i]
-                                #driver_best_sector = self.get_driver_best_sector(self.currentVehicle.value, i) and len(self.drivers_best_lap_sector_times[fastest_lap_driver_id]) > i
-
-                                #if len(self.drivers_best_lap_sector_times[self.currentVehicle.value]) > i:
-                                #    driver_best_sector = self.drivers_best_lap_sector_times[self.currentVehicle.value][i]
-                                #ac.console("B:" + str(best_split) + " PB:" + str(driver_best_sector) + " Cur:" + str(driver_current_lap_sector))
-                                '''
+                                best_split=driver_best_sector=driver_current_lap_sector=-1
 
                                 if len(splits) > i:
                                     driver_current_lap_sector = splits[i]
@@ -1097,12 +982,12 @@ class ACInfo:
 
                 elif current_vehicle_changed or (self.forceViewAlways and not self.fastestLapBorderActive) or is_in_pit:
                     # driver info
-                    if is_in_pit and not ac.getCarState(self.currentVehicle.value,acsys.CS.RaceFinished) and not math.isinf(session_time_left):
+                    if is_in_pit and not ac.getCarState(self.currentVehicle.value,acsys.CS.RaceFinished) and not math.isinf(session_time_left) and not current_vehicle_changed:
                         self.driver_in_pit_active = True
                         self.lbl_split.setText("Pit Lane")
                         pit_lane_time = self.drivers_pit_lane_start_time[self.currentVehicle.value] - session_time_left
                         self.lbl_fastest_split.setText(self.time_splitting(pit_lane_time)).show()
-                    elif session_time_left < self.visible_end or self.visible_end == 0:
+                    elif session_time_left < self.visible_end or self.visible_end == 0 or current_vehicle_changed:
                         self.lbl_fastest_split.hide()
 
                     if not self.forceViewAlways or is_in_pit:
