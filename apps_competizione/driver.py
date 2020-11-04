@@ -343,7 +343,12 @@ class Driver:
         if self.is_compact_mode():
             x -= self.rowHeight * 11/38
         t = str(ac.getCarTyreCompound(self.identifier))
-        w=self.rowHeight * 15/38*len(t)
+        if len(t) > 2:
+            w = self.rowHeight * 15 / 38 * len(t) * 0.6
+        elif len(t) > 1:
+            w = self.rowHeight * 22 / 38
+        else:
+            w = self.rowHeight * 15 / 38
         self.lbl_tires_bg.set(w=w, h=self.rowHeight - 2,
                          x=x,
                          animated=True)
@@ -514,7 +519,12 @@ class Driver:
                 x = self.get_pit_x()# - self.rowHeight * 11 / 38
                 if self.is_compact_mode():
                     x-=self.rowHeight * 11 / 38
-                w = self.rowHeight * 15/38 * len(t)
+                if len(t) > 2:
+                    w = self.rowHeight * 15 / 38 * len(t) * 0.6
+                elif len(t) > 1:
+                    w = self.rowHeight * 22 / 38
+                else:
+                    w = self.rowHeight * 15 / 38
                 self.lbl_tires_bg.set(x=x,w=w, animated=True)
                 self.lbl_tires_txt.set(x=x,w=w, animated=True)
                 self.lbl_tires_txt.setText(t).show()
@@ -657,11 +667,16 @@ class Driver:
                     best_time += fastest_driver_sectors[i]
 
             display_color = Colors.tower_time_qualification_highlight_txt()
-            if self.isInPit.value and self.time.value == 0:
+            if self.finished.value:
+                display_time = self.format_time(self.time.value)
+            elif self.isInPit.value and self.time.value == 0:
                 display_time = "--"
                 display_color = Colors.tower_time_green_txt()
             elif self.isInPit.value:
                 display_time = self.format_time(self.time.value)
+            elif self.last_lap_in_pit==self.completedLaps.value and not self.is_touristenfahrten:
+                display_time = "Out Lap"
+                display_color = Colors.tower_time_green_txt()
             elif best_time > 0 and sector_time > 0:
                 #if comparable
                 if sector_time < best_time:

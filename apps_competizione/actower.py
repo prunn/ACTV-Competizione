@@ -528,7 +528,7 @@ class ACTower:
             elif self.race_mode.value == 5:
                 self.lbl_title_mode_txt.setText("Pit Stops")
             elif self.race_mode.value == 6:
-                self.lbl_title_mode_txt.setText("Tires")
+                self.lbl_title_mode_txt.setText("Tire age")
             elif self.race_mode.value == 7:
                 self.lbl_title_mode_txt.setText("Off")
             else:
@@ -745,8 +745,12 @@ class ACTower:
                             driver.show(needs_tlc)
                             driver.update_pit(self.sessionTimeLeft)
                         elif Configuration.race_mode == 6:  # Tires
-                            age = driver.completedLaps.value - max(driver.last_lap_in_pit, 0)
-                            lastlap = ac.getCarTyreCompound(driver.identifier) + ' (' + str(age) + ' L)'
+                            if Configuration.show_tires:
+                                age = driver.completedLaps.value - max(driver.last_lap_in_pit, 0)
+                                lastlap = str(age) + ' L'
+                            else:
+                                age = driver.completedLaps.value - max(driver.last_lap_in_pit, 0)
+                                lastlap = ac.getCarTyreCompound(driver.identifier) + ' (' + str(age) + ' L)'
                             driver.set_time_race_battle(lastlap, -1)
                             driver.show(needs_tlc)
                             driver.update_pit(self.sessionTimeLeft)
