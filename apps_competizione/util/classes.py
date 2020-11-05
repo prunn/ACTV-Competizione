@@ -1225,6 +1225,14 @@ class Colors:
                 return Colors.car_classes[car_class+'_txt']
         return Colors.car_classes['default_txt']
 
+    @staticmethod
+    def get_drivers_picture(steam_id):
+        if steam_id is not None and os.path.exists('apps/python/actv_competizione/drivers/' + steam_id + '.png'):
+            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/drivers/' + steam_id + '.png')
+        if steam_id is not None and os.path.exists('apps/python/actv_competizione/drivers/' + steam_id + '.jpg'):
+            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/drivers/' + steam_id + '.jpg')
+        return rgb([0,0,0],a=0)
+
 
 class Label:
     # INITIALIZATION

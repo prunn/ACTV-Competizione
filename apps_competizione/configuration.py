@@ -23,6 +23,8 @@ class Configuration:
     theme_blue = 0
     tower_highlight = 0
     show_tires = 1
+    info_picture_width=300
+    info_picture_height=300
     theme_ini = 'apps/python/actv_competizione/themes/cp.ini'
 
     # INITIALIZATION
@@ -134,6 +136,12 @@ class Configuration:
         self.__class__.show_tires = self.cfg.get("SETTINGS", "show_tires", "int")
         if self.__class__.show_tires == -1:
             self.__class__.show_tires = 1
+        self.__class__.info_picture_width = self.cfg.get("SETTINGS", "info_picture_width", "int")
+        if self.__class__.info_picture_width == -1:
+            self.__class__.info_picture_width = 300
+        self.__class__.info_picture_height = self.cfg.get("SETTINGS", "info_picture_height", "int")
+        if self.__class__.info_picture_height == -1:
+            self.__class__.info_picture_height = 300
         self.__class__.max_num_cars = self.cfg.get("SETTINGS", "num_cars_tower", "int")
         if self.__class__.max_num_cars == -1:
             self.__class__.max_num_cars = 10
@@ -211,6 +219,8 @@ class Configuration:
         self.cfg.set("SETTINGS", "force_info_visible", self.__class__.forceInfoVisible)
         self.cfg.set("SETTINGS", "save_delta", self.__class__.save_delta)
         self.cfg.set("SETTINGS", "show_tires", self.__class__.show_tires)
+        self.cfg.set("SETTINGS", "info_picture_width", self.__class__.info_picture_width)
+        self.cfg.set("SETTINGS", "info_picture_height", self.__class__.info_picture_height)
         self.cfg.set("SETTINGS", "num_cars_tower", self.__class__.max_num_cars)
         self.cfg.set("SETTINGS", "ui_row_height", self.__class__.ui_row_height)
         #self.cfg.set("SETTINGS", "font_ini", Font.font_ini)

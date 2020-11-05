@@ -30,6 +30,7 @@ class ACInfo:
         self.fastestLapBorderActive = False
         self.driver_in_pit_active = False
         self.forceViewAlways = False
+        self.current_steam_id=None
         self.minLapCount = 1
         self.sectorCount = -1
         self.lapTimesArray = []
@@ -151,6 +152,9 @@ class ACInfo:
         self.lbl_logo = Label(self.window.app)\
             .set(w=284, h=2,
                  x=0, y=0, opacity=1)
+        self.lbl_driver_picture = Label(self.window.app)\
+            .set(w=284, h=2,
+                 x=0, y=0, opacity=1)
         self.lbl_sectors_bg = []
         self.lbl_sectors_text = []
         self.lbl_sectors_title_bg = []
@@ -249,6 +253,9 @@ class ACInfo:
             self.lbl_border.set(w=self.row_height.value * 80 / 38, h=self.row_height.value * 60 / 38, x=self.row_height.value * 60 / 38, animated=True)
             self.lbl_logo.set(w=self.row_height.value * 40 / 38, h=self.row_height.value * 40 / 38, x=self.row_height.value * 80 / 38,
                               y=self.row_height.value * 10 / 38, animated=True)
+            self.lbl_driver_picture.set(w=self.row_height.value * Configuration.info_picture_width / 38,h=self.row_height.value * Configuration.info_picture_height / 38,
+                                        x=self.row_height.value * 60 / 38,y=-self.row_height.value * Configuration.info_picture_height / 38,
+                                        animated=True)
             self.set_width_and_name()
         self.resize_sector_labels()
 
@@ -311,6 +318,13 @@ class ACInfo:
                 if driver['id'] == currentVehicle:  # or fastest...
                     return str(driver['skin'])
         return ""
+
+    def get_steam_id(self, currentVehicle):
+        if currentVehicle >= 0:
+            for driver in self.drivers_info:
+                if driver['id'] == currentVehicle:
+                    return str(driver['steam_id'])
+        return None
 
     def get_team(self, currentVehicle):
         if currentVehicle >= 0:
@@ -425,6 +439,7 @@ class ACInfo:
         self.lbl_fastest_split.animate()
         self.lbl_border.animate()
         self.lbl_logo.animate()
+        self.lbl_driver_picture.animate()
         if self.lbl_sectors_init:
             for l in self.lbl_sectors_bg:
                 l.animate()
@@ -511,6 +526,10 @@ class ACInfo:
             self.lbl_border.show()
             self.lbl_logo.show()
             self.lbl_driver_name_text.show()
+            if self.current_steam_id is not None:
+                self.lbl_driver_picture.show()
+            else:
+                self.lbl_driver_picture.hide()
 
             if self.driver_name_text.hasChanged():
                 self.set_width_and_name()
@@ -574,6 +593,7 @@ class ACInfo:
 
         if self.driver_name_visible.value == 1:
             # 2 lines, name team
+            steam_id=None
             self.lbl_border.show()
             self.lbl_logo.show()
             if self.fastestLapBorderActive and not self.driver_in_pit_active:
@@ -589,6 +609,7 @@ class ACInfo:
                                                   font_size=font_size + self.row_height.value * 14 / 38, animated=True)
                     self.lbl_team_txt.hide()
             else:
+                steam_id = self.current_steam_id
                 if self.driver_in_pit_active:
                     self.lbl_fastest_lap_bg.show()
                     self.lbl_split.setText("Pit Lane").show()
@@ -612,6 +633,10 @@ class ACInfo:
             self.lbl_car_class_txt.show()
             self.lbl_border.show()
             self.lbl_logo.show()
+            if steam_id is not None:
+                self.lbl_driver_picture.show()
+            else:
+                self.lbl_driver_picture.hide()
             if self.driver_name_text.hasChanged():
                 self.set_width_and_name()
         else:
@@ -626,13 +651,14 @@ class ACInfo:
             self.info_number_txt.hide()
             self.lbl_car_class_txt.hide()
             self.lbl_team_txt.hide()
+            self.lbl_driver_picture.hide()
 
-    def get_class_id(self, identifier):
+    def get_class_id(self, identifier, steam_id=None):
         if len(self.standings):
             for s in self.standings:
                 if s[0] == identifier:
                     return s[2]
-        return Colors.getClassForCar(ac.getCarName(identifier))
+        return Colors.getClassForCar(ac.getCarName(identifier), steam_id)
 
     def manage_window(self, session_time_left):
         pt = POINT()
@@ -704,7 +730,8 @@ class ACInfo:
         backup_laptime = self.lapTimesArray[self.currentVehicle.value].time - session_time_left
         backup_last_lap_in_pits = self.lapTimesArray[self.currentVehicle.value].lastpit
         current_vehicle_changed = self.currentVehicle.hasChanged()
-        self.current_car_class.setValue(self.get_class_id(self.currentVehicle.value))
+        self.current_steam_id = self.get_steam_id(self.currentVehicle.value)
+        self.current_car_class.setValue(self.get_class_id(self.currentVehicle.value, self.current_steam_id))
 
         if current_vehicle_changed or self.current_car_class.hasChanged() or (self.fastestLapBorderActive and session_time_left < self.visible_end - 2000):
             self.fastestLapBorderActive = False
@@ -718,6 +745,8 @@ class ACInfo:
             self.info_number_txt.set(color=Colors.txt_color_for_car_class(self.current_car_class.value), animated=True)
             self.lbl_car_class_txt.setText(Colors.car_class_name(self.current_car_class.value))
             self.driver_in_pit_active = False
+            #driver photo
+            self.lbl_driver_picture.set(background=Colors.get_drivers_picture(self.current_steam_id))
 
         if sim_info_status == 2:
             # LIVE
@@ -836,15 +865,13 @@ class ACInfo:
                             splits = ac.getLastSplits(self.currentVehicle.value)
                         i = 0
                         for l in self.lbl_sectors_bg:
-                            if i < sector and len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i:
+                            if i < sector and len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i and self.drivers_best_lap_splits[fastest_lap_driver_id][i] > 0:
 
-                                best_split=driver_best_sector=driver_current_lap_sector=-1
-
+                                driver_best_sector=driver_current_lap_sector=0
+                                best_split = self.drivers_best_lap_splits[fastest_lap_driver_id][i]
                                 if len(splits) > i:
                                     driver_current_lap_sector = splits[i]
-                                if len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i:
-                                    best_split = self.drivers_best_lap_splits[fastest_lap_driver_id][i]
-                                if len(self.drivers_best_lap_splits[fastest_lap_driver_id]) > i:
+                                if len(self.drivers_best_lap_splits[self.currentVehicle.value]) > i:
                                     driver_best_sector = self.drivers_best_lap_splits[self.currentVehicle.value][i]
 
                                 if best_split >= driver_current_lap_sector:

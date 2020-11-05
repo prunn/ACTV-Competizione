@@ -885,7 +885,8 @@ class ACTower:
                 'id': driver.identifier,
                 'number': driver.car_number,
                 'team': driver.team_name,
-                'skin': driver.car_skin_path
+                'skin': driver.car_skin_path,
+                'steam_id': driver.steam_id
             })
         return info
 
