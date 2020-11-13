@@ -1201,7 +1201,9 @@ class Colors:
             return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/porsche.png')
         if os.path.exists('content/cars/' + car + '/logo.png'):
             return rgb([0, 0, 0], a=0, t='content/cars/' + car + '/logo.png')
-        return rgb([0, 0, 0], a=0, t='content/cars/' + car + '/ui/badge.png')
+        if os.path.exists('content/cars/' + car + '/ui/badge.png'):
+            return rgb([0, 0, 0], a=0, t='content/cars/' + car + '/ui/badge.png')
+        return rgb([0, 0, 0], a=0, t='content/gui/default_icon.png')#512,NationFlags/AC.png(48)
 
     @staticmethod
     def color_for_car_class(car_class):

@@ -583,6 +583,7 @@ class Driver:
             self.push_2_pass_status.setValue(0)
             self.push_2_pass_left.setValue(0)
             self.last_lap_in_pit = -1
+            self.raceProgress = 0
 
     def get_best_lap(self, lap=False):
         if lap:
@@ -725,6 +726,8 @@ class Driver:
             self.lbl_time.set(background=Colors.tower_time_retired_bg(), animated=True, init=True)
             self.lbl_logo_bg.set(opacity=Colors.tower_border_default_bg_opacity_retired(), animated=True, init=True)
             self.lbl_number.set(opacity=Colors.tower_border_default_bg_opacity_retired(), animated=True, init=True)
+        elif time == "--":
+            self.lbl_time_txt.change_font_if_needed().setText("--.-").setColor(Colors.tower_time_green_txt(), animated=True, init=True)
         elif isinstance(time, str) and time.find("UP") >= 0:
             self.lbl_time_txt.change_font_if_needed(1).setText(time.replace("UP", u"\u25B2")).setColor(Colors.tower_time_place_gain_txt(), animated=True, init=True)
             #self.lbl_time_txt.change_font_if_needed(1).setText(u"\u25B2").setColor(Colors.tower_time_place_gain_txt(), animated=True, init=True)
@@ -752,7 +755,7 @@ class Driver:
                 str_time += " Lap"
             self.lbl_time_txt.change_font_if_needed().setText(str_time).setColor(Colors.tower_time_last_lap_txt(), animated=True, init=True)
         elif identifier == -1:
-            if Configuration.race_mode < 5:
+            if (self.race and Configuration.race_mode < 5) or (not self.race and Configuration.qual_mode==4):
                 if time <= ac.getCarState(self.identifier, acsys.CS.BestLap):
                     self.lbl_time_txt.change_font_if_needed().setText(self.format_time(time)).setColor(Colors.tower_time_best_lap_txt(), animated=True, init=True)
                 else:
