@@ -26,6 +26,8 @@ class Configuration:
     info_picture_width=300
     info_picture_height=300
     theme_ini = 'apps/python/actv_competizione/themes/cp.ini'
+    anim_rate = 50
+    data_rate = 20
 
     # INITIALIZATION
     def __init__(self):
@@ -113,6 +115,26 @@ class Configuration:
             .setSize(200, 26).setPos(65, y + 3)\
             .setFontSize(14).setAlign("left")\
             .setVisible(1)
+
+        ############# rates
+        '''
+        y += 70
+        self.spin_anim_rate = ac.addSpinner(self.window.app, "Anim/sec")
+        ac.setRange(self.spin_anim_rate, 20, 100)
+        ac.setPosition(self.spin_anim_rate, 20, y)
+        ac.setValue(self.spin_anim_rate, self.__class__.anim_rate)
+        ac.addOnValueChangeListener(self.spin_anim_rate, self.on_spin_anim_rate_changed)
+        y += 70
+        self.spin_data_rate = ac.addSpinner(self.window.app, "Data/sec")
+        ac.setRange(self.spin_data_rate, 10, 100)
+        ac.setPosition(self.spin_data_rate, 20, y)
+        ac.setValue(self.spin_data_rate, self.__class__.data_rate)
+        ac.addOnValueChangeListener(self.spin_data_rate, self.on_spin_data_rate_changed)
+        '''
+
+
+
+
 
         self.cfg_loaded = False
         self.cfg = Config("apps/python/actv_competizione/", "config.ini")
@@ -420,6 +442,14 @@ class Configuration:
     def on_spin_names_changed(value):
         Configuration.names = value
         Configuration.configChanged = True
+
+    @staticmethod
+    def on_spin_anim_rate_changed(value):
+        Configuration.anim_rate = value
+
+    @staticmethod
+    def on_spin_data_rate_changed(value):
+        Configuration.data_rate = value
 
     @staticmethod
     def on_tab1_press(a, b):

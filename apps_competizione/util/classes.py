@@ -1266,6 +1266,7 @@ class Label:
         self.isVisible = Value(False)
         self.isTextVisible = Value(False)
         self.setVisible(0)
+        self.params_adjust_needed=False
 
     # PUBLIC METHODS
     def set(self, text=None, align=None, color=None, font_size=None, font=None, w=None, h=None, x=None, y=None, texture=None, background=None, opacity=None, visible=None, animated=False, text_hidden=False, init=False):
@@ -1529,6 +1530,7 @@ class Label:
 
     def adjustParam(self, p):
         if self.params[p].value != self.f_params[p].value:
+            self.params_adjust_needed = True
             if self.multiplier_mode[p] == "spring":
                 multiplier = self.multiplier[p].value
                 spring_multi = self.spring_multiplier
@@ -1556,6 +1558,7 @@ class Label:
             #self.debug_param("g", "g")
             #self.debug_param("b", "b")
         # adjust size +1
+        self.params_adjust_needed = False
         self.adjustParam("w").adjustParam("h")
         # adjust position +3
         self.adjustParam("x").adjustParam("y")
@@ -1563,59 +1566,59 @@ class Label:
         self.adjustParam("br").adjustParam("bg").adjustParam("bb").adjustParam("o")
         # adjust colors + 0.02
         self.adjustParam("r").adjustParam("g").adjustParam("b").adjustParam("a")
+        if self.params_adjust_needed:
+            # commit changes
+            if self.params["x"].hasChanged() or self.params["y"].hasChanged():
+                ac.setPosition(self.label, self.params["x"].value, self.params["y"].value)
+            param_h_changed = self.params["h"].hasChanged()
+            if self.params["w"].hasChanged() or param_h_changed:
+                ac.setSize(self.label, self.params["w"].value, self.params["h"].value)
+                #if param_h_changed:
+                #    if self.params["h"].value == 0:
+                #        self.isVisible.setValue(False)
+                #    else:
+                #        self.isVisible.setValue(True)
+            if self.params["br"].hasChanged() or self.params["bg"].hasChanged() or self.params["bb"].hasChanged():
+                ac.setBackgroundColor(self.label, self.params["br"].value, self.params["bg"].value, self.params["bb"].value)
+                ac.setBackgroundOpacity(self.label, self.params["o"].value)
 
-        # commit changes
-        if self.params["x"].hasChanged() or self.params["y"].hasChanged():
-            ac.setPosition(self.label, self.params["x"].value, self.params["y"].value)
-        param_h_changed = self.params["h"].hasChanged()
-        if self.params["w"].hasChanged() or param_h_changed:
-            ac.setSize(self.label, self.params["w"].value, self.params["h"].value)
-            #if param_h_changed:
-            #    if self.params["h"].value == 0:
-            #        self.isVisible.setValue(False)
-            #    else:
-            #        self.isVisible.setValue(True)
-        if self.params["br"].hasChanged() or self.params["bg"].hasChanged() or self.params["bb"].hasChanged():
-            ac.setBackgroundColor(self.label, self.params["br"].value, self.params["bg"].value, self.params["bb"].value)
-            ac.setBackgroundOpacity(self.label, self.params["o"].value)
+            opacity_changed = self.params["o"].hasChanged()
+            if opacity_changed:
+                # fg opacity
+                ac.setBackgroundOpacity(self.label, self.params["o"].value)
+                # TODO : hide by alpha
+                if not self.is_hiding and (self.params["o"].value >= 0.4 or self.f_params["o"].value < 0.4):
+                    self.isTextVisible.setValue(True)
+                elif self.is_hiding:
+                    self.isTextVisible.setValue(False)
+                if self.isTextVisible.hasChanged():
+                    if self.isTextVisible.value:
+                        ac.setText(self.label, self.text)
+                        ac.setFontColor(self.label, self.params["r"].value,
+                                        self.params["g"].value,
+                                        self.params["b"].value,
+                                        self.params["a"].value)
+                    else:
+                        ac.setText(self.label, "")
+                        if self.debug:
+                            self.debug_param("setText", "a")
+                            self.debug_param("setText", "o")
 
-        opacity_changed = self.params["o"].hasChanged()
-        if opacity_changed:
-            # fg opacity
-            ac.setBackgroundOpacity(self.label, self.params["o"].value)
-            # TODO : hide by alpha
-            if not self.is_hiding and (self.params["o"].value >= 0.4 or self.f_params["o"].value < 0.4):
-                self.isTextVisible.setValue(True)
-            elif self.is_hiding:
-                self.isTextVisible.setValue(False)
-            if self.isTextVisible.hasChanged():
-                if self.isTextVisible.value:
-                    ac.setText(self.label, self.text)
-                    ac.setFontColor(self.label, self.params["r"].value,
-                                    self.params["g"].value,
-                                    self.params["b"].value,
-                                    self.params["a"].value)
-                else:
-                    ac.setText(self.label, "")
-                    if self.debug:
-                        self.debug_param("setText", "a")
-                        self.debug_param("setText", "o")
+            alpha_changed = self.params["a"].hasChanged()
+            if self.params["r"].hasChanged() or self.params["g"].hasChanged() \
+                    or self.params["b"].hasChanged() or alpha_changed:
+                ac.setFontColor(self.label,
+                                self.params["r"].value,
+                                self.params["g"].value,
+                                self.params["b"].value,
+                                self.params["a"].value)
 
-        alpha_changed = self.params["a"].hasChanged()
-        if self.params["r"].hasChanged() or self.params["g"].hasChanged() \
-                or self.params["b"].hasChanged() or alpha_changed:
-            ac.setFontColor(self.label,
-                            self.params["r"].value,
-                            self.params["g"].value,
-                            self.params["b"].value,
-                            self.params["a"].value)
-
-        if opacity_changed or alpha_changed:
-            if self.is_hiding and ((opacity_changed and self.params["o"].value == 0)
-                                   or (alpha_changed and self.params["a"].value == 0)):
-                self.setVisible(0)
-            elif not self.is_hiding:
-                self.setVisible(1)
+            if opacity_changed or alpha_changed:
+                if self.is_hiding and ((opacity_changed and self.params["o"].value == 0)
+                                       or (alpha_changed and self.params["a"].value == 0)):
+                    self.setVisible(0)
+                elif not self.is_hiding:
+                    self.setVisible(1)
 
 # -#####################################################################################################################################-#
 

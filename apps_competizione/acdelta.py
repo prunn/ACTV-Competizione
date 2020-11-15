@@ -721,6 +721,14 @@ class ACDelta:
         self.lbl_laps_text.animate()
         self.lbl_laps_text_shadow.animate()
 
+    def on_update_level0(self, session_time_left):
+        #self.manage_window()
+        self.animate()
+        if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1 and not math.isinf(session_time_left):
+            self.lbl_current_time_text.setText(self.time_splitting_full(self.last_lap_start[self.currentVehicle.value] - session_time_left))
+        else:
+            self.lbl_current_time_text.setText(self.time_splitting_full(ac.getCarState(self.currentVehicle.value, acsys.CS.LapTime)))
+
     def on_update(self, sim_info, standings):
         session_time_left = sim_info.graphics.sessionTimeLeft
         sim_info_status = sim_info.graphics.status
@@ -775,7 +783,7 @@ class ACDelta:
             self.__class__.importPressed = False
         self.session.setValue(sim_info.graphics.session)
         self.manage_window()
-        self.animate()
+        #self.animate()
         self.currentVehicle.setValue(ac.getFocusedCar())
         self.current_car_class.setValue(self.get_class_id(self.currentVehicle.value))
         if self.currentVehicle.hasChanged() or self.current_car_class.hasChanged():
@@ -812,10 +820,12 @@ class ACDelta:
                 self.reset_data()
             self.spline.setValue(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition), 3))
             #Current lap time
+            '''
             if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1 and not math.isinf(session_time_left):
                 self.lbl_current_time_text.setText(self.time_splitting_full(self.last_lap_start[self.currentVehicle.value] - session_time_left))
             else:
                 self.lbl_current_time_text.setText(self.time_splitting_full(ac.getCarState(self.currentVehicle.value,acsys.CS.LapTime)))
+            '''
             if self.currentVehicle.value == 0 and not self.lastLapIsValid:
                 self.lbl_current_time_text.set(color=Colors.red(), animated=True)
             else:

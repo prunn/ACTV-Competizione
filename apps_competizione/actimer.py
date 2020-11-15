@@ -15,7 +15,7 @@ from .configuration import Configuration
 class ACTimer:
     # INITIALIZATION
 
-    def __init__(self):
+    def __init__(self, sim_info):
         self.replay_initialised = False
         self.replay_asc = False
         self.replay_rgb = 255
@@ -26,12 +26,12 @@ class ACTimer:
         self.font = Value(0)
         self.numberOfLaps = -1
         self.corner_width=0
-        self.hasExtraLap = -1
+        self.hasExtraLap = sim_info.static.hasExtraLap
         self.numberOfLapsTimedRace = -1
         self.sessionMaxTime = -1
         self.pitWindowVisibleEnd = 0
-        self.pitWindowStart = -1
-        self.pitWindowEnd = -1
+        self.pitWindowStart = sim_info.static.PitWindowStart
+        self.pitWindowEnd = sim_info.static.PitWindowEnd
         self.pitWindowActive = False
         self.numberOfLapsCompleted = Value(0)
         self.window = Window(name="ACTV CP Timer", width=228, height=42)
@@ -439,11 +439,15 @@ class ACTimer:
         if self.cursor.hasChanged():
             self.window.setBgOpacity(0).border(0)
 
+    def on_update_level0(self):
+        #self.manage_window()
+        self.animate()
+
     def on_update(self, sim_info):
         self.session.setValue(sim_info.graphics.session)
         self.manage_window()
         sim_info_status = sim_info.graphics.status
-        self.animate()
+        #self.animate()
         if sim_info_status == 2:  # LIVE
             self.session_time_left = session_time_left = sim_info.graphics.sessionTimeLeft
             if self.is_multiplayer and not self.session_info_imported:
@@ -506,16 +510,11 @@ class ACTimer:
                 completed += 1
                 if self.numberOfLaps < 0:
                     self.numberOfLaps = sim_info.graphics.numberOfLaps
-                if self.hasExtraLap < 0:
-                    self.hasExtraLap = sim_info.static.hasExtraLap
                 if self.hasExtraLap == 1 and session_time_left < 0 and self.numberOfLapsTimedRace < 0:
                     self.numberOfLapsTimedRace = completed + 1
 
                 # PitWindow
                 pit_window_remain = ""
-                if self.pitWindowStart < 0:
-                    self.pitWindowStart = sim_info.static.PitWindowStart
-                    self.pitWindowEnd = sim_info.static.PitWindowEnd
                 if self.numberOfLaps > 0:
                     self.numberOfLapsCompleted.setValue(completed)
                     if self.numberOfLapsCompleted.hasChanged():

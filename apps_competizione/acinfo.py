@@ -8,7 +8,7 @@ from .configuration import Configuration
 
 class ACInfo:
     # INITIALIZATION
-    def __init__(self):
+    def __init__(self, sim_info):
         self.rowHeight = 38
         self.lastLapInvalidated = 0
         self.isLapVisuallyEnded = True
@@ -32,7 +32,7 @@ class ACInfo:
         self.forceViewAlways = False
         self.current_steam_id=None
         self.minLapCount = 1
-        self.sectorCount = -1
+        self.sectorCount = sim_info.static.sectorCount
         self.lapTimesArray = []
         self.driversLap = []
         for i in range(self.cars_count):
@@ -155,17 +155,17 @@ class ACInfo:
         self.lbl_driver_picture = Label(self.window.app)\
             .set(w=284, h=2,
                  x=0, y=0, opacity=1)
-        self.lbl_sectors_bg = []
-        self.lbl_sectors_text = []
-        self.lbl_sectors_title_bg = []
-        self.lbl_sectors_title_txt = []
-        self.lbl_sectors_init = False
-        self.load_cfg()
         self.info_position.setAnimationSpeed("o", 0.1)
         self.info_number.setAnimationSpeed("o", 0.1)
         self.lbl_car_class_bg.setAnimationSpeed("o", 0.1)
         self.lbl_split.setAnimationSpeed("a", 0.1)
         self.lbl_fastest_split.setAnimationSpeed("a", 0.1)
+        self.lbl_sectors_bg = []
+        self.lbl_sectors_text = []
+        self.lbl_sectors_title_bg = []
+        self.lbl_sectors_title_txt = []
+        self.ini_sector_labels()
+        self.load_cfg()
 
     # PUBLIC METHODS
     # ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -259,46 +259,44 @@ class ACInfo:
             self.set_width_and_name()
         self.resize_sector_labels()
 
-    def ini_sector_labels(self, sector_count):
-        for i in range(sector_count):
+    def ini_sector_labels(self):
+        for i in range(self.sectorCount):
             self.lbl_sectors_bg.append(Label(self.window.app))
             self.lbl_sectors_text.append(Label(self.window.app, "--.-"))
             self.lbl_sectors_title_bg.append(Label(self.window.app))
             self.lbl_sectors_title_txt.append(Label(self.window.app, "S"+str(i+1)))
-        self.lbl_sectors_init = True
         self.resize_sector_labels()
 
     def resize_sector_labels(self):
-        if self.lbl_sectors_init:
-            for l in self.lbl_sectors_bg:
-                l.set(opacity=1)\
-                    .set(background=Colors.info_lap_neutral(),
-                         animated=True, init=True)\
-                    .set(h=self.row_height.value * 48 / 38,
-                         y=self.row_height.value * 80 / 38)#60
-            for l in self.lbl_sectors_title_bg:
-                l.set(opacity=1)\
-                    .set(background=Colors.info_sector_title_bg(),
-                         animated=True, init=True)\
-                    .set(h=self.row_height.value * 20 / 38,
-                         y=self.row_height.value * 60 / 38)
-            font_offset = Font.get_font_offset()
-            for l in self.lbl_sectors_text:
-                l.set(h=self.row_height.value,
-                      y=self.row_height.value * 80 / 38 + Font.get_font_x_offset(),
-                      font_size=Font.get_font_size(self.row_height.value + font_offset) + 9,
-                      color=Colors.info_split_txt(),
-                      opacity=0,
-                      align="center",
-                      animated=True, init=True)#87
-            for l in self.lbl_sectors_title_txt:
-                l.set(h=self.row_height.value,
-                      y=self.row_height.value * 51 / 38 + Font.get_font_x_offset(),
-                      font_size=Font.get_font_size(self.row_height.value + font_offset) + 2,
-                      color=Colors.info_sector_title_txt(),
-                      opacity=0,
-                      align="center",
-                      animated=True, init=True).update_font()
+        for l in self.lbl_sectors_bg:
+            l.set(opacity=1)\
+                .set(background=Colors.info_lap_neutral(),
+                     animated=True, init=True)\
+                .set(h=self.row_height.value * 48 / 38,
+                     y=self.row_height.value * 80 / 38)#60
+        for l in self.lbl_sectors_title_bg:
+            l.set(opacity=1)\
+                .set(background=Colors.info_sector_title_bg(),
+                     animated=True, init=True)\
+                .set(h=self.row_height.value * 20 / 38,
+                     y=self.row_height.value * 60 / 38)
+        font_offset = Font.get_font_offset()
+        for l in self.lbl_sectors_text:
+            l.set(h=self.row_height.value,
+                  y=self.row_height.value * 80 / 38 + Font.get_font_x_offset(),
+                  font_size=Font.get_font_size(self.row_height.value + font_offset) + 9,
+                  color=Colors.info_split_txt(),
+                  opacity=0,
+                  align="center",
+                  animated=True, init=True)#87
+        for l in self.lbl_sectors_title_txt:
+            l.set(h=self.row_height.value,
+                  y=self.row_height.value * 51 / 38 + Font.get_font_x_offset(),
+                  font_size=Font.get_font_size(self.row_height.value + font_offset) + 2,
+                  color=Colors.info_sector_title_txt(),
+                  opacity=0,
+                  align="center",
+                  animated=True, init=True).update_font()
 
     def set_drivers_info(self, info):
         self.drivers_info = info
@@ -440,15 +438,14 @@ class ACInfo:
         self.lbl_border.animate()
         self.lbl_logo.animate()
         self.lbl_driver_picture.animate()
-        if self.lbl_sectors_init:
-            for l in self.lbl_sectors_bg:
-                l.animate()
-            for l in self.lbl_sectors_text:
-                l.animate()
-            for l in self.lbl_sectors_title_bg:
-                l.animate()
-            for l in self.lbl_sectors_title_txt:
-                l.animate()
+        for l in self.lbl_sectors_bg:
+            l.animate()
+        for l in self.lbl_sectors_text:
+            l.animate()
+        for l in self.lbl_sectors_title_bg:
+            l.animate()
+        for l in self.lbl_sectors_title_txt:
+            l.animate()
 
     def reset_visibility(self):
         self.driver_name_visible.setValue(0)
@@ -492,7 +489,7 @@ class ACInfo:
         self.lbl_car_class_txt.set(x=self.driver_name_width + self.row_height.value * 140 / 38, animated=True)
         if self.session.value != 2:
             full_width=width + self.row_height.value * 306 / 38
-            if self.lbl_sectors_init and len(self.lbl_sectors_bg):
+            if len(self.lbl_sectors_bg):
                 width = full_width / len(self.lbl_sectors_bg)
                 i = 0
                 x = self.row_height.value * 60 / 38
@@ -576,15 +573,14 @@ class ACInfo:
 
 
     def visibility_race(self):
-        if self.lbl_sectors_init:
-            for l in self.lbl_sectors_bg:
-                l.hide()
-            for l in self.lbl_sectors_text:
-                l.hide()
-            for l in self.lbl_sectors_title_bg:
-                l.hide()
-            for l in self.lbl_sectors_title_txt:
-                l.hide()
+        for l in self.lbl_sectors_bg:
+            l.hide()
+        for l in self.lbl_sectors_text:
+            l.hide()
+        for l in self.lbl_sectors_title_bg:
+            l.hide()
+        for l in self.lbl_sectors_title_txt:
+            l.hide()
         self.lbl_timing.hide()
         self.lbl_timing_text.hide()
         font_offset = Font.get_font_offset()
@@ -706,6 +702,10 @@ class ACInfo:
                 self.window.setBgOpacity(0).border(0)
                 self.window.showTitle(False)
 
+    def on_update_level0(self, sim_info):
+        #self.manage_window(sim_info.graphics.sessionTimeLeft)
+        self.animate()
+
     def on_update(self, sim_info, fl, standings):
         self.standings = standings
         self.session.setValue(sim_info.graphics.session)
@@ -715,7 +715,7 @@ class ACInfo:
             self.session.setValue(-1)
             self.session.setValue(sim_info.graphics.session)
         self.manage_window(session_time_left)
-        self.animate()
+        #self.animate()
         self.currentVehicle.setValue(ac.getFocusedCar())
 
         for x in range(self.cars_count):
@@ -791,10 +791,6 @@ class ACInfo:
                     self.lastLapInvalidated = lap_count
                 if is_in_pit and self.minLapCount == 0:
                     self.lastLapInvalidated = -1
-                if self.sectorCount < 0:
-                    self.sectorCount = sim_info.static.sectorCount
-                    if not self.lbl_sectors_init:
-                        self.ini_sector_labels(self.sectorCount)
 
                 lap_invalidated = bool(self.lastLapInvalidated == lap_count)
                 if current_vehicle_changed or self.driver_name_text.value == "":

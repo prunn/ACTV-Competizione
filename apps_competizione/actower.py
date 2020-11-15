@@ -17,9 +17,8 @@ from .driver import Driver
 class ACTower:
 
     # INITIALIZATION
-    def __init__(self):
-        rowHeight = 36
-        self.fontName = ""
+    def __init__(self, sim_info):
+        rowHeight = Configuration.ui_row_height
         self.sessionMaxTime = -1
         self.is_multiplayer = ac.getServerIP() != ''
         self.drivers = []
@@ -27,11 +26,11 @@ class ACTower:
         self.realtime_standings = []
         self.standings_start_race = []
         self.standings_replay = []
-        self.numCars = Value()
+        self.cars_count = ac.getCarsCount()
         self.session = Value(-1)
         self.sessionTimeLeft = 0
-        self.pitWindowStart = -1
-        self.pitWindowEnd = -1
+        self.pitWindowStart = sim_info.static.PitWindowStart
+        self.pitWindowEnd = sim_info.static.PitWindowEnd
         self.pit_window_active = False
         self.imported = False
         self.drivers_info_updating = False
@@ -40,13 +39,11 @@ class ACTower:
         self.lapsCompleted = Value()
         self.currentVehicule = Value(0)
         self.font = Value(0)
-        self.theme = Value(-1)
         self.fastestLap = 0
         self.race_show_end = 0
         self.driver_shown = 0
         self.ping_updater = None
         self.ping_updater_active = False
-        self.drivers_inited = False
         self.force_hidden = False
         self.raceStarted = False
         self.leader_time = 0
@@ -63,7 +60,7 @@ class ACTower:
         self.window = Window(name="ACTV CP Tower", width=268, height=60)
         self.minLapCount = 1
         self.is_touristenfahrten = False
-        self.track_length = -1
+        self.track_length = sim_info.static.trackSPlineLength
         self.title_mode_visible_end = 0
         self.title_mode_visible_end_replay = 0
         self.cars_classes_count = Value(0)
@@ -90,6 +87,7 @@ class ACTower:
             self.is_touristenfahrten = True
         elif track.find("drag1000") >= 0 or track.find("drag400") >= 0:
             self.minLapCount = 0
+        self.init_drivers()
         self.load_cfg()
 
     def __del__(self):
@@ -102,7 +100,6 @@ class ACTower:
         self.qual_mode.setValue(Configuration.qual_mode)
         self.ui_row_height.setValue(Configuration.ui_row_height)
         Colors.highlight(reload=True)
-        self.theme.setValue(Colors.general_theme + Colors.theme_red + Colors.theme_green + Colors.theme_blue)
         self.font.setValue(Font.current)
         self.redraw_size()
         for driver in self.drivers:
@@ -110,9 +107,8 @@ class ACTower:
 
     def redraw_size(self):
         # Colors
-        if self.theme.hasChanged():
-            self.lbl_title_mode.set(background=Colors.tower_mode_title_bg(), animated=True, init=True)
-            self.lbl_title_mode_txt.set(color=Colors.tower_mode_title_txt(), animated=True, init=True)
+        self.lbl_title_mode.set(background=Colors.tower_mode_title_bg(), animated=True, init=True)
+        self.lbl_title_mode_txt.set(color=Colors.tower_mode_title_txt(), animated=True, init=True)
         if self.ui_row_height.hasChanged() or self.font.hasChanged():
             # Fonts
             self.lbl_title_mode_txt.update_font()
@@ -145,22 +141,10 @@ class ACTower:
         for lbl in self.cars_classes:
             lbl.animate()
 
-    def format_tire(self, name):
-        space = name.find("(")
-        if space > 0:
-            name = name[:space]
-        name = name.strip()
-        if len(name) > 16:
-            return name[:17]
-        return name
-
-    def init_drivers(self, sim_info):
-        if self.numCars.value > self.numCars.old:
-            # init difference
-            for i in range(self.numCars.old, self.numCars.value):
-                self.drivers.append(Driver(self.window.app, i, ac.getDriverName(i), i, self.is_touristenfahrten))
-            self.drivers_inited = True
-            self.load_drivers_info(sim_info)
+    def init_drivers(self):
+        for i in range(self.cars_count):
+            self.drivers.append(Driver(self.window.app, i, self.is_touristenfahrten))
+        self.load_drivers_info()
 
     def init_car_classes(self):
         if Colors.multiCarsClasses:
@@ -478,7 +462,7 @@ class ACTower:
     def generate_standings_pos_before_race(self):
         # Generate standings from -0.5 to 0.5 for the start of race
         standings = []
-        for i in range(self.numCars.value):
+        for i in range(self.cars_count):
             bl = ac.getCarLeaderboardPosition(i)
             standings.append((i, bl))
         self.standings_start_race = sorted(standings, key=lambda student: student[1], reverse=False)
@@ -673,9 +657,8 @@ class ACTower:
             needs_tlc = False
         if 0 < self.race_mode.value < 8:
             # Full tower
-            tick_limit = 40
-            if not math.isinf(self.sessionTimeLeft) and int(
-                            self.sessionTimeLeft / 100) % 18 == 0 and self.tick_race_mode > tick_limit:
+            tick_limit = 5
+            if self.tick_race_mode > tick_limit: #not math.isinf(self.sessionTimeLeft) and int(self.sessionTimeLeft / 100) % 18 == 0 and self.tick_race_mode > tick_limit:
                 self.tick_race_mode = 0
                 for driver in self.drivers:
                     if driver.position_highlight_end == True:
@@ -951,12 +934,10 @@ class ACTower:
         self.drivers_info_updating = False
         self.drivers_info_updated = True
 
-    def load_drivers_info(self, sim_info):
-        PitWindowStart=sim_info.static.PitWindowStart
-        pitWindowEnd = sim_info.static.PitWindowEnd
+    def load_drivers_info(self):
         for driver in self.drivers:
-            if PitWindowStart > 0 or pitWindowEnd > 0:
-                driver.PitWindowStart=PitWindowStart
+            if self.pitWindowStart > 0 or self.pitWindowEnd > 0:
+                driver.PitWindowStart=self.pitWindowStart
         # Offline only
         if not self.is_multiplayer:
             # Open race.ini
@@ -1137,22 +1118,21 @@ class ACTower:
                     self.update_car_skins()
                     break
 
+    def on_update_level0(self):
+        #self.manage_window()
+        self.animate()
+
     def on_update(self, sim_info):
-        if self.track_length < 0:
-            self.track_length = sim_info.static.trackSPlineLength
         self.session.setValue(sim_info.graphics.session)
         sim_info_status = sim_info.graphics.status
         if (sim_info_status != 1 and sim_info_status != 3 and self.sessionTimeLeft != 0 and self.sessionTimeLeft != -1 and self.sessionTimeLeft + 100 < sim_info.graphics.sessionTimeLeft) or sim_info_status == 0:
             self.session.setValue(-1)
             self.session.setValue(sim_info.graphics.session)
         self.manage_window()
-        self.numCars.setValue(ac.getCarsCount())
-        if self.numCars.hasChanged():
-            self.init_drivers(sim_info)
         self.init_car_classes()
         self.sessionTimeLeft = sim_info.graphics.sessionTimeLeft
-        if sim_info_status != 3:
-            self.animate()
+        #if sim_info_status != 3:
+        #    self.animate()
         self.currentVehicule.setValue(ac.getFocusedCar())
         if self.currentVehicule.hasChanged():
             self.drivers_info_updated = True
@@ -1176,16 +1156,9 @@ class ACTower:
                         driver.finished.setValue(True)
                     spline = ac.getCarState(driver.identifier, acsys.CS.NormalizedSplinePosition)
                     driver.raceProgress = spline
-                    #bl = c + spline
-                    #if self.sector_is_valid(bl, driver):
-                    #    driver.race_current_sector.setValue(math.floor(bl * 100))
-
-                    #if driver.race_current_sector.hasChanged():
-                    #driver.race_gaps.append(raceGaps(driver.race_current_sector.value, self.sessionTimeLeft))
-                    #driver.realtime_gaps[driver.race_current_sector.value % 100] = self.sessionTimeLeft
 
                 if not math.isinf(self.sessionTimeLeft):
-                    if not self.imported and self.drivers_inited:
+                    if not self.imported and self.is_multiplayer:
                         thread_standings = threading.Thread(target=self.get_standings_from_server)
                         thread_standings.daemon = True
                         thread_standings.start()
@@ -1196,46 +1169,48 @@ class ACTower:
                         standings = []
                         realtime_standings = []
                         self.fastestLap = 0
-                        for i in range(self.numCars.value):
-                            self.drivers[i].bestLap = ac.getCarState(i, acsys.CS.BestLap)
-                            bl = self.drivers[i].get_best_lap()
-                            self.drivers[i].bestLap_value.setValue(bl)
-                            if self.drivers[i].bestLap_value.hasChanged():
-                                self.drivers[i].bestLap_sectors = ac.getLastSplits(i)
-                            if bl > 0 and self.drivers[i].isAlive.value:# and self.drivers[i].completedLaps.value > self.minLapCount
-                                standings.append((i, bl, self.drivers[i].car_class_name))
-                            elif self.is_touristenfahrten and (self.drivers[i].isAlive.value or (not self.drivers[i].isAlive.value and bl > 0)):
-                                pro = 3600000 - (self.numCars.value - self.drivers[i].identifier)
-                                standings.append((i, pro, self.drivers[i].car_class_name))
-                            elif self.drivers[i].isAlive.value or (not self.drivers[i].isAlive.value and bl > 0):
-                                pro = 3600000 - self.drivers[i].completedLaps.value * 100
-                                if not self.drivers[i].isInPit.value:
-                                    pro -= ac.getCarState(i, acsys.CS.NormalizedSplinePosition) * 100
-                                standings.append((i, pro, self.drivers[i].car_class_name))
+                        for driver in self.drivers:
+                            driver.bestLap = ac.getCarState(driver.identifier, acsys.CS.BestLap)
+                            bl = driver.get_best_lap()
+                            driver.bestLap_value.setValue(bl)
+                            if driver.bestLap_value.hasChanged():
+                                driver.bestLap_sectors = ac.getLastSplits(driver.identifier)
+                            if bl > 0 and driver.isAlive.value:# and driver.completedLaps.value > self.minLapCount
+                                standings.append((driver.identifier, bl, driver.car_class_name))
+                            elif self.is_touristenfahrten and (driver.isAlive.value or (not driver.isAlive.value and bl > 0)):
+                                pro = 3600000 - (self.cars_count - driver.identifier)
+                                standings.append((driver.identifier, pro, driver.car_class_name))
+                            elif driver.isAlive.value or (not driver.isAlive.value and bl > 0):
+                                pro = 3600000 - driver.completedLaps.value * 100
+                                if not driver.isInPit.value:
+                                    pro -= ac.getCarState(driver.identifier, acsys.CS.NormalizedSplinePosition) * 100
+                                standings.append((driver.identifier, pro, driver.car_class_name))
                             # fastestLap for info widget
                             if self.fastestLap == 0 or (0 < bl < self.fastestLap):
                                 self.fastestLap = bl
                                 # self.fastestLapSectors = ac.getLastSplits(x)
                             # realtime
-                            if self.drivers[i].isAlive.value and \
+                            if driver.isAlive.value and \
                                     ((realtime_target_in_pit) or
-                                     (not realtime_target_in_pit and not self.drivers[i].isInPit.value)):
-                                spline = ac.getCarState(self.drivers[i].identifier, acsys.CS.NormalizedSplinePosition)
+                                     (not realtime_target_in_pit and not driver.isInPit.value)):
+                                spline = ac.getCarState(driver.identifier, acsys.CS.NormalizedSplinePosition)
                                 if realtime_target - spline > 0.5:
-                                    realtime_standings.append((self.drivers[i].identifier, spline + 1))
+                                    realtime_standings.append((driver.identifier, spline + 1))
                                 elif realtime_target - spline < -0.5:
-                                    realtime_standings.append((self.drivers[i].identifier, spline - 1))
+                                    realtime_standings.append((driver.identifier, spline - 1))
                                 else:
-                                    realtime_standings.append((self.drivers[i].identifier, spline))
+                                    realtime_standings.append((driver.identifier, spline))
 
                         self.standings = sorted(standings, key=lambda student: student[1])
                         self.realtime_standings = sorted(realtime_standings, key=lambda student: student[1], reverse=True)
                         #t_update_drivers = time.time()
                         self.update_drivers(sim_info)
-                        #t_update_drivers_end = time.time() and  self.drivers[i].isInPit.value
+                        #t_update_drivers_end = time.time() and  driver.isInPit.value
 
             elif self.session.value == 2:
                 # RACE
+                #self.TimeLeftUpdate.setValue(int(self.sessionTimeLeft / 500))
+                #if self.TimeLeftUpdate.hasChanged():
                 if self.numberOfLaps < 0:
                     self.numberOfLaps = sim_info.graphics.numberOfLaps
                 if self.is_multiplayer and not self.ping_updater_active:
@@ -1253,9 +1228,6 @@ class ACTower:
                         driver.raceProgress=0
                     self.pit_window_active = False
                     self.sessionMaxTime = round(self.sessionTimeLeft, -3)
-                if self.pitWindowStart < 0:
-                    self.pitWindowStart = sim_info.static.PitWindowStart
-                    self.pitWindowEnd = sim_info.static.PitWindowEnd
                 if not self.pit_window_active:
                     if self.numberOfLaps > 0 and self.lapsCompleted.value == self.pitWindowStart:
                         self.pit_window_active = True
@@ -1266,7 +1238,6 @@ class ACTower:
                 standings = []
                 realtime_standings = []
                 # new standings
-                # iTime < 10 lap=0 dont loop direct to backup standings
                 if not self.raceStarted and not (sim_info.graphics.iCurrentTime <= 12000 and sim_info.graphics.completedLaps == 0):
                     self.raceStarted = True
                 if self.raceStarted:
@@ -1285,7 +1256,7 @@ class ACTower:
                             if driver.finished.hasChanged() and driver.finished.value:
                                 # and (driver.race_standings_sector.value >= self.numberOfLaps
                                 # or (self.numCarsToFinish > 0 and driver.completedLapsChanged)):
-                                driver.race_standings_sector.setValue(driver.completedLaps.value + (self.numCars.value - self.numCarsToFinish) / 1000)
+                                driver.race_standings_sector.setValue(driver.completedLaps.value + (self.cars_count - self.numCarsToFinish) / 1000)
                                 self.numCarsToFinish += 1
                                 # driver.finished=True
                             elif not driver.finished.value:
@@ -1309,24 +1280,24 @@ class ACTower:
                     self.force_hidden = False
                 else:
                     # backup standings
-                    for i in range(self.numCars.value):
-                        self.drivers[i].raceProgress = 0
-                        c = ac.getCarState(i, acsys.CS.LapCount)
+                    for driver in self.drivers:
+                        driver.raceProgress = 0
+                        c = ac.getCarState(driver.identifier, acsys.CS.LapCount)
                         if c > completed:
                             completed = c
-                        if self.drivers[i].isAlive.value:
-                            spline = ac.getCarState(i, acsys.CS.NormalizedSplinePosition)
+                        if driver.isAlive.value:
+                            spline = ac.getCarState(driver.identifier, acsys.CS.NormalizedSplinePosition)
                             if c == 0 and spline > 0.6:
                                 spline -= 1
                             #bl = c + spline
-                            bl = ac.getCarLeaderboardPosition(i)
-                            standings.append((i, bl, self.drivers[i].car_class_name))
+                            bl = ac.getCarLeaderboardPosition(driver.identifier)
+                            standings.append((driver.identifier, bl, driver.car_class_name))
                             if realtime_target - spline > 0.5:
-                                realtime_standings.append((self.drivers[i].identifier, spline + 1))
+                                realtime_standings.append((driver.identifier, spline + 1))
                             elif realtime_target - spline < -0.5:
-                                realtime_standings.append((self.drivers[i].identifier, spline - 1))
+                                realtime_standings.append((driver.identifier, spline - 1))
                             else:
-                                realtime_standings.append((self.drivers[i].identifier, spline))
+                                realtime_standings.append((driver.identifier, spline))
 
                     self.standings = sorted(standings, key=lambda student: student[1], reverse=False)
                     self.realtime_standings = sorted(realtime_standings, key=lambda student: student[1], reverse=True)
@@ -1358,16 +1329,16 @@ class ACTower:
         elif sim_info_status == 1:  # Replay
             if self.session.value < 2:  # Qual
                 standings = []
-                for i in range(self.numCars.value):
-                    bl = ac.getCarState(i, acsys.CS.BestLap)
-                    if bl > 0:
-                        standings.append((i, bl, self.drivers[i].car_class_name))
+                for driver in self.drivers:
+                    bl = ac.getCarState(driver.identifier, acsys.CS.BestLap)
+                    #if bl > 0:
+                    standings.append((driver.identifier, bl, driver.car_class_name))
                 self.standings = sorted(standings, key=lambda student: student[1])
                 self.update_drivers_replay()
             elif self.session.value == 2:  # Race
                 #completed = 0
                 standings = []
-                for i in range(self.numCars.value):
+                for driver in self.drivers:
                     #c = ac.getCarState(i, acsys.CS.LapCount)
                     # driver[i].completedLaps.setValue(c)
                     # driver[i].completedLapsChanged=driver[i].completedLaps.hasChanged()
@@ -1379,9 +1350,9 @@ class ACTower:
                     #standings.append((i, pos, pos))
                     #standings.append((i, bl, pos))
                     #bl = ac.getCarState(i, acsys.CS.LapCount) + ac.getCarState(i, acsys.CS.NormalizedSplinePosition)
-                    bl = ac.getCarLeaderboardPosition(i)
+                    bl = ac.getCarLeaderboardPosition(driver.identifier)
                     #if bl > 0:
-                    standings.append((i, bl, self.drivers[i].car_class_name))
+                    standings.append((driver.identifier, bl, driver.car_class_name))
 
                 self.standings_replay = sorted(standings, key=lambda student: student[1], reverse=False)
                 #self.standings_replay = sorted(standings, key=lambda student: student[1], reverse=True)

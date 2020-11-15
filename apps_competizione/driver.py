@@ -7,7 +7,8 @@ from .configuration import Configuration
 
 
 class Driver:
-    def __init__(self, app, identifier, name, pos, is_touristenfahrten):
+    def __init__(self, app, identifier, is_touristenfahrten):
+        name = ac.getDriverName(identifier)
         self.identifier = identifier
         self.is_multiplayer = ac.getServerIP() != ''
         self.last_ping=-1
@@ -21,10 +22,8 @@ class Driver:
         self.car_number = ""
         self.team_name = ""
         self.car_skin_path = ""
-        self.cur_theme = Value(-1)
         self.font = Value(0)
         self.theme = Value(-1)
-        self.isLapTimeValid=True
         self.row_height = Value(-1)
         self.hasStartedRace = False
         self.PitWindowStart=-1
@@ -100,7 +99,7 @@ class Driver:
             .set(w=self.rowHeight, h=self.rowHeight,
                  x=0, y=0,
                  opacity=0)
-        self.lbl_position_txt = Label(app, str(pos + 1)) \
+        self.lbl_position_txt = Label(app, str(identifier + 1)) \
             .set(w=self.rowHeight, h=self.rowHeight,
                  x=0, y=0,
                  font_size=fontSize,
@@ -178,7 +177,7 @@ class Driver:
                  x=0, y=self.rowHeight - 2,
                  background=Colors.white(bg=True),
                  opacity=Colors.border_opacity())
-        self.lbl_number_txt = Label(app, str(pos + 1)) \
+        self.lbl_number_txt = Label(app, str(identifier + 1)) \
             .set(w=self.rowHeight, h=self.rowHeight,
                  x=0, y=0,
                  font_size=fontSize,
@@ -267,7 +266,6 @@ class Driver:
                     #    self.lbl_ping_status.hide()
 
         # Names
-        lbl_multi = 1.2
         if Configuration.names >= 2:  # First Last
             self.show_full_name()
         else:  # TLC
@@ -395,12 +393,24 @@ class Driver:
             self.lbl_p2p.setText("1").show()
             self.lbl_status.set(background=Colors.status_pitstop(), animated=True, init=True)
         else:
-            # P2P
+            # Push 2 Pass
+            self.push_2_pass_status.setValue(ac.getCarState(self.identifier, acsys.CS.P2PStatus))
+            if self.push_2_pass_status.value > 0:  # OFF = 0
+                self.push_2_pass_left.setValue(ac.getCarState(self.identifier, acsys.CS.P2PActivations))
             if self.push_2_pass_status.value > 0 and self.push_2_pass_left.value > 0:
+                if self.push_2_pass_status.hasChanged():
+                    if self.push_2_pass_status.value == 1:  # COOLING = 1
+                        self.lbl_status.set(background=Colors.tower_p2p_cooling(), animated=True, init=True)
+                    elif self.push_2_pass_status.value == 2:  # AVAILABLE = 2
+                        self.lbl_status.set(background=Colors.status_green(), animated=True, init=True)
+                    elif self.push_2_pass_status.value == 3:  # ACTIVE = 3
+                        self.lbl_status.set(background=Colors.tower_p2p_active(), animated=True, init=True)
+                if self.push_2_pass_left.hasChanged():
+                    self.lbl_p2p.setText(str(self.push_2_pass_left.value))
                 self.lbl_p2p.show()
             else:
                 self.lbl_p2p.hide()
-                self.lbl_status.set(background=Colors.status_green(), animated=True, init=True) #todo: green png + border
+                self.lbl_status.set(background=Colors.status_green(), animated=True, init=True)
         if self.showingFullNames and needs_tlc:
             self.set_name()
         elif not self.showingFullNames and not needs_tlc:
@@ -482,15 +492,7 @@ class Driver:
         if self.isInPit.value:
             if self.isInPit.hasChanged():
                 self.pit_highlight_end = session_time - 5000
-            #self.lbl_pit.setX(self.get_pit_x(), True)
 
-            '''
-            x = (self.rowHeight - 2) * 2 + self.get_name_width() + self.rowHeight * 58 / 38
-            if self.is_compact_mode():
-                x += self.rowHeight * 11 / 38
-            else:
-                x += self.get_time_width(), animated=True, animated=True
-            '''
             self.lbl_tires_txt.hide()
             self.lbl_tires_bg.hide()
             x=self.get_pit_x()
@@ -505,7 +507,7 @@ class Driver:
             self.lbl_pit_bg.hide()
             if Configuration.show_tires:
                 t = str(ac.getCarTyreCompound(self.identifier))
-                x = self.get_pit_x()# - self.rowHeight * 11 / 38
+                x = self.get_pit_x()
                 if self.is_compact_mode():
                     x-=self.rowHeight * 11 / 38
                 if len(t) > 2:
@@ -540,11 +542,7 @@ class Driver:
         self.lbl_number_txt.hide()
         self.lbl_pit.hide()
         self.lbl_p2p.hide()
-        #if self.isInPit.value:
         self.lbl_name.set(w=self.get_name_width())
-        #else:
-        #    self.lbl_name.set(w=self.get_name_width())
-        #    self.lbl_time.set(w=self.get_time_width(), x=self.rowHeight + border_offset + self.get_name_width())
         self.lbl_time.hide()
         self.lbl_time_txt.hide()
         self.lbl_logo_bg.hide()
@@ -634,16 +632,15 @@ class Driver:
             self.lbl_name_txt.setText(offset + self.format_last_name(self.fullName.value))
 
     def set_time(self, time, leader, session_time, mode, fastest_driver_sectors=[]):
+        self.time.setValue(time)
+        self.gap.setValue(time - leader)
+        if self.time.hasChanged():
+            self.time_highlight_end = session_time - 5000
+        self.highlight.setValue(self.time_highlight_end != 0 and self.time_highlight_end < session_time)
         if self.highlight.value:
             if mode == 0 or mode == 2:
                 mode = 1
         self.qual_mode.setValue(mode)
-        self.time.setValue(time)
-        self.gap.setValue(time - leader)
-        time_changed = self.time.hasChanged()
-        #if time_changed or self.gap.hasChanged() or self.qual_mode.hasChanged():
-        if time_changed:
-            self.time_highlight_end = session_time - 5000
         if mode == 2: #----- sector? delta?
             splits = ac.getCurrentSplits(self.identifier)
             sector_time=best_time=pb_time=0
@@ -1063,13 +1060,13 @@ class Driver:
         if session_time_left == -1:
             self.time_highlight_end = 0
         # Anything that needs live changes
+        '''
         if self.isDisplayed:
-            self.cur_theme.setValue(Colors.general_theme)
             # Push 2 Pass
             self.push_2_pass_status.setValue(ac.getCarState(self.identifier, acsys.CS.P2PStatus))
             if self.push_2_pass_status.value > 0:  # OFF = 0
                 self.push_2_pass_left.setValue(ac.getCarState(self.identifier, acsys.CS.P2PActivations))
-                if self.push_2_pass_status.hasChanged() or self.cur_theme.hasChanged():
+                if self.push_2_pass_status.hasChanged():
                     if self.push_2_pass_status.value == 1:  # COOLING = 1
                         self.lbl_status.set(background=Colors.tower_p2p_cooling(), animated=True, init=True)
                     elif self.push_2_pass_status.value == 2:  # AVAILABLE = 2
@@ -1078,38 +1075,18 @@ class Driver:
                         self.lbl_status.set(background=Colors.tower_p2p_active(), animated=True, init=True)
                 if self.push_2_pass_left.hasChanged():
                     self.lbl_p2p.setText(str(self.push_2_pass_left.value))
-            self.highlight.setValue(self.time_highlight_end != 0 and self.time_highlight_end < session_time_left)
 
+            self.highlight.setValue(self.time_highlight_end != 0 and self.time_highlight_end < session_time_left)
             if not self.race and self.isDisplayed:
                 if self.highlight.hasChanged():
                     if self.highlight.value or Configuration.qual_mode==1:
                         self.lbl_time_txt.setColor(Colors.tower_time_qualification_highlight_txt(), animated=True, init=True)
-                        #self.lbl_time.show()
-                        #self.lbl_time_txt.show()
                     else:
                         self.lbl_time_txt.setColor(Colors.tower_time_odd_txt(), animated=True, init=True)
-                        '''
-                        if self.is_compact_mode():
-                            self.lbl_time.hide()
-                            self.lbl_time_txt.hide()
-                        else:
-                            self.lbl_time.show()
-                            self.lbl_time_txt.show()
                         
-                        '''
                 self.lbl_name.set(w=self.get_name_width(), animated=True)
-                #self.lbl_pit.setX(self.get_pit_x(), True)
-            '''
-            elif self.race and self.isDisplayed:
-                if self.is_compact_mode() and self.isInPit.value and self.isDisplayed and self.isAlive.value and not self.finished.value:
-                    #self.lbl_pit.setX(self.get_pit_x(), True)
-                    self.lbl_pit.setColor(Colors.tower_pit_txt(), animated=True, init=True)
-                    self.lbl_pit.show()
-                else:
-                    self.lbl_pit.hide()
-                self.lbl_name.set(w=self.get_name_width(), animated=True)
-            '''
-        # not isLapLabel
+            
+        '''
         self.lbl_position.animate()
         self.lbl_pit_bg.animate()
         self.lbl_tires_bg.animate()
