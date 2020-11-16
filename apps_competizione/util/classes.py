@@ -1237,6 +1237,7 @@ class Colors:
 
 
 class Label:
+    anim_rate = 50
     # INITIALIZATION
 
     def __init__(self, window, text=""):
@@ -1542,6 +1543,10 @@ class Label:
                     multiplier = round(abs(self.f_params[p].value - self.params[p].value) / spring_multi)
             else:
                 multiplier = self.multiplier[p].value
+            if self.__class__.anim_rate < 32:
+                multiplier=multiplier*3
+            elif self.__class__.anim_rate < 40:
+                multiplier=multiplier*2
             if abs(self.f_params[p].value - self.params[p].value) < multiplier:
                 multiplier = abs(self.f_params[p].value - self.params[p].value)
             if self.params[p].value < self.f_params[p].value:

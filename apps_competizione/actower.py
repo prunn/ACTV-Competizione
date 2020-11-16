@@ -137,7 +137,7 @@ class ACTower:
         self.lbl_title_mode.animate()
         self.lbl_title_mode_txt.animate()
         for driver in self.drivers:
-            driver.animate(self.sessionTimeLeft)
+            driver.animate()#self.sessionTimeLeft
         for lbl in self.cars_classes:
             lbl.animate()
 
@@ -748,6 +748,8 @@ class ACTower:
                             driver.show(needs_tlc=needs_tlc, compact=True)
                             driver.update_pit(self.sessionTimeLeft)
                     else:
+                        if len(p) > 0:
+                            driver.position.setValue(p[0] + 1)
                         driver.hide()
                     driver.optimise()
             elif self.race_mode.value == 1 or self.race_mode.value == 2 or self.race_mode.value == 3:
@@ -831,6 +833,8 @@ class ACTower:
                                     driver.set_time_race_battle("UP", cur_driver.identifier)
                                 else:
                                     driver.set_time_race_battle("DOWN", cur_driver.identifier)
+                            elif cur_driver.identifier==driver.identifier:
+                                driver.set_time_race_battle("--", cur_driver.identifier)
                             else:
                                 driver.set_time_race_battle(gap, cur_driver.identifier)
                             driver.show(needs_tlc)
@@ -855,9 +859,9 @@ class ACTower:
                     if len(p) > 0 and driver.completedLapsChanged:
                         driver.set_position(p[0] + 1, 0, False)
                         driver.set_time_race(driver.completedLaps.value, self.leader_time, self.sessionTimeLeft)
-                        needs_tlc = True
-                        if self.numCarsToFinish > 0:
-                            needs_tlc = False
+                        #needs_tlc = True
+                        #if self.numCarsToFinish > 0:
+                        #    needs_tlc = False
                         driver.show(needs_tlc)
                         driver.update_pit(self.sessionTimeLeft)
         else:

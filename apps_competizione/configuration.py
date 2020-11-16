@@ -39,7 +39,7 @@ class Configuration:
 
 
 
-        self.window = Window(name="ACTV CP Config", icon=False, width=251, height=500, texture="").setBgOpacity(0)
+        self.window = Window(name="ACTV CP Config", icon=False, width=251, height=570, texture="").setBgOpacity(0)
 
         y = 50
         self.spin_race_mode = ac.addSpinner(self.window.app, "Race tower mode :")
@@ -89,6 +89,14 @@ class Configuration:
             .setFontSize(12).setAlign("left") \
             .setVisible(1)
 
+        # Update rate
+        y += 70
+        self.spin_anim_rate = ac.addSpinner(self.window.app, "Anim/sec")
+        ac.setRange(self.spin_anim_rate, 20, 100)
+        ac.setPosition(self.spin_anim_rate, 20, y)
+        ac.setValue(self.spin_anim_rate, self.__class__.anim_rate)
+        ac.addOnValueChangeListener(self.spin_anim_rate, self.on_spin_anim_rate_changed)
+
         y += 52
         self.chk_force_info = ac.addCheckBox(self.window.app, "")
         ac.setPosition(self.chk_force_info, 20, y)
@@ -118,12 +126,6 @@ class Configuration:
 
         ############# rates
         '''
-        y += 70
-        self.spin_anim_rate = ac.addSpinner(self.window.app, "Anim/sec")
-        ac.setRange(self.spin_anim_rate, 20, 100)
-        ac.setPosition(self.spin_anim_rate, 20, y)
-        ac.setValue(self.spin_anim_rate, self.__class__.anim_rate)
-        ac.addOnValueChangeListener(self.spin_anim_rate, self.on_spin_anim_rate_changed)
         y += 70
         self.spin_data_rate = ac.addSpinner(self.window.app, "Data/sec")
         ac.setRange(self.spin_data_rate, 10, 100)
@@ -186,6 +188,9 @@ class Configuration:
         self.__class__.names = self.cfg.get("SETTINGS", "names", "int")
         if self.__class__.names == -1:
             self.__class__.names = 3
+        self.__class__.anim_rate = self.cfg.get("SETTINGS", "anim_rate", "int")
+        if self.__class__.anim_rate == -1:
+            self.__class__.anim_rate = 50
         #font_ini = self.cfg.get("SETTINGS", "font_ini", "string")
         font_ini = "apps/python/actv_competizione/fonts/actvcpbold.ini"
         if font_ini != -1:
@@ -225,6 +230,7 @@ class Configuration:
         ac.setValue(self.spin_race_mode, self.__class__.race_mode)
         ac.setValue(self.spin_qual_mode, self.__class__.qual_mode)
         ac.setValue(self.spin_names, self.__class__.names)
+        ac.setValue(self.spin_anim_rate, self.__class__.anim_rate)
         ac.setValue(self.spin_num_cars, self.__class__.max_num_cars)
         ac.setValue(self.spin_row_height, self.__class__.ui_row_height)
         ac.setValue(self.chk_force_info, self.__class__.forceInfoVisible)
@@ -238,6 +244,7 @@ class Configuration:
         self.cfg.set("SETTINGS", "race_mode", self.__class__.race_mode)
         self.cfg.set("SETTINGS", "qual_mode", self.__class__.qual_mode)
         self.cfg.set("SETTINGS", "names", self.__class__.names)
+        self.cfg.set("SETTINGS", "anim_rate", self.__class__.anim_rate)
         self.cfg.set("SETTINGS", "force_info_visible", self.__class__.forceInfoVisible)
         self.cfg.set("SETTINGS", "save_delta", self.__class__.save_delta)
         self.cfg.set("SETTINGS", "show_tires", self.__class__.show_tires)
@@ -303,6 +310,7 @@ class Configuration:
         ac.setVisible(self.spin_race_mode, 0)
         ac.setVisible(self.spin_qual_mode, 0)
         ac.setVisible(self.spin_names, 0)
+        ac.setVisible(self.spin_anim_rate, 0)
         ac.setVisible(self.spin_num_cars, 0)
         ac.setVisible(self.spin_row_height, 0)
         ac.setVisible(self.chk_force_info, 0)
@@ -319,6 +327,7 @@ class Configuration:
         ac.setVisible(self.spin_race_mode, 1)
         ac.setVisible(self.spin_qual_mode, 1)
         ac.setVisible(self.spin_names, 1)
+        ac.setVisible(self.spin_anim_rate, 1)
         ac.setVisible(self.spin_num_cars, 1)
         ac.setVisible(self.spin_row_height, 1)
         ac.setVisible(self.chk_force_info, 1)
@@ -446,6 +455,7 @@ class Configuration:
     @staticmethod
     def on_spin_anim_rate_changed(value):
         Configuration.anim_rate = value
+        Label.anim_rate = value
 
     @staticmethod
     def on_spin_data_rate_changed(value):

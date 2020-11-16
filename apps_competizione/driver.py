@@ -416,13 +416,13 @@ class Driver:
         elif not self.showingFullNames and not needs_tlc:
             self.show_full_name()
         if not self.isDisplayed:
-            self.lbl_name.set(w=self.get_name_width())
-            self.lbl_time.set(w=self.get_time_width())
             self.isDisplayed = True
         self.lbl_name.show()
         self.lbl_name_txt.show()
         self.lbl_status.show()
 
+        self.lbl_name.set(w=self.get_name_width())
+        self.lbl_time.set(w=self.get_time_width())
         if not self.is_compact_mode():
             self.lbl_time.show()
             self.lbl_time_txt.show()
@@ -696,7 +696,7 @@ class Driver:
 
     def set_time_race(self, time, leader, session_time):
         if self.position.value == 1:
-            self.lbl_time_txt.change_font_if_needed().setText("Lap " + str(time)).setColor(Colors.tower_time_odd_txt(), animated=True, init=True)
+            self.lbl_time_txt.change_font_if_needed().setText("Lap " + str(time)).setColor(Colors.tower_time_last_lap_txt(), animated=True, init=True)
         else:
             self.lbl_time_txt.change_font_if_needed().setText("+" + self.format_time(leader - session_time)).setColor(Colors.tower_time_odd_txt(), animated=True, init=True)
 
@@ -1056,11 +1056,11 @@ class Driver:
             x += self.get_time_width()
         return x
 
-    def animate(self, session_time_left):
+    def animate(self):
+        ''', session_time_left
         if session_time_left == -1:
             self.time_highlight_end = 0
         # Anything that needs live changes
-        '''
         if self.isDisplayed:
             # Push 2 Pass
             self.push_2_pass_status.setValue(ac.getCarState(self.identifier, acsys.CS.P2PStatus))
