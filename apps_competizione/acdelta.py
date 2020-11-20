@@ -5,7 +5,7 @@ import os, threading, json, math
 import gzip
 import time
 from .util.func import rgb
-from .util.classes import Window, Label, Value, POINT, Colors, Font, Config, Log, Button, raceGaps
+from .util.classes import Window, Label, Value, Colors, Font, Config, Log, Button, raceGaps
 from .configuration import Configuration
 
         
@@ -568,9 +568,7 @@ class ACDelta:
             return "00:{0}.{1}".format(str(int(s)).zfill(2), str(int(d)).zfill(3))
 
         
-    def manage_window(self):
-        pt = POINT()
-        result = ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+    def manage_window(self, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
         if win_x > 0:
@@ -580,7 +578,7 @@ class ACDelta:
             self.window.setLastPos()
             win_x = self.window.getPos().x
             win_y = self.window.getPos().y
-        if result and pt.x > win_x and pt.x < win_x + self.window.width and pt.y > win_y and pt.y < win_y + self.window.height:   
+        if win_x < game_data.cursor_x < win_x + self.window.width and win_y < game_data.cursor_y < win_y + self.window.height:
             self.cursor.setValue(True)
         else:
             self.cursor.setValue(False)
@@ -721,17 +719,9 @@ class ACDelta:
         self.lbl_laps_text.animate()
         self.lbl_laps_text_shadow.animate()
 
-    def on_update_level0(self, session_time_left):
-        #self.manage_window()
-        self.animate()
-        if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1 and not math.isinf(session_time_left):
-            self.lbl_current_time_text.setText(self.time_splitting_full(self.last_lap_start[self.currentVehicle.value] - session_time_left))
-        else:
-            self.lbl_current_time_text.setText(self.time_splitting_full(ac.getCarState(self.currentVehicle.value, acsys.CS.LapTime)))
-
-    def on_update(self, sim_info, standings):
-        session_time_left = sim_info.graphics.sessionTimeLeft
-        sim_info_status = sim_info.graphics.status
+    def on_update(self, sim_info, standings, game_data):
+        session_time_left = game_data.sessionTimeLeft
+        sim_info_status = game_data.status
         self.standings = standings
         if self.is_multiplayer:
             self.numCars=0
@@ -740,9 +730,9 @@ class ACDelta:
                 if self.is_multiplayer:
                     self.numCars+=1
                 self.drivers_lap_count[i].setValue(ac.getCarState(i, acsys.CS.LapCount))
-                if self.last_lap_start[i] == -1 and not math.isinf(session_time_left) and session_time_left != 0:
+                if self.last_lap_start[i] == -1 and session_time_left != 0:
                     self.last_lap_start[i] = session_time_left
-                if self.drivers_lap_count[i].hasChanged() and not math.isinf(session_time_left):
+                if self.drivers_lap_count[i].hasChanged() and session_time_left != 0:
                     self.last_lap_start[i] = session_time_left
                     # if PB save delta
                     if ac.getCarState(i, acsys.CS.LastLap) <= ac.getCarState(i, acsys.CS.BestLap):
@@ -759,7 +749,7 @@ class ACDelta:
                     self.current_lap_others[i] = []
                 if ac.isCarInPit(i) or ac.isCarInPitline(i):
                     self.current_lap_others[i] = []
-                if self.spline_others[i].hasChanged() and not math.isinf(session_time_left):
+                if self.spline_others[i].hasChanged() and session_time_left != 0:
                     self.current_lap_others[i].append(raceGaps(self.spline_others[i].value, self.last_lap_start[i] - session_time_left))
 
 
@@ -781,9 +771,9 @@ class ACDelta:
             self.spline.setValue(0)
             '''
             self.__class__.importPressed = False
-        self.session.setValue(sim_info.graphics.session)
-        self.manage_window()
-        #self.animate()
+        self.session.setValue(game_data.session)
+        self.manage_window(game_data)
+        self.animate()
         self.currentVehicle.setValue(ac.getFocusedCar())
         self.current_car_class.setValue(self.get_class_id(self.currentVehicle.value))
         if self.currentVehicle.hasChanged() or self.current_car_class.hasChanged():
@@ -808,7 +798,7 @@ class ACDelta:
             self.lbl_laps_text_shadow.setText("LAP")
 
         if sim_info_status == 2:  # LIVE
-            if math.isinf(session_time_left) or (self.session.value == 2 and sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
+            if session_time_left == 0 or game_data.beforeRaceStart:
                 self.reset_data()
                 self.reset_others()
                 if not Configuration.save_delta:
@@ -820,12 +810,10 @@ class ACDelta:
                 self.reset_data()
             self.spline.setValue(round(ac.getCarState(self.currentVehicle.value, acsys.CS.NormalizedSplinePosition), 3))
             #Current lap time
-            '''
-            if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1 and not math.isinf(session_time_left):
+            if self.currentVehicle.value != 0 and self.last_lap_start[self.currentVehicle.value] != -1 and session_time_left != 0:
                 self.lbl_current_time_text.setText(self.time_splitting_full(self.last_lap_start[self.currentVehicle.value] - session_time_left))
             else:
                 self.lbl_current_time_text.setText(self.time_splitting_full(ac.getCarState(self.currentVehicle.value,acsys.CS.LapTime)))
-            '''
             if self.currentVehicle.value == 0 and not self.lastLapIsValid:
                 self.lbl_current_time_text.set(color=Colors.red(), animated=True)
             else:
@@ -887,8 +875,7 @@ class ACDelta:
                         self.lbl_last_time_text.setText("--:--.---")
 
             #update rate
-            if not math.isinf(session_time_left):
-                self.TimeLeftUpdate.setValue(int(session_time_left / 500))
+            self.TimeLeftUpdate.setValue(int(session_time_left / 500))
             if self.TimeLeftUpdate.hasChanged():
                 # update graphics
 
@@ -924,7 +911,7 @@ class ACDelta:
                     self.lbl_position_total_text_multi_shadow.hide()
 
                 # flags
-                flag = sim_info.graphics.flag
+                flag = game_data.flag
                 if flag == 1:
                     # AC_BLUE_FLAG Flag
                     self.lbl_flag.set(background=Colors.blue_flag()).show()

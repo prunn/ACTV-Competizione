@@ -40,8 +40,9 @@ try:
     from apps_competizione.acdelta import ACDelta
     from apps_competizione.acweather import ACWeather
     from apps_competizione.configuration import Configuration
-    from apps_competizione.util.classes import Log, Value
+    from apps_competizione.util.classes import Log, Value, GameData
     sim_info = SimInfo()
+    game_data = GameData()
 except:
     exc_type, exc_value, exc_traceback = sys.exc_info()
     lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
@@ -63,8 +64,7 @@ drivers_info_init = False
 weather = 0
 weather_init = False
 weather_time = Value(0)
-anim_time = Value(0)
-data_time = Value(0)
+refresh_time = Value(0)
 
 
 def acMain(ac_version):
@@ -104,19 +104,18 @@ def acMain(ac_version):
 
 
 def acUpdate(deltaT):
-    global anim_time
+    global refresh_time
     current_time = time.time()
-    anim_time.setValue(int(current_time * Configuration.anim_rate)) # 0.02 sec
-    if anim_time.hasChanged():
-        global sim_info, timer, info, tower, timerInit, infoInit, towerInit, config, configInit, delta, deltaInit, drivers_info_init, weather, weather_init, weather_time, data_time
+    refresh_time.setValue(int(current_time * Configuration.refresh_rate)) # 50 = 0.02 sec
+    if refresh_time.hasChanged():
+        global sim_info, game_data, timer, info, tower, timerInit, infoInit, towerInit, config, configInit, delta, deltaInit, drivers_info_init, weather, weather_init, weather_time
         fl = 0
         standings = []
         drivers_info = []
-        data_time.setValue(int(current_time * Configuration.data_rate)) # 0.1 sec
-        data_time_changed=data_time.hasChanged()
-        if configInit and data_time_changed:
+        game_data.update(sim_info)
+        if configInit:
             try:
-                config_changed = config.on_update(sim_info)
+                config_changed = config.on_update(game_data)
                 if config_changed:
                     if timerInit:
                         timer.load_cfg()
@@ -132,49 +131,43 @@ def acUpdate(deltaT):
                 Log.w("Error config")
         if timerInit:
             try:
-                timer.on_update_level0()
-                if data_time_changed:
-                    timer.on_update(sim_info)
+                timer.on_update(sim_info, game_data)
             except:
                 Log.w("Error timer")
         if towerInit:
             try:
-                tower.on_update_level0()
-                if data_time_changed:
-                    tower.on_update(sim_info)
-                    fl = tower.get_fastest_lap()
-                    standings = tower.get_standings()
-                    if not drivers_info_init or tower.drivers_info_is_updated():
-                        drivers_info = tower.get_drivers_info()
+                tower.on_update(sim_info, game_data)
+                fl = tower.get_fastest_lap()
+                standings = tower.get_standings()
+                if not drivers_info_init or tower.drivers_info_is_updated():
+                    drivers_info = tower.get_drivers_info()
             except:
                 Log.w("Error tower")
         if infoInit:
             try:
-                info.on_update_level0(sim_info)
-                if data_time_changed:
-                    if len(drivers_info):
-                        info.set_drivers_info(drivers_info)
-                        drivers_info_init = True
-                    info.on_update(sim_info, fl, standings)
+                if len(drivers_info):
+                    info.set_drivers_info(drivers_info)
+                    drivers_info_init = True
+                info.on_update(sim_info, fl, standings, game_data)
             except:
                 Log.w("Error info")
         if deltaInit:
             try:
-                delta.on_update_level0(sim_info.graphics.sessionTimeLeft)
-                if data_time_changed:
-                    if len(drivers_info):
-                        delta.set_drivers_info(drivers_info)
-                        drivers_info_init = True
-                    delta.on_update(sim_info, standings)
+                if len(drivers_info):
+                    delta.set_drivers_info(drivers_info)
+                    drivers_info_init = True
+                delta.on_update(sim_info, standings, game_data)
             except:
                 Log.w("Error delta")
         if weather_init:
-            weather_time.setValue(int(time.time()/10)) # 10 sec
-            if weather_time.hasChanged():
-                try:
-                    weather.on_update(sim_info)
-                except:
-                    Log.w("Error weather")
+            try:
+                weather_time.setValue(int(current_time/10)) # 10 sec
+                if weather_time.hasChanged():
+                    weather.on_update(sim_info, game_data)
+                else:
+                    weather.manage_window(game_data)
+            except:
+                Log.w("Error weather")
 
 def acShutdown():
     ac.console("shutting down actv cp")

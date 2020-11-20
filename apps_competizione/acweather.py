@@ -3,7 +3,7 @@ import acsys
 import ctypes
 import math
 import os
-from .util.classes import Window, Label, Value, POINT, Font, Colors
+from .util.classes import Window, Label, Value, Font, Colors
 from .configuration import Configuration
 
 
@@ -199,9 +199,7 @@ class ACWeather:
                                             font_size=row2_font_size,
                                             color=Colors.weather_data_txt())# - self.ui_row_height.value * 1/38
 
-    def manageWindow(self):
-        pt=POINT()
-        result = ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+    def manage_window(self, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
         if win_x > 0:
@@ -211,15 +209,12 @@ class ACWeather:
             self.window.setLastPos()
             win_x = self.window.getPos().x
             win_y = self.window.getPos().y
-        if result and pt.x > win_x and pt.x < win_x + self.window.width and pt.y > win_y and pt.y < win_y + self.window.height:   
+        if win_x < game_data.cursor_x < win_x + self.window.width and win_y < game_data.cursor_y < win_y + self.window.height:
             self.cursor.setValue(True)
         else:
             self.cursor.setValue(False)
 
         session_changed=self.session.hasChanged()
-        #if session_changed:
-        #    self.last_lap_in_pit=0
-        
         if self.cursor.hasChanged() or session_changed:
             if self.cursor.value:
                 self.window.setBgOpacity(0.4).border(0)
@@ -228,9 +223,9 @@ class ACWeather:
                 self.window.setBgOpacity(0).border(0)
                 self.window.showTitle(False)
                     
-    def on_update(self, sim_info):
-        self.session.setValue(sim_info.graphics.session)
-        self.manageWindow()
+    def on_update(self, sim_info, game_data):
+        self.session.setValue(game_data.session)
+        self.manage_window(game_data)
         surface_grip = sim_info.graphics.surfaceGrip
         if surface_grip > 0.98:
             self.lbl_track_condition_txt.setText("OPTIMUM (" + str(round(surface_grip*100))+"%)")

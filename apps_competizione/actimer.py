@@ -8,7 +8,7 @@ import threading
 import http.client
 from decimal import Decimal, ROUND_HALF_UP
 from .util.func import rgb
-from .util.classes import Window, Label, Value, POINT, Colors, Font, Log, Config
+from .util.classes import Window, Label, Value, Colors, Font, Log, Config
 from .configuration import Configuration
 
 
@@ -24,7 +24,7 @@ class ACTimer:
         self.cursor = Value(False)
         self.row_height = Value(-1)
         self.font = Value(0)
-        self.numberOfLaps = -1
+        self.numberOfLaps = sim_info.graphics.numberOfLaps
         self.corner_width=0
         self.hasExtraLap = sim_info.static.hasExtraLap
         self.numberOfLapsTimedRace = -1
@@ -334,9 +334,7 @@ class ACTimer:
         self.lbl_session_border.animate()
         self.lbl_session_border_2.animate()
 
-    def manage_window(self):
-        pt = POINT()
-        result = ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+    def manage_window(self, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
         if win_x > 0:
@@ -346,7 +344,7 @@ class ACTimer:
             self.window.setLastPos()
             win_x = self.window.getPos().x
             win_y = self.window.getPos().y
-        if result and win_x < pt.x < win_x + self.window.width and win_y < pt.y < win_y + self.window.height:
+        if win_x < game_data.cursor_x < win_x + self.window.width and win_y < game_data.cursor_y < win_y + self.window.height:
             self.cursor.setValue(True)
         else:
             self.cursor.setValue(False)
@@ -354,7 +352,6 @@ class ACTimer:
         if self.session.hasChanged():
             self.numberOfLapsTimedRace = -1
             self.hasExtraLap = -1
-            self.numberOfLaps = -1
             self.pitWindowStart = -1
             self.pitWindowEnd = -1
             self.sessionMaxTime = -1
@@ -439,17 +436,13 @@ class ACTimer:
         if self.cursor.hasChanged():
             self.window.setBgOpacity(0).border(0)
 
-    def on_update_level0(self):
-        #self.manage_window()
+    def on_update(self, sim_info, game_data):
+        self.session.setValue(game_data.session)
+        self.manage_window(game_data)
+        sim_info_status = game_data.status
         self.animate()
-
-    def on_update(self, sim_info):
-        self.session.setValue(sim_info.graphics.session)
-        self.manage_window()
-        sim_info_status = sim_info.graphics.status
-        #self.animate()
         if sim_info_status == 2:  # LIVE
-            self.session_time_left = session_time_left = sim_info.graphics.sessionTimeLeft
+            self.session_time_left = session_time_left = game_data.sessionTimeLeft
             if self.is_multiplayer and not self.session_info_imported:
                 thread_standings = threading.Thread(target=self.get_sessions_data_from_server)
                 thread_standings.daemon = True
@@ -485,7 +478,7 @@ class ACTimer:
                     # Finish
                     self.lbl_session_border.set(background=Colors.timer_finish())
                     self.lbl_session_border_2.set(background=Colors.timer_finish())
-                elif sim_info.graphics.flag == 2:
+                elif game_data.flag == 2:
                     # Yellow Flag
                     self.lbl_session_border.set(background=Colors.timer_border_yellow_flag_bg(),
                                                 animated=True)
@@ -508,40 +501,41 @@ class ACTimer:
                     if ac.getCarState(x, acsys.CS.RaceFinished):
                         race_finished = 1
                 completed += 1
-                if self.numberOfLaps < 0:
-                    self.numberOfLaps = sim_info.graphics.numberOfLaps
                 if self.hasExtraLap == 1 and session_time_left < 0 and self.numberOfLapsTimedRace < 0:
                     self.numberOfLapsTimedRace = completed + 1
 
                 # PitWindow
                 pit_window_remain = ""
-                if self.numberOfLaps > 0:
-                    self.numberOfLapsCompleted.setValue(completed)
-                    if self.numberOfLapsCompleted.hasChanged():
-                        if self.numberOfLapsCompleted.value == self.pitWindowStart and not (sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
+                if not game_data.beforeRaceStart and (self.pitWindowEnd > 0 or self.pitWindowStart > 0):
+                    if self.numberOfLaps > 0:
+                        # Lap race
+                        self.numberOfLapsCompleted.setValue(completed)
+                        if self.numberOfLapsCompleted.hasChanged():
+                            if self.numberOfLapsCompleted.value == self.pitWindowStart and not game_data.beforeRaceStart:
+                                self.pitWindowVisibleEnd = session_time_left - 8000
+                                self.pitWindowActive = True
+                            elif self.numberOfLapsCompleted.value == self.pitWindowEnd:
+                                self.pitWindowVisibleEnd = session_time_left - 8000
+                                self.pitWindowActive = False
+                        if self.pitWindowActive:
+                            if self.pitWindowEnd - completed > 1:
+                                pit_window_remain = " {0} Laps".format(self.pitWindowEnd - completed)
+                            else:
+                                pit_window_remain = " {0} Lap".format(self.pitWindowEnd - completed)
+                    else:
+                        # Timed race
+                        if self.sessionMaxTime < 0:
+                            self.sessionMaxTime = round(session_time_left, -3)
+                        if not self.pitWindowActive and session_time_left <= self.sessionMaxTime - self.pitWindowStart * 60 * 1000 and session_time_left >= self.sessionMaxTime - self.pitWindowEnd * 60 * 1000 and not game_data.beforeRaceStart:
                             self.pitWindowVisibleEnd = session_time_left - 8000
                             self.pitWindowActive = True
-                        elif self.numberOfLapsCompleted.value == self.pitWindowEnd:
+                        elif self.pitWindowActive and session_time_left < self.sessionMaxTime - self.pitWindowEnd * 60 * 1000:
                             self.pitWindowVisibleEnd = session_time_left - 8000
                             self.pitWindowActive = False
-                    if self.pitWindowActive:
-                        if self.pitWindowEnd - completed > 1:
-                            pit_window_remain = " {0} Laps".format(self.pitWindowEnd - completed)
-                        else:
-                            pit_window_remain = " {0} Lap".format(self.pitWindowEnd - completed)
+                        if self.pitWindowActive:
+                            pit_window_remain = " " + self.time_splitting(session_time_left - (self.sessionMaxTime - self.pitWindowEnd * 60 * 1000))
                 else:
-                    if self.sessionMaxTime < 0:
-                        self.sessionMaxTime = round(session_time_left, -3)
-                    if not self.pitWindowActive and session_time_left <= self.sessionMaxTime - self.pitWindowStart * 60 * 1000 and session_time_left >= self.sessionMaxTime - self.pitWindowEnd * 60 * 1000 and not (sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
-                        self.pitWindowVisibleEnd = session_time_left - 8000
-                        self.pitWindowActive = True
-                    elif self.pitWindowActive and session_time_left < self.sessionMaxTime - self.pitWindowEnd * 60 * 1000:
-                        self.pitWindowVisibleEnd = session_time_left - 8000
-                        self.pitWindowActive = False
-                    if self.pitWindowActive:
-                        pit_window_remain = " " + self.time_splitting(session_time_left - (self.sessionMaxTime - self.pitWindowEnd * 60 * 1000))
-
-
+                    self.pitWindowActive = False
 
                 self.lbl_left_corner.show()
                 self.lbl_right_corner.show()
@@ -571,7 +565,7 @@ class ACTimer:
                     self.lbl_session_info_txt.setText("{0} / {1}".format(completed, self.numberOfLaps)).setColor(Colors.timer_time_txt(),True)
                     if completed == self.numberOfLaps:
                         is_final_lap = True
-                elif self.numberOfLaps == 0 and sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0:
+                elif self.numberOfLaps == 0 and game_data.beforeRaceStart:
                     txt_time=self.time_splitting(int(session_time_left/60000)*60000)
                     time_left_str_len = len(txt_time)
                     self.lbl_session_info_txt.setText(txt_time).setColor(Colors.timer_time_txt(),True)
@@ -655,7 +649,7 @@ class ACTimer:
                     # Finish
                     self.lbl_session_border.set(background=Colors.timer_finish())
                     self.lbl_session_border_2.set(background=Colors.timer_finish())
-                elif sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0:
+                elif game_data.beforeRaceStart:
                     # before race start
                     self.pitWindowVisibleEnd = 0
                     self.pitWindowActive = False
@@ -664,7 +658,7 @@ class ACTimer:
                                                 animated=True)
                     self.lbl_session_border_2.set(background=Colors.red(),
                                                 animated=True)
-                elif sim_info.graphics.flag == 2:
+                elif game_data.flag == 2:
                     # Yellow flag
                     self.lbl_session_border.set(background=Colors.timer_border_yellow_flag_bg(),
                                                 animated=True)
@@ -682,8 +676,8 @@ class ACTimer:
                                                 animated=True)
                     self.lbl_session_border_2.set(background=Colors.timer_border_bg(),
                                                 animated=True)
-                if not math.isinf(session_time_left):
-                    if sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0:
+                if session_time_left != 0:
+                    if game_data.beforeRaceStart:
                         self.last_start_time_offset = self.start_time_of_day_original #self.start_time_of_day + (1000)*self.time_multiplier
                     else:
                         self.last_start_time_offset = self.start_time_of_day + (self.sessionMaxTime - session_time_left)*self.time_multiplier

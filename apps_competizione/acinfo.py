@@ -2,7 +2,7 @@ import ac
 import acsys
 import ctypes
 import math
-from .util.classes import Window, Label, Value, POINT, Colors, Font, lapTimeStart, Config
+from .util.classes import Window, Label, Value, Colors, Font, lapTimeStart, Config
 from .configuration import Configuration
 
 
@@ -656,9 +656,7 @@ class ACInfo:
                     return s[2]
         return Colors.getClassForCar(ac.getCarName(identifier), steam_id)
 
-    def manage_window(self, session_time_left):
-        pt = POINT()
-        result = ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+    def manage_window(self, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
         if win_x > 0:
@@ -668,7 +666,7 @@ class ACInfo:
             self.window.setLastPos()
             win_x = self.window.getPos().x
             win_y = self.window.getPos().y
-        if result and win_x < pt.x < win_x + self.window.width and win_y < pt.y < win_y + self.window.height:
+        if win_x < game_data.cursor_x < win_x + self.window.width and win_y < game_data.cursor_y < win_y + self.window.height:
             self.cursor.setValue(True)
         else:
             self.cursor.setValue(False)
@@ -683,13 +681,13 @@ class ACInfo:
             self.drivers_sector = []
             self.drivers_best_lap_splits = []
             self.drivers_is_in_pit = []
-            self.last_sector_start = [-1] * self.cars_count #add session_time_left
+            self.last_sector_start = [-1] * self.cars_count
             for i in range(self.cars_count):
                 self.drivers_lap_count.append(Value(0))
                 self.drivers_sector.append(Value(0))
                 self.drivers_best_lap_splits.append([])
                 self.drivers_is_in_pit.append(Value(0))
-                self.last_sector_start[i] = session_time_left
+                self.last_sector_start[i] = game_data.sessionTimeLeft
             self.last_lap_start = [-1] * self.cars_count
             self.drivers_last_lap_pit = [0] * self.cars_count
             self.drivers_pit_lane_start_time = [0] * self.cars_count
@@ -702,20 +700,16 @@ class ACInfo:
                 self.window.setBgOpacity(0).border(0)
                 self.window.showTitle(False)
 
-    def on_update_level0(self, sim_info):
-        #self.manage_window(sim_info.graphics.sessionTimeLeft)
-        self.animate()
-
-    def on_update(self, sim_info, fl, standings):
+    def on_update(self, sim_info, fl, standings, game_data):
         self.standings = standings
-        self.session.setValue(sim_info.graphics.session)
-        sim_info_status = sim_info.graphics.status
-        session_time_left = sim_info.graphics.sessionTimeLeft
-        if (sim_info_status != 1 and sim_info_status != 3 and session_time_left != 0 and session_time_left != -1 and session_time_left + 100 < sim_info.graphics.sessionTimeLeft) or sim_info_status == 0:
+        self.session.setValue(game_data.session)
+        sim_info_status = game_data.status
+        session_time_left = game_data.sessionTimeLeft
+        if (sim_info_status != 1 and sim_info_status != 3 and session_time_left != 0 and session_time_left != -1 and session_time_left + 100 < game_data.sessionTimeLeft) or sim_info_status == 0:
             self.session.setValue(-1)
-            self.session.setValue(sim_info.graphics.session)
-        self.manage_window(session_time_left)
-        #self.animate()
+            self.session.setValue(game_data.session)
+        self.manage_window(game_data)
+        self.animate()
         self.currentVehicle.setValue(ac.getFocusedCar())
 
         for x in range(self.cars_count):
@@ -768,9 +762,9 @@ class ACInfo:
                         if self.drivers_sector[i].hasChanged():
                             self.last_sector_start[i] = session_time_left
 
-                        if self.last_lap_start[i] == -1 and not math.isinf(session_time_left) and session_time_left != 0:
+                        if self.last_lap_start[i] == -1 and session_time_left != 0:
                             self.last_lap_start[i] = self.last_sector_start[i] = session_time_left
-                        if self.drivers_lap_count[i].hasChanged() and not math.isinf(session_time_left):
+                        if self.drivers_lap_count[i].hasChanged() and session_time_left != 0:
                             self.last_lap_start[i] = self.last_sector_start[i] = session_time_left
                             # if PB save delta
                             if ac.getCarState(i, acsys.CS.LastLap) <= ac.getCarState(i, acsys.CS.BestLap):
@@ -1005,7 +999,7 @@ class ACInfo:
 
                 elif current_vehicle_changed or (self.forceViewAlways and not self.fastestLapBorderActive) or is_in_pit:
                     # driver info
-                    if is_in_pit and not ac.getCarState(self.currentVehicle.value,acsys.CS.RaceFinished) and not math.isinf(session_time_left) and not current_vehicle_changed:
+                    if is_in_pit and not ac.getCarState(self.currentVehicle.value,acsys.CS.RaceFinished) and session_time_left != 0 and not current_vehicle_changed:
                         self.driver_in_pit_active = True
                         self.lbl_split.setText("Pit Lane")
                         pit_lane_time = self.drivers_pit_lane_start_time[self.currentVehicle.value] - session_time_left
@@ -1019,7 +1013,7 @@ class ACInfo:
                     self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
 
                     if not self.raceStarted:
-                        if sim_info.graphics.completedLaps > 0 or sim_info.graphics.iCurrentTime > 20000:
+                        if sim_info.graphics.completedLaps > 0 or sim_info.graphics.iCurrentTime > 12000:
                             self.raceStarted = True
                         # Generate standings from -0.5 to 0.5 for the start of race
                         standings = []
@@ -1037,7 +1031,7 @@ class ACInfo:
                         else:
                             pos = ac.getCarRealTimeLeaderboardPosition(self.currentVehicle.value) + 1
                     else:
-                        if sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0:
+                        if game_data.beforeRaceStart:
                             self.raceStarted = False
                         pos = self.get_race_standings_position(self.currentVehicle.value)
                     self.pos = pos
@@ -1046,7 +1040,7 @@ class ACInfo:
                     self.info_position.show()
                     self.info_position_txt.setText(str(pos)).show()
                     self.timing_visible.setValue(0)
-                elif self.visible_end == 0 or session_time_left < self.visible_end or (sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
+                elif self.visible_end == 0 or session_time_left < self.visible_end or game_data.beforeRaceStart:
                     self.driver_name_visible.setValue(0)
                     self.info_position.hide()
                     self.info_position_txt.hide()
@@ -1120,8 +1114,7 @@ class ACInfo:
                 self.info_position_txt.setText(str(pos)).show()
                 self.timing_visible.setValue(0)
                 self.lbl_fastest_split.hide()
-            elif self.visible_end == 0 or session_time_left < self.visible_end or (
-                    sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0):
+            elif self.visible_end == 0 or session_time_left < self.visible_end or game_data.beforeRaceStart:
                 self.driver_name_visible.setValue(0)
                 self.info_position.hide()
                 self.info_position_txt.hide()
