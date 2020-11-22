@@ -710,7 +710,7 @@ class ACInfo:
             self.session.setValue(game_data.session)
         self.manage_window(game_data)
         self.animate()
-        self.currentVehicle.setValue(ac.getFocusedCar())
+        self.currentVehicle.setValue(game_data.focusedCar)
 
         for x in range(self.cars_count):
             c = ac.getCarState(x, acsys.CS.LapCount)

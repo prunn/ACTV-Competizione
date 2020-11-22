@@ -774,7 +774,7 @@ class ACDelta:
         self.session.setValue(game_data.session)
         self.manage_window(game_data)
         self.animate()
-        self.currentVehicle.setValue(ac.getFocusedCar())
+        self.currentVehicle.setValue(game_data.focusedCar)
         self.current_car_class.setValue(self.get_class_id(self.currentVehicle.value))
         if self.currentVehicle.hasChanged() or self.current_car_class.hasChanged():
             # number, curtime...

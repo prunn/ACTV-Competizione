@@ -1131,7 +1131,7 @@ class ACTower:
         self.sessionTimeLeft = game_data.sessionTimeLeft
         #if sim_info_status != 3:
         self.animate()
-        self.currentVehicule.setValue(ac.getFocusedCar())
+        self.currentVehicule.setValue(game_data.focusedCar)
         if self.currentVehicule.hasChanged():
             self.drivers_info_updated = True
         if sim_info_status == 2:# or (sim_info_status == 1 and self.session.value < 2):
@@ -1257,7 +1257,7 @@ class ACTower:
                                 # driver.finished=True
                             elif not driver.finished.value:
                                 driver.race_standings_sector.setValue(driver.raceProgress)
-                        if not driver.hasStartedRace and (len(driver.race_gaps) > 0 or driver.race_standings_sector.value > 0):
+                        if not driver.hasStartedRace and (len(driver.race_gaps) > 2 or driver.race_standings_sector.value > 1):
                             driver.hasStartedRace = True
                         if driver.race_standings_sector.value > 0 and driver.hasStartedRace:
                             standings.append((driver.identifier, driver.race_standings_sector.value, driver.car_class_name))

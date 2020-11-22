@@ -25,7 +25,7 @@ class Configuration:
     show_tires = 1
     info_picture_width=300
     info_picture_height=300
-    theme_ini = 'apps/python/actv_competizione/themes/cp.ini'
+    theme_ini = Colors.app_path + 'themes/cp.ini'
     refresh_rate = 50
 
     # INITIALIZATION
@@ -124,7 +124,7 @@ class Configuration:
             .setVisible(1)
 
         self.cfg_loaded = False
-        self.cfg = Config("apps/python/actv_competizione/", "config.ini")
+        self.cfg = Config(Colors.app_path, "config.ini")
         self.load_cfg()
 
         # thread
@@ -178,7 +178,7 @@ class Configuration:
             self.__class__.refresh_rate = 50
         Label.refresh_rate = self.__class__.refresh_rate
         #font_ini = self.cfg.get("SETTINGS", "font_ini", "string")
-        font_ini = "apps/python/actv_competizione/fonts/actvcpbold.ini"
+        font_ini = Colors.app_path + "fonts/actvcpbold.ini"
         if font_ini != -1:
             Font.font_ini = font_ini
         else:
@@ -195,7 +195,7 @@ class Configuration:
             if font == -1 or font > len(Font.font_files) - 1:
                 font = 2  # Open Sans
             Font.set_font(font)
-        Colors.theme_ini = theme_ini = 'apps/python/actv_competizione/themes/cp.ini'
+        Colors.theme_ini = theme_ini = Colors.app_path + 'themes/cp.ini'
         #theme_ini = self.cfg.get("SETTINGS", "theme_ini", "string")
         if theme_ini != -1:
             Colors.theme_ini = theme_ini

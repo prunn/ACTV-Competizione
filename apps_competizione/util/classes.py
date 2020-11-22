@@ -121,6 +121,7 @@ class POINT(ctypes.Structure):
 
 
 class Colors:
+    app_path = 'apps/python/actv_competizione/'
     general_theme = 1  # 0 : Dark
     theme_red = -1
     theme_green = -1
@@ -306,7 +307,7 @@ class Colors:
             if reload and Colors.general_theme > 0:
                 Colors.load_theme_values()
 
-            cfg = Config("apps/python/actv_competizione/", "config.ini")
+            cfg = Config(Colors.app_path, "config.ini")
             Colors.theme_red = cfg.get("SETTINGS", "red", "int")
             if Colors.theme_red < 0 or Colors.theme_red > 255:
                 Colors.theme_red = 224
@@ -323,7 +324,7 @@ class Colors:
     def highlight(bg=False, reload=False):
         # get theme color
         if reload or Colors.theme_highlight < 0:
-            cfg = Config("apps/python/actv_competizione/", "config.ini")
+            cfg = Config(Colors.app_path, "config.ini")
             Colors.theme_highlight = cfg.get("SETTINGS", "tower_highlight", "int")
             if Colors.theme_highlight != 1:
                 Colors.theme_highlight = 0
@@ -404,7 +405,7 @@ class Colors:
     def load_themes():
         Colors.theme_files = []
         theme_files = [os.path.join(root, name)
-                       for root, dirs, files in os.walk("apps/python/actv_competizione/themes/")
+                       for root, dirs, files in os.walk(Colors.app_path + "themes/")
                        for name in files
                        if name.endswith(".ini")]
         if len(theme_files):
@@ -436,8 +437,8 @@ class Colors:
                     Colors.current_theme[f[0]] = Colors.current_theme[f[1]]
 
         # Car classes
-        if os.path.exists('apps/python/actv_competizione/car_classes.ini'):
-            cfg = Config('apps/python/actv_competizione/','car_classes.ini')
+        if os.path.exists(Colors.app_path + 'car_classes.ini'):
+            cfg = Config(Colors.app_path,'car_classes.ini')
             cfg_sections = cfg.sections()
             for s in cfg_sections:
                 index=s.lower()
@@ -757,11 +758,11 @@ class Colors:
 
     @staticmethod
     def tower_p2p_cooling():
-        return rgb([0,80,150], bg=1, t='apps/python/actv_competizione/img/tower_status.png')
+        return rgb([0,80,150], bg=1, t=Colors.app_path + 'img/tower_status.png')
 
     @staticmethod
     def tower_p2p_active():
-        return rgb([252,139,1], bg=1, t='apps/python/actv_competizione/img/tower_status.png')
+        return rgb([252,139,1], bg=1, t=Colors.app_path + 'img/tower_status.png')
 
     @staticmethod
     def tower_border_default_bg():
@@ -1019,15 +1020,15 @@ class Colors:
 
     @staticmethod
     def delta_laps():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/delta_laps.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/delta_laps.png')
 
     @staticmethod
     def delta_time():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/delta_time.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/delta_time.png')
 
     @staticmethod
     def delta_neutral():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/delta_neutral.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/delta_neutral.png')
 
     @staticmethod
     def info_lap_neutral():
@@ -1035,11 +1036,11 @@ class Colors:
 
     @staticmethod
     def delta_negative():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/delta_negative.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/delta_negative.png')
 
     @staticmethod
     def delta_positive():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/delta_positive.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/delta_positive.png')
 
     @staticmethod
     def logo_bg(bg=True, a=1):
@@ -1057,23 +1058,23 @@ class Colors:
 
     @staticmethod
     def flag_finish():
-        return rgb([255, 255, 255], a=1, t='apps/python/actv_competizione/img/flag_finish.png')
+        return rgb([255, 255, 255], a=1, t=Colors.app_path + 'img/flag_finish.png')
 
     @staticmethod
     def tower_finish():
-        return rgb([255, 255, 255], a=1, t='apps/python/actv_competizione/img/tower_finish.png')
+        return rgb([255, 255, 255], a=1, t=Colors.app_path + 'img/tower_finish.png')
 
     @staticmethod
     def timer_finish():
-        return rgb([255, 255, 255], a=0, t='apps/python/actv_competizione/img/timer_finish.png')
+        return rgb([255, 255, 255], a=0, t=Colors.app_path + 'img/timer_finish.png')
 
     @staticmethod
     def timer_left_corner():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/timer_left.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/timer_left.png')
 
     @staticmethod
     def timer_right_corner():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/timer_right.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/timer_right.png')
 
     @staticmethod
     def info_split_txt():
@@ -1137,7 +1138,7 @@ class Colors:
 
     @staticmethod
     def weather_wind_direction_img():
-        return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/img/winddir.png')
+        return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/winddir.png')
 
     @staticmethod
     def black_txt():
@@ -1157,11 +1158,11 @@ class Colors:
 
     @staticmethod
     def status_pitstop():
-        return rgb([229, 138, 0], bg=1, t='apps/python/actv_competizione/img/tower_status.png')
+        return rgb([229, 138, 0], bg=1, t=Colors.app_path + 'img/tower_status.png')
 
     @staticmethod
     def status_stopped_ontrack():
-        return rgb([224, 0, 0], bg=1, t='apps/python/actv_competizione/img/tower_status.png')
+        return rgb([224, 0, 0], bg=1, t=Colors.app_path + 'img/tower_status.png')
 
     @staticmethod
     def ping_bg():
@@ -1177,7 +1178,7 @@ class Colors:
 
     @staticmethod
     def status_green():
-        return rgb([1, 170, 89], bg=1, t='apps/python/actv_competizione/img/tower_status.png')
+        return rgb([1, 170, 89], bg=1, t=Colors.app_path + 'img/tower_status.png')
 
     @staticmethod
     def yellow(bg=False):
@@ -1186,19 +1187,19 @@ class Colors:
     @staticmethod
     def logo_for_car(car,skin):
         #Skin team logo
-        if skin != '' and os.path.exists('apps/python/actv_competizione/logos/' + car + '_' + skin + '.png'):
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/' + car + '_' + skin + '.png')
+        if skin != '' and os.path.exists(Colors.app_path + 'logos/' + car + '_' + skin + '.png'):
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'logos/' + car + '_' + skin + '.png')
         if skin != '' and os.path.exists('content/cars/' + car + '/skins/' + skin + '/logo.png'):
             return rgb([0, 0, 0], a=0, t='content/cars/' + car + '/skins/' + skin + '/logo.png')
         # Car brand
-        if os.path.exists('apps/python/actv_competizione/logos/' + car + '.png'):
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/' + car + '.png')
+        if os.path.exists(Colors.app_path + 'logos/' + car + '.png'):
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'logos/' + car + '.png')
         if car.find("mclaren") >= 0:
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/mclaren.png')
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'logos/mclaren.png')
         if car.find("audi") >= 0:
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/audi.png')
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'logos/audi.png')
         if car.find("porsche") >= 0:
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/logos/porsche.png')
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'logos/porsche.png')
         if os.path.exists('content/cars/' + car + '/logo.png'):
             return rgb([0, 0, 0], a=0, t='content/cars/' + car + '/logo.png')
         if os.path.exists('content/cars/' + car + '/ui/badge.png'):
@@ -1229,10 +1230,10 @@ class Colors:
 
     @staticmethod
     def get_drivers_picture(steam_id):
-        if steam_id is not None and os.path.exists('apps/python/actv_competizione/drivers/' + steam_id + '.png'):
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/drivers/' + steam_id + '.png')
-        if steam_id is not None and os.path.exists('apps/python/actv_competizione/drivers/' + steam_id + '.jpg'):
-            return rgb([0, 0, 0], a=0, t='apps/python/actv_competizione/drivers/' + steam_id + '.jpg')
+        if steam_id is not None and os.path.exists(Colors.app_path + 'drivers/' + steam_id + '.png'):
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'drivers/' + steam_id + '.png')
+        if steam_id is not None and os.path.exists(Colors.app_path + 'drivers/' + steam_id + '.jpg'):
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'drivers/' + steam_id + '.jpg')
         return rgb([0,0,0],a=0)
 
 
@@ -1421,7 +1422,7 @@ class Label:
         self.bgTexture.setValue(texture)
         if self.bgTexture.hasChanged():
             if self.bgTexture.value == '':
-                ac.setBackgroundTexture(self.label, 'apps/python/actv_competizione/img/reset_bg.png')
+                ac.setBackgroundTexture(self.label, Colors.app_path + 'img/reset_bg.png')
                 #ac.setBackgroundTexture(self.label, 'content/gui/actv/reset_bg.png')
             else:
                 ac.setBackgroundTexture(self.label, self.bgTexture.value)
@@ -1836,7 +1837,7 @@ class Font:
     def load_fonts():
         Font.font_files = []
         theme_files = [os.path.join(root, name)
-                       for root, dirs, files in os.walk("apps/python/actv_competizione/fonts/")
+                       for root, dirs, files in os.walk(Colors.app_path + "fonts/")
                        for name in files
                        if name.endswith(".ini")]
         if len(theme_files):
@@ -2154,6 +2155,7 @@ class GameData:
         self.sessionTimeLeft=0
         self.flag=-1
         self.beforeRaceStart=False
+        self.focusedCar=0
         self.cursor_x=0
         self.cursor_y=0
 
@@ -2164,6 +2166,7 @@ class GameData:
             self.sessionTimeLeft=0
         self.status=sim_info.graphics.status
         self.flag=sim_info.graphics.flag
+        self.focusedCar=ac.getFocusedCar()
         self.beforeRaceStart = self.status == 2 and sim_info.graphics.iCurrentTime == 0 and sim_info.graphics.completedLaps == 0
         pt = POINT()
         if ctypes.windll.user32.GetCursorPos(ctypes.byref(pt)):
