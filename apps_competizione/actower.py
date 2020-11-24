@@ -52,7 +52,7 @@ class ACTower:
         self.tick_update = 0
         self.cursor = Value(False)
         self.max_num_cars = 18
-        self.numberOfLaps = sim_info.graphics.numberOfLaps
+        self.numberOfLaps = -1
         self.race_mode = Value(0)
         self.qual_mode = Value(0)
         self.ui_row_height = Value(-1)
@@ -1076,6 +1076,7 @@ class ACTower:
             self.cursor.setValue(False)
         session_changed = self.session.hasChanged()
         if session_changed:
+            self.numberOfLaps = -1
             self.raceStarted = False
             self.pit_window_active=False
             self.title_mode_visible_end = 0
@@ -1209,6 +1210,8 @@ class ACTower:
                 # RACE
                 #self.TimeLeftUpdate.setValue(int(self.sessionTimeLeft / 500))
                 #if self.TimeLeftUpdate.hasChanged():
+                if self.numberOfLaps < 0:
+                    self.numberOfLaps = sim_info.graphics.numberOfLaps
                 if self.is_multiplayer and not self.ping_updater_active:
                     self.get_pings_from_server()
 
