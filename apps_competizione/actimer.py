@@ -351,10 +351,7 @@ class ACTimer:
 
         if self.session.hasChanged():
             self.numberOfLapsTimedRace = -1
-            self.hasExtraLap = -1
-            self.numberOfLaps = -1
-            self.pitWindowStart = -1
-            self.pitWindowEnd = -1
+            self.numberOfLaps = sim_info.graphics.numberOfLaps
             self.sessionMaxTime = -1
             self.pitWindowVisibleEnd = 0
             self.pitWindowActive = False
@@ -502,8 +499,6 @@ class ACTimer:
                     if ac.getCarState(x, acsys.CS.RaceFinished):
                         race_finished = 1
                 completed += 1
-                if self.numberOfLaps < 0:
-                    self.numberOfLaps = sim_info.graphics.numberOfLaps
                 if self.hasExtraLap == 1 and session_time_left < 0 and self.numberOfLapsTimedRace < 0:
                     self.numberOfLapsTimedRace = completed + 1
 

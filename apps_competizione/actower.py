@@ -1076,7 +1076,7 @@ class ACTower:
             self.cursor.setValue(False)
         session_changed = self.session.hasChanged()
         if session_changed:
-            self.numberOfLaps = -1
+            self.numberOfLaps = sim_info.graphics.numberOfLaps
             self.raceStarted = False
             self.pit_window_active=False
             self.title_mode_visible_end = 0
@@ -1210,8 +1210,6 @@ class ACTower:
                 # RACE
                 #self.TimeLeftUpdate.setValue(int(self.sessionTimeLeft / 500))
                 #if self.TimeLeftUpdate.hasChanged():
-                if self.numberOfLaps < 0:
-                    self.numberOfLaps = sim_info.graphics.numberOfLaps
                 if self.is_multiplayer and not self.ping_updater_active:
                     self.get_pings_from_server()
 
