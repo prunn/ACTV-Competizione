@@ -334,7 +334,7 @@ class ACTimer:
         self.lbl_session_border.animate()
         self.lbl_session_border_2.animate()
 
-    def manage_window(self, game_data):
+    def manage_window(self, sim_info, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
         if win_x > 0:
@@ -436,7 +436,7 @@ class ACTimer:
 
     def on_update(self, sim_info, game_data):
         self.session.setValue(game_data.session)
-        self.manage_window(game_data)
+        self.manage_window(sim_info, game_data)
         sim_info_status = game_data.status
         self.animate()
         if sim_info_status == 2:  # LIVE
