@@ -1059,7 +1059,7 @@ class ACTower:
     def get_standings(self):
         return self.standings
 
-    def manage_window(self, game_data):
+    def manage_window(self, sim_info, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
         if win_x > 0:
@@ -1127,7 +1127,7 @@ class ACTower:
         if (sim_info_status != 1 and sim_info_status != 3 and self.sessionTimeLeft != 0 and self.sessionTimeLeft != -1 and self.sessionTimeLeft + 100 < game_data.sessionTimeLeft) or sim_info_status == 0:
             self.session.setValue(-1)
             self.session.setValue(game_data.session)
-        self.manage_window(game_data)
+        self.manage_window(sim_info, game_data)
         self.init_car_classes()
         self.sessionTimeLeft = game_data.sessionTimeLeft
         #if sim_info_status != 3:
