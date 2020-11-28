@@ -34,6 +34,7 @@ class ACTimer:
         self.pitWindowEnd = sim_info.static.PitWindowEnd
         self.pitWindowActive = False
         self.numberOfLapsCompleted = Value(0)
+        self.cars_count = ac.getCarsCount()
         self.window = Window(name="ACTV CP Timer", width=228, height=42)
 
         # background corners
@@ -97,8 +98,7 @@ class ACTimer:
                  x=200, y=-74)
 
         # Open race.ini
-        file_path = os.path.join(os.path.expanduser("~"), "Documents", "Assetto Corsa", "cfg") + "/"
-        conf = Config(file_path, "race.ini")
+        conf = Config(Config.get_user_documents_path() + "cfg/", "race.ini")
         start = conf.get("LIGHTING", "SUN_ANGLE")
         self.time_multiplier = float(conf.get("LIGHTING", "TIME_MULT"))
 
@@ -492,7 +492,7 @@ class ACTimer:
                 # Race
                 completed = 0
                 race_finished = 0
-                for x in range(ac.getCarsCount()):
+                for x in range(self.cars_count):
                     c = ac.getCarState(x, acsys.CS.LapCount)
                     if c > completed:
                         completed = c
