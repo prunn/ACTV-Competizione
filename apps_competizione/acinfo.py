@@ -486,7 +486,12 @@ class ACInfo:
         self.lbl_car_class_bg.set(x=self.driver_name_width + self.row_height.value * 140 / 38, animated=True)
         self.info_number_txt.set(x=self.driver_name_width + self.row_height.value * 140 / 38, animated=True)
         self.lbl_car_class_txt.set(x=self.driver_name_width + self.row_height.value * 140 / 38, animated=True)
-        self.lbl_driver_country.set(x=self.driver_name_width + self.row_height.value * 198 / 38, animated=True)#todo qual vs race
+        if Colors.is_addon_flag:
+            self.lbl_driver_country.set(w=self.row_height.value * 120 / 38, h=self.row_height.value * 60 / 38, y=0)
+            self.lbl_driver_country.set(x=self.driver_name_width + self.row_height.value * 200 / 38, animated=True)
+        else:
+            self.lbl_driver_country.set(w=self.row_height.value * 87 / 38, h=self.row_height.value * 87 / 38, y=self.row_height.value * -13 / 38)
+            self.lbl_driver_country.set(x=self.driver_name_width + self.row_height.value * 198 / 38, animated=True)
         if self.session.value != 2:
             full_width=width + self.row_height.value * 306 / 38
             if len(self.lbl_sectors_bg):

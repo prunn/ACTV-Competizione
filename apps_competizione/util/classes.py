@@ -133,6 +133,7 @@ class Colors:
     car_classes_list = []
     carsClassesLoaded = False
     multiCarsClasses = False
+    is_addon_flag = False
     theme_files = []
     car_classes = {
         'default_bg': rgb([255, 255, 255]), # White
@@ -1231,17 +1232,20 @@ class Colors:
 
     @staticmethod
     def get_drivers_picture(steam_id):
-        if steam_id is not None and os.path.exists(Colors.app_path + 'drivers/' + steam_id + '.png'):
-            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'drivers/' + steam_id + '.png')
-        if steam_id is not None and os.path.exists(Colors.app_path + 'drivers/' + steam_id + '.jpg'):
-            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'drivers/' + steam_id + '.jpg')
+        if steam_id is not None and os.path.exists(Colors.app_path + 'img/drivers/' + steam_id + '.png'):
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/drivers/' + steam_id + '.png')
+        if steam_id is not None and os.path.exists(Colors.app_path + 'img/drivers/' + steam_id + '.jpg'):
+            return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/drivers/' + steam_id + '.jpg')
         return rgb([0,0,0],a=0)
 
     @staticmethod
     def get_drivers_country(country):
+        Colors.is_addon_flag=False
         if country is not None and country != '' and os.path.exists(Colors.app_path + 'img/flags/' + country + '.png'):
+            Colors.is_addon_flag=True
             return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/flags/' + country + '.png')
         if country is not None and country != '' and os.path.exists(Colors.app_path + 'img/flags/' + country + '.jpg'):
+            Colors.is_addon_flag=True
             return rgb([0, 0, 0], a=0, t=Colors.app_path + 'img/flags/' + country + '.jpg')
         if country is not None and country != '' and os.path.exists('content/gui/NationFlags/' + country + '.png'):
             return rgb([0, 0, 0], a=0, t='content/gui/NationFlags/' + country + '.png')
