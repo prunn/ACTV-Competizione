@@ -12,6 +12,22 @@ for Assetto Corsa
 
 
 ###Changelog.
+1.2.0.0
+* Tower: bug fix blue names in qualy
+* Tower: bug fix race start positions (progress)
+* Tower/timer: bug fix pit window opens on first lap
+* Tower: added tires(last stop), number of stops
+* Tower: added class filters
+* Tower: added current tires
+* Tower: qualify sector mode
+* Tower: display on race start
+* Info: Removed sector mapping
+* Info: info driver picture (how to set up in img/divers/readme.txt)
+* Info: added flags in race (default AC flags or img/flags/readme.txt to set up custom)
+* ui badge as logo, then AC logo
+* onedrive and moved user folder support
+* Optimisations : max refresh rate, aggregated redundant api calls
+  
 1.1.0.0
 * Added configurable car/driver classes - rename car_classes.template.ini to car_classes.ini to get started, exemples inside the file
 * Added weather/track conditions widget

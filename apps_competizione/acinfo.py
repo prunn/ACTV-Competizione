@@ -487,7 +487,7 @@ class ACInfo:
         self.info_number_txt.set(x=self.driver_name_width + self.row_height.value * 140 / 38, animated=True)
         self.lbl_car_class_txt.set(x=self.driver_name_width + self.row_height.value * 140 / 38, animated=True)
         if Colors.is_addon_flag:
-            self.lbl_driver_country.set(w=self.row_height.value * 120 / 38, h=self.row_height.value * 60 / 38, y=0)
+            self.lbl_driver_country.set(w=self.row_height.value * 84 / 38, h=self.row_height.value * 60 / 38, y=0)
             self.lbl_driver_country.set(x=self.driver_name_width + self.row_height.value * 200 / 38, animated=True)
         else:
             self.lbl_driver_country.set(w=self.row_height.value * 87 / 38, h=self.row_height.value * 87 / 38, y=self.row_height.value * -13 / 38)
