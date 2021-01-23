@@ -672,7 +672,7 @@ class ACInfo:
                     return s[2]
         return Colors.getClassForCar(ac.getCarName(identifier), steam_id)
 
-    def manage_window(self, game_data):
+    def manage_window(self, game_data, sim_info):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
         if win_x > 0:
@@ -689,6 +689,10 @@ class ACInfo:
 
         session_changed = self.session.hasChanged()
         if session_changed:
+            if self.sectorCount <= 0:
+                self.sectorCount = sim_info.static.sectorCount
+                if self.sectorCount > 0:
+                    self.ini_sector_labels()
             self.reset_visibility()
             self.raceStarted = False
             self.driver_in_pit_active = False
@@ -724,7 +728,7 @@ class ACInfo:
         if (sim_info_status != 1 and sim_info_status != 3 and session_time_left != 0 and session_time_left != -1 and session_time_left + 100 < game_data.sessionTimeLeft) or sim_info_status == 0:
             self.session.setValue(-1)
             self.session.setValue(game_data.session)
-        self.manage_window(game_data)
+        self.manage_window(game_data, sim_info)
         self.animate()
         self.currentVehicle.setValue(game_data.focusedCar)
 

@@ -312,7 +312,7 @@ class ACTimer:
                 for t in data["sessiontypes"]:
                     self.sessions_duration[t-1] = float(data["durations"][i])*60000
                     i+=1
-
+                self.sessionMaxTime = self.sessions_duration[2]  # from server
                 self.time_multiplier = 1 # no way of knowing, game log?
                 self.start_time_of_day_original = self.start_time_of_day = (780 + 3.75 * float(data["timeofday"])) * 60000
                 self.last_start_time_offset = self.start_time_of_day + (self.sessions_duration[self.session.value] - self.session_time_left)*self.time_multiplier
@@ -352,7 +352,7 @@ class ACTimer:
         if self.session.hasChanged():
             self.numberOfLapsTimedRace = -1
             self.numberOfLaps = sim_info.graphics.numberOfLaps
-            self.sessionMaxTime = -1
+            self.sessionMaxTime = self.sessions_duration[2] # from ini or server
             self.pitWindowVisibleEnd = 0
             self.pitWindowActive = False
             #if self.session_time_left < 0:# last session was not manually skipped
@@ -649,6 +649,9 @@ class ACTimer:
                     self.lbl_session_border_2.set(background=Colors.timer_finish())
                 elif game_data.beforeRaceStart:
                     # before race start
+                    self.hasExtraLap = sim_info.static.hasExtraLap
+                    self.pitWindowStart = sim_info.static.PitWindowStart
+                    self.pitWindowEnd = sim_info.static.PitWindowEnd
                     self.pitWindowVisibleEnd = 0
                     self.pitWindowActive = False
                     self.sessionMaxTime = round(session_time_left, -3)
@@ -680,7 +683,6 @@ class ACTimer:
                     else:
                         self.last_start_time_offset = self.start_time_of_day + (self.sessionMaxTime - session_time_left)*self.time_multiplier
                     time_of_day = self.time_of_day(self.last_start_time_offset)
-                    #ac.console(str(self.sessionMaxTime))
                     self.lbl_time_of_day_txt.setText(time_of_day).show()
                     am_pm_offset = ""
                     if len(time_of_day) > 4:

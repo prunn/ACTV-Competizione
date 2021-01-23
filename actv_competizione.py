@@ -141,6 +141,8 @@ def acUpdate(deltaT):
                 standings = tower.get_standings()
                 if not drivers_info_init or tower.drivers_info_is_updated():
                     drivers_info = tower.get_drivers_info()
+                    if tower.sessionMaxTime <= 0 < timer.sessionMaxTime:
+                        tower.sessionMaxTime = timer.sessionMaxTime
             except:
                 Log.w("Error tower")
         if infoInit:

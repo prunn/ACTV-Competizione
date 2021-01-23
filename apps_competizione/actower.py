@@ -1076,6 +1076,7 @@ class ACTower:
         session_changed = self.session.hasChanged()
         if session_changed:
             self.numberOfLaps = sim_info.graphics.numberOfLaps
+            self.track_length = sim_info.static.trackSPlineLength
             self.raceStarted = False
             self.pit_window_active=False
             self.title_mode_visible_end = 0
@@ -1216,12 +1217,16 @@ class ACTower:
                 if game_data.beforeRaceStart:
                     # before race start
                     self.raceStarted = False
+                    self.pitWindowStart = sim_info.static.PitWindowStart
+                    self.pitWindowEnd = sim_info.static.PitWindowEnd
                     for driver in self.drivers:
                         driver.race_current_sector.setValue(0)
                         driver.race_standings_sector.setValue(0)
                         driver.race_gaps = []
                         driver.hasStartedRace = False
                         driver.raceProgress=0
+                        if self.pitWindowStart > 0 or self.pitWindowEnd > 0:
+                            driver.PitWindowStart = self.pitWindowStart
                     self.pit_window_active = False
                     self.sessionMaxTime = round(self.sessionTimeLeft, -3)
                 if not self.pit_window_active:
