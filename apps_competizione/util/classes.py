@@ -230,6 +230,7 @@ class Colors:
         'tower_driver_retired_bg': rgb([0, 0, 0]),
         'tower_driver_retired_txt': rgb([0, 0, 0]),
         'tower_position_odd_bg': rgb([0, 0, 0]),
+        'tower_position_fastest_bg': rgb([0, 0, 0]),
         'tower_position_odd_txt': rgb([0, 0, 0]),
         'tower_position_highlight_odd_bg': rgb([0, 0, 0]),
         'tower_position_highlight_odd_txt': rgb([0, 0, 0]),
@@ -688,6 +689,12 @@ class Colors:
     def tower_position_odd_bg():
         if Colors.general_theme > 0:
             return Colors.get_color_for_key('tower_position_odd_bg')
+        return rgb([12, 12, 12], a=0.62)
+
+    @staticmethod
+    def tower_position_fastest_bg():
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('tower_position_fastest_bg')
         return rgb([12, 12, 12], a=0.62)
 
     @staticmethod

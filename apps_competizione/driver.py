@@ -77,6 +77,7 @@ class Driver:
         self.car_class_name = Colors.getClassForCar(self.carName)
         self.num_pos = 0
         self.showingFullNames = False
+        self.hasFastestLap = False
         fontSize = 28
         self.lbl_time = Label(app) \
             .set(w=self.rowHeight * 4.7, h=self.rowHeight,
@@ -560,6 +561,7 @@ class Driver:
             self.isInPit.setValue(False)
             self.isInPitChanged.setValue(False)
             self.firstDraw = False
+            self.hasFastestLap = False
             self.set_name()
             self.race_current_sector.setValue(0)
             self.race_standings_sector.setValue(0)
@@ -888,10 +890,17 @@ class Driver:
                     self.lbl_name.set(background=Colors.tower_driver_odd_bg(), animated=True, init=True)
                     self.lbl_name_txt.set(color=Colors.tower_driver_odd_txt(), animated=True, init=True)
                     if self.isCurrentVehicule.value:
-                        self.lbl_position.set(background=Colors.tower_position_highlight_odd_bg(), animated=True, init=True)
-                        self.lbl_position_txt.set(color=Colors.tower_position_highlight_odd_txt(), animated=True, init=True)
+                        if self.hasFastestLap:
+                            self.lbl_position.set(background=Colors.tower_position_fastest_bg(), animated=True, init=True)
+                            self.lbl_position_txt.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
+                        else:
+                            self.lbl_position.set(background=Colors.tower_position_highlight_odd_bg(), animated=True, init=True)
+                            self.lbl_position_txt.set(color=Colors.tower_position_highlight_odd_txt(), animated=True, init=True)
                     else:
-                        self.lbl_position.set(background=Colors.tower_position_odd_bg(), animated=True, init=True)
+                        if self.hasFastestLap:
+                            self.lbl_position.set(background=Colors.tower_position_fastest_bg(), animated=True, init=True)
+                        else:
+                            self.lbl_position.set(background=Colors.tower_position_odd_bg(), animated=True, init=True)
                         self.lbl_position_txt.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
                     self.lbl_time.set(background=Colors.tower_time_odd_bg(), animated=True, init=True)
                     #self.lbl_time_txt.set(color=Colors.tower_time_odd_txt(), animated=True, init=True)
@@ -1087,6 +1096,23 @@ class Driver:
                 self.lbl_name.set(w=self.get_name_width(), animated=True)
             
         '''
+        # ------------------- Colors -----------------
+        if self.race and self.isAlive.value and self.isDisplayed:
+            if self.isCurrentVehicule.value:
+                if self.hasFastestLap:
+                    self.lbl_position.set(background=Colors.tower_position_fastest_bg(), animated=True, init=True)
+                    self.lbl_position_txt.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
+                else:
+                    self.lbl_position.set(background=Colors.tower_position_highlight_odd_bg(), animated=True,
+                                          init=True)
+                    self.lbl_position_txt.set(color=Colors.tower_position_highlight_odd_txt(), animated=True,
+                                              init=True)
+            else:
+                if self.hasFastestLap:
+                    self.lbl_position.set(background=Colors.tower_position_fastest_bg(), animated=True, init=True)
+                else:
+                    self.lbl_position.set(background=Colors.tower_position_odd_bg(), animated=True, init=True)
+                self.lbl_position_txt.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
         self.lbl_position.animate()
         self.lbl_pit_bg.animate()
         self.lbl_tires_bg.animate()
