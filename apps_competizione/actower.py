@@ -1044,6 +1044,8 @@ class ACTower:
             conn_ping.close()
 
     def convert_time(self, time):
+        if '-' in time:
+            return 0
         t = str(time).split(':')
         if len(t) == 3 and int(t[0]) < 16000:  # != "16666":#16666:39:999
             return int(t[2]) + int(t[1]) * 1000 + int(t[0]) * 60000
