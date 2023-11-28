@@ -5,7 +5,7 @@ import os, threading, json, math
 import gzip
 import time
 from .util.func import rgb
-from .util.classes import Window, Label, Value, Colors, Font, Config, Log, Button, raceGaps
+from .util.classes import Window, Label, Value, Colors, Font, Config, Log, Button, raceGaps, Translate
 from .configuration import Configuration
 
         
@@ -389,7 +389,7 @@ class ACDelta:
                                       animated=True)
             self.lbl_current_time_text.set(x=self.rowHeight.value * 115/38,y=self.rowHeight.value * -12/38 + Font.get_font_x_offset(),
                                            font_size=font_size+self.rowHeight.value * 25/38,
-                                           animated=True)#Font.get_font_size(self.rowHeight.value*76/38+Font.get_font_offset())
+                                           animated=True)  # Font.get_font_size(self.rowHeight.value*76/38+Font.get_font_offset())
             self.lbl_best_title_text.set(x=self.rowHeight.value * 99/38,
                                          y=self.rowHeight.value * 50/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
@@ -628,6 +628,7 @@ class ACDelta:
             self.last_lap_start[i] = -1
 
     def format_name_tlc(self, name):
+        name = Translate.drivername(name)
         space = name.find(" ")
         if space > 0:
             name = name[space:]
@@ -637,6 +638,7 @@ class ACDelta:
         return name
 
     def format_name_tlc2(self, name):
+        name = Translate.drivername(name)
         first = ""
         if len(name) > 0:
             first = name[0].upper()
@@ -844,8 +846,8 @@ class ACDelta:
                             self.referenceLapTime.setValue(self.lastLapTime.value)
                             self.referenceLap = list(self.currentLap)
                             if len(self.referenceLap) > 2000:  # 2laps in
-                                ac.console("too many laps in reference----")
-                                ac.log("too many laps in reference----")
+                                # ac.console("too many laps in reference----")
+                                # ac.log("too many laps in reference----")
                                 how_much = math.floor(len(self.referenceLap)/1000)
                                 del self.referenceLap[0:math.floor(len(self.referenceLap)/how_much)]
                             if self.currentVehicle.value == 0 and Configuration.save_delta and len(self.referenceLap) > 20:
