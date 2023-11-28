@@ -614,14 +614,10 @@ class Driver:
 
     def set_border(self):
         #self.car_class_name = Colors.getClassForCar(self.carName,self.steam_id)
-        self.lbl_logo_bg.set(background=Colors.logo_bg(),
-                            init=True)
-        self.lbl_logo.set(background=Colors.logo_for_car(self.carName,self.car_skin_path),
-                            init=True)
-        self.lbl_number.set(background=Colors.color_for_car_class(self.car_class_name),
-                            init=True)
-        self.lbl_number_txt.set(color=Colors.txt_color_for_car_class(self.car_class_name),
-                            init=True)
+        self.lbl_logo_bg.set(background=Colors.logo_bg(), init=True)
+        self.lbl_logo.set(background=Colors.logo_for_car(self.carName,self.car_skin_path), init=True)
+        self.lbl_number.set(background=Colors.color_for_car_class(self.car_class_name), init=True)
+        self.lbl_number_txt.set(color=Colors.txt_color_for_car_class(self.car_class_name), init=True)
 
     def show_full_name(self):
         offset = " "
@@ -740,7 +736,7 @@ class Driver:
                 self.lbl_time_txt.change_font_if_needed().setText("--.-").setColor(Colors.tower_time_green_txt(), animated=True, init=True)
             else:
                 laps = " Lap"
-                if self.completedLaps.value > 1:
+                if self.completedLaps.value != 1:
                     laps += "s"
                 laps = str(self.completedLaps.value) + laps
                 self.lbl_time_txt.change_font_if_needed().setText(laps).setColor(Colors.tower_time_last_lap_txt(), animated=True, init=True)
@@ -748,7 +744,7 @@ class Driver:
             self.lbl_time_txt.change_font_if_needed().setText(self.format_time_realtime(time)).setColor(normal_color, animated=True, init=True)
         elif lap:
             str_time = "+" + str(math.floor(abs(time)))
-            if abs(time) >= 2:
+            if abs(time) != 1:
                 str_time += " Laps"
             else:
                 str_time += " Lap"
@@ -761,7 +757,7 @@ class Driver:
                     self.lbl_time_txt.change_font_if_needed().setText(self.format_time(time)).setColor(Colors.tower_time_last_lap_txt(), animated=True, init=True)
             elif Configuration.race_mode == 5:  # pit stops
                 stops = " Stop"
-                if time > 1:
+                if time != 1:
                     stops += "s"
                 stops = str(time) + stops
                 self.lbl_time_txt.change_font_if_needed().setText(stops).setColor(Colors.tower_time_last_lap_txt(), animated=True, init=True)
@@ -975,8 +971,8 @@ class Driver:
         if space > 0:
             name = name[space:]
         name = name.strip()
-        if len(name) > 12:
-            return name[:13]
+        if len(name) > 14:
+            return name[:15]
         return name
 
     def format_last_name2(self, name):
@@ -987,8 +983,8 @@ class Driver:
         if space > 0:
             name = first.upper() + "." + name[space:]
         name = name.strip()
-        if len(name) > 12:
-            return name[:13]
+        if len(name) > 17:
+            return name[:18]
         return name
 
     def format_first_name(self, name):
@@ -996,8 +992,8 @@ class Driver:
         if space > 0:
             name = name[:space]
         name = name.strip()
-        if len(name) > 12:
-            return name[:13]
+        if len(name) > 17:
+            return name[:18]
         return name
 
     def format_time(self, ms):
@@ -1015,6 +1011,7 @@ class Driver:
         else:
             return "{0}.{1}".format(int(s), str(int(d)).zfill(3))
 
+    """
     def format_time_realtime(self, ms):
         prefix = "+"
         if ms < 0:
@@ -1034,6 +1031,26 @@ class Driver:
             return prefix + "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)))
         else:
             return prefix + "{0}.{1}".format(int(s), str(int(d)))
+"""
+
+    def format_time_realtime(self, ms):
+        prefix = "+" if ms >= 0 else "-"
+        ms = abs(ms)
+
+        s = ms / 1000
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+        d = int((ms % 1000) / 100)
+
+        if any(math.isnan(t) for t in (s, d, m, h)):
+            return "--.-"
+
+        if h > 0:
+            return prefix+"{}:{:02d}:{:02d}.{}".format(int(h), int(m), int(s), int(d))
+        elif m > 0:
+            return prefix+"{}:{:02d}.{}".format(int(m), int(s), int(d))
+        else:
+            return prefix+"{}.{}".format(int(s), int(d))
 
     def is_compact_mode(self):
         if not self.race and Configuration.qual_mode==3:# and not self.highlight.value:
