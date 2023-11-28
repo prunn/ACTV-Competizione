@@ -208,7 +208,7 @@ class ACDelta:
                  visible=1)
         self.lbl_prediction_title_text = Label(self.window.app, "PRED")\
             .set(w=77, h=0,
-                 x=0, y=0,
+                 x=0, y=10,
                  opacity=0,
                  font_size=26,
                  align="left",
@@ -325,9 +325,11 @@ class ACDelta:
                                      y=Font.get_font_x_offset()-3,
                                      font_size=Font.get_font_size(self.rowHeight.value*44/38+Font.get_font_offset()),
                                      animated=True)
-            self.lbl_name_bg.set(w=self.rowHeight.value * 77/38,h=self.rowHeight.value * 21/38,y=self.rowHeight.value * 40/38, animated=True)
+            self.lbl_name_bg.set(w=self.rowHeight.value * 77/38, h=self.rowHeight.value * 21/38, y=self.rowHeight.value * 40/38, animated=True)
+
+            # / 2 moves the text driver 'name' down a little to put it to middle
             self.lbl_name_text.set(w=self.rowHeight.value * 77/38,
-                                   y=self.rowHeight.value * 33/38 + Font.get_font_x_offset(),
+                                   y=self.rowHeight.value * 33/38 + Font.get_font_x_offset() / 2,
                                    font_size=font_size,
                                    animated=True)
             self.lbl_position_text.set(x=self.rowHeight.value * 38/38,
@@ -387,28 +389,29 @@ class ACDelta:
                                       x=self.rowHeight.value * 87/38,
                                       y=self.rowHeight.value * 107/38,
                                       animated=True)
-            self.lbl_current_time_text.set(x=self.rowHeight.value * 115/38,y=self.rowHeight.value * -12/38 + Font.get_font_x_offset(),
+            self.lbl_current_time_text.set(x=self.rowHeight.value * 115/38,
+                                           y=self.rowHeight.value * -12/38 + Font.get_font_x_offset(),
                                            font_size=font_size+self.rowHeight.value * 25/38,
                                            animated=True)  # Font.get_font_size(self.rowHeight.value*76/38+Font.get_font_offset())
-            self.lbl_best_title_text.set(x=self.rowHeight.value * 99/38,
+            self.lbl_best_title_text.set(x=self.rowHeight.value * 104/38,
                                          y=self.rowHeight.value * 50/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
-            self.lbl_last_title_text.set(x=self.rowHeight.value * 99/38,
+            self.lbl_last_title_text.set(x=self.rowHeight.value * 104/38,
                                          y=self.rowHeight.value * 77/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
-            self.lbl_prediction_title_text.set(x=self.rowHeight.value * 99/38,
+            self.lbl_prediction_title_text.set(x=self.rowHeight.value * 104/38,
                                                y=self.rowHeight.value * 104/38 + Font.get_font_x_offset(),
                                                font_size=font_size-self.rowHeight.value * 6/38, animated=True)
             self.lbl_best_time_text.set(x=self.rowHeight.value * 245/38,
-                                        y=self.rowHeight.value * 44/38 + Font.get_font_x_offset(),
+                                        y=self.rowHeight.value * 44/38 + Font.get_font_x_offset() / 2,
                                         font_size=font_size+self.rowHeight.value * 3/38,
                                         animated=True)
             self.lbl_last_time_text.set(x=self.rowHeight.value * 245/38,
-                                        y=self.rowHeight.value * 73/38 + Font.get_font_x_offset(),
+                                        y=self.rowHeight.value * 73/38 + Font.get_font_x_offset() / 2,
                                         font_size=font_size+self.rowHeight.value * 3/38,
                                         animated=True)
             self.lbl_prediction_time_text.set(x=self.rowHeight.value * 245/38,
-                                              y=self.rowHeight.value * 100/38 + Font.get_font_x_offset(),
+                                              y=self.rowHeight.value * 100/38 + Font.get_font_x_offset() / 2,
                                               font_size=font_size+self.rowHeight.value * 3/38,
                                               animated=True)
             #col 3
@@ -792,7 +795,7 @@ class ACDelta:
         completed_laps = ac.getCarState(self.currentVehicle.value, acsys.CS.LapCount)
         self.lbl_laps_completed_text.setText(str(completed_laps))
         self.lbl_laps_completed_text_shadow.setText(str(completed_laps))
-        if completed_laps > 1:
+        if completed_laps != 1:
             self.lbl_laps_text.setText("LAPS")
             self.lbl_laps_text_shadow.setText("LAPS")
         else:
