@@ -2271,4 +2271,5 @@ class Translate:
         }
         lower_name = name.lower()
         # ac.log("ACC Driver:translating name: %s " % dicNames.get(lower_name, name))
+        # return dicNames.get(lower_name, name).upper()
         return dicNames.get(lower_name, name)
