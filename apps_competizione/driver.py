@@ -2,7 +2,7 @@ import ac
 import acsys
 import math
 import functools
-from .util.classes import Label, Value, Colors, Font
+from .util.classes import Label, Value, Colors, Font, Translate
 from .configuration import Configuration
 
 
@@ -229,7 +229,7 @@ class Driver:
             self.lbl_tires_bg.set(background=Colors.tower_tires_bg(), animated=True, init=True)
             self.lbl_tires_txt.set(color=Colors.tower_tires_txt(), animated=True, init=True)
             self.lbl_p2p.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
-            if ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==4)) and self.isCurrentVehicule.value:
+            if ((self.race and Configuration.race_mode == 8) or (not self.race and Configuration.qual_mode == 4)) and self.isCurrentVehicule.value:
                 self.lbl_name.set(background=Colors.tower_driver_highlight_odd_bg(), animated=True, init=True)
                 self.lbl_name_txt.set(color=Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
                 self.lbl_time.set(background=Colors.tower_time_highlight_odd_bg(), animated=True, init=True)
@@ -273,7 +273,7 @@ class Driver:
             self.set_name()
 
         font_changed = self.font.hasChanged()
-        #if self.row_height.hasChanged() or font_changed:
+        # if self.row_height.hasChanged() or font_changed:
         # Fonts
         if font_changed:
             self.lbl_name_txt.update_font()
@@ -283,8 +283,8 @@ class Driver:
             self.lbl_p2p.update_font()
             self.lbl_tires_txt.update_font()
         # UI
-        #self.position.setValue(-1) + border_offset
-        x=0
+        # self.position.setValue(-1) + border_offset
+        x = 0
         self.lbl_position.set(w=self.rowHeight - 2, h=self.rowHeight - 2)
         self.lbl_position_txt.set(w=self.rowHeight - 2, h=self.rowHeight,
                               font_size=font_size)
@@ -348,12 +348,8 @@ class Driver:
             w = self.rowHeight * 22 / 38
         else:
             w = self.rowHeight * 15 / 38
-        self.lbl_tires_bg.set(w=w, h=self.rowHeight - 2,
-                         x=x,
-                         animated=True)
-        self.lbl_tires_txt.set(w=w, h=self.rowHeight - 2,
-                         x=x,
-                         font_size=font_size - self.rowHeight*8/38, animated=True)
+        self.lbl_tires_bg.set(w=w, h=self.rowHeight - 2, x=x, animated=True)
+        self.lbl_tires_txt.set(w=w, h=self.rowHeight - 2, x=x, font_size=font_size - self.rowHeight * 8/38, animated=True)
 
         if self.isDisplayed:
             self.final_y = self.num_pos * self.rowHeight
@@ -376,18 +372,18 @@ class Driver:
             if self.is_multiplayer:
                 self.lbl_ping_bg.setY(self.final_y, True)
                 self.lbl_ping_status.setY(self.final_y + self.ping_y_offset, True)
-            self.lbl_logo.setY(self.final_y + (self.rowHeight - 2) *5/38, True)
+            self.lbl_logo.setY(self.final_y + (self.rowHeight - 2) * 5/38, True)
             self.lbl_number.setY(self.final_y, True)
 
     def show(self, needs_tlc=True, race=True, compact=False, realtime_target_laps=-1):
         self.race = race
         self.compact_mode = compact
-        #Status
+        # Status
         if self.finished.value:
             self.lbl_status.set(background=Colors.tower_finish(), animated=True, init=True)
             self.lbl_p2p.hide()
         elif self.isAlive.value and not self.isInPit.value and ac.getCarState(self.identifier, acsys.CS.SpeedKMH) < 30 and (not self.race or (self.race and self.hasStartedRace)):
-            self.lbl_status.set(background=Colors.status_stopped_ontrack(), animated=True, init=True) # yellow flag on driver
+            self.lbl_status.set(background=Colors.status_stopped_ontrack(), animated=True, init=True)  # yellow flag on driver
             if self.push_2_pass_left.value > 0:
                 self.push_2_pass_status.setValue(-1)
         elif self.race and self.PitWindowStart >= 0 and not self.pit_stops_mandatory_done:
@@ -465,7 +461,7 @@ class Driver:
                     ping_color = Colors.red(bg=True)
                     ping_height = self.rowHeight - 2
                     self.ping_y_offset = 0
-                self.lbl_ping_status.set(y=self.final_y + self.ping_y_offset, h=ping_height,background=ping_color,animated=True).show()
+                self.lbl_ping_status.set(y=self.final_y + self.ping_y_offset, h=ping_height, background=ping_color, animated=True).show()
         self.lbl_logo.show()
         self.lbl_number.show()
 
@@ -475,7 +471,7 @@ class Driver:
         if not self.isAlive.value and not self.finished.value:
             self.lbl_name_txt.setColor(Colors.tower_driver_retired_txt(), animated=True, init=True)
         elif self.isInPit.value or ac.getCarState(self.identifier, acsys.CS.SpeedKMH) > 30 or self.finished.value or (self.race and not self.hasStartedRace):
-            if self.race and self.isCurrentVehicule.value and Configuration.race_mode==8: # and realtime
+            if self.race and self.isCurrentVehicule.value and Configuration.race_mode == 8:  # and realtime
                 self.lbl_name_txt.setColor(Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
             elif not self.isCurrentVehicule.value and self.race and realtime_target_laps > -1 and self.race_current_sector.value + 50 < realtime_target_laps:
                 self.lbl_name_txt.setColor(Colors.tower_driver_blue_txt(), animated=True, init=True)
@@ -613,7 +609,6 @@ class Driver:
         self.set_border()
 
     def set_border(self):
-        #self.car_class_name = Colors.getClassForCar(self.carName,self.steam_id)
         self.lbl_logo_bg.set(background=Colors.logo_bg(), init=True)
         self.lbl_logo.set(background=Colors.logo_for_car(self.carName,self.car_skin_path), init=True)
         self.lbl_number.set(background=Colors.color_for_car_class(self.car_class_name), init=True)
@@ -639,13 +634,13 @@ class Driver:
             if mode == 0 or mode == 2:
                 mode = 1
         self.qual_mode.setValue(mode)
-        if mode == 2: #----- sector? delta?
+        if mode == 2:  # ----- sector? delta?
             splits = ac.getCurrentSplits(self.identifier)
-            sector_time=best_time=pb_time=0
+            sector_time = best_time = pb_time = 0
             for i,c in enumerate(splits):
                 if c == 0:
                     break
-                sector_time+=c
+                sector_time += c
                 if len(self.bestLap_sectors) > i:
                     pb_time += self.bestLap_sectors[i]
                 if len(fastest_driver_sectors) > i:
@@ -663,7 +658,7 @@ class Driver:
                 display_time = "Out Lap"
                 display_color = Colors.tower_time_green_txt()
             elif best_time > 0 and sector_time > 0:
-                #if comparable
+                # if comparable
                 if sector_time < best_time:
                     # Purple
                     display_time = "-" + self.format_time(best_time - sector_time)
@@ -725,14 +720,12 @@ class Driver:
             self.lbl_time_txt.change_font_if_needed().setText("--.-").setColor(Colors.tower_time_green_txt(), animated=True, init=True)
         elif isinstance(time, str) and time.find("UP") >= 0:
             self.lbl_time_txt.change_font_if_needed(1).setText(time.replace("UP", u"\u25B2")).setColor(Colors.tower_time_place_gain_txt(), animated=True, init=True)
-            #self.lbl_time_txt.change_font_if_needed(1).setText(u"\u25B2").setColor(Colors.tower_time_place_gain_txt(), animated=True, init=True)
         elif isinstance(time, str) and time.find("DOWN") >= 0:
             self.lbl_time_txt.change_font_if_needed(1).setText(time.replace("DOWN", u"\u25BC")).setColor(Colors.tower_time_place_lost_txt(), animated=True, init=True)
-            #self.lbl_time_txt.change_font_if_needed(1).setText(u"\u25BC").setColor(Colors.tower_time_place_lost_txt(), animated=True, init=True)
         elif isinstance(time, str) and time.find("NEUTRAL") >= 0:
             self.lbl_time_txt.change_font_if_needed(1).setText(time.replace("NEUTRAL", u"\u25C0")).setColor(normal_color, animated=True, init=True)
         elif self.identifier == identifier or time == 600000:
-            if ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==4)) or time == 600000:# or self.completedLaps.value == 0
+            if ((self.race and Configuration.race_mode == 8) or (not self.race and Configuration.qual_mode == 4)) or time == 600000:  # or self.completedLaps.value == 0
                 self.lbl_time_txt.change_font_if_needed().setText("--.-").setColor(Colors.tower_time_green_txt(), animated=True, init=True)
             else:
                 laps = " Lap"
@@ -740,7 +733,7 @@ class Driver:
                     laps += "s"
                 laps = str(self.completedLaps.value) + laps
                 self.lbl_time_txt.change_font_if_needed().setText(laps).setColor(Colors.tower_time_last_lap_txt(), animated=True, init=True)
-        elif realtime :
+        elif realtime:
             self.lbl_time_txt.change_font_if_needed().setText(self.format_time_realtime(time)).setColor(normal_color, animated=True, init=True)
         elif lap:
             str_time = "+" + str(math.floor(abs(time)))
@@ -769,9 +762,9 @@ class Driver:
                 else:
                     self.lbl_time_txt.change_font_if_needed().setText("--.-").setColor(normal_color, animated=True, init=True)
         else:
-            #if intervals:
+            # if intervals:
             self.lbl_time_txt.change_font_if_needed().setText("+" + self.format_time(time)).setColor(normal_color, animated=True, init=True)
-            #else:
+            # else:
             #    self.lbl_time_txt.change_font_if_needed().setText(self.format_time(time)).setColor(normal_color, animated=True, init=True)
 
     def optimise(self):
@@ -804,7 +797,6 @@ class Driver:
             self.isInPitLaneOld = self.isInPitLane.value
         elif pit_value and not self.finished.value:
             self.last_lap_in_pit = self.completedLaps.value
-
 
     def set_position(self, position, offset, battles, realtime=False):
         self.position.setValue(position)
@@ -868,17 +860,15 @@ class Driver:
             if self.is_multiplayer:
                 self.lbl_ping_bg.setY(self.final_y, True)
                 self.lbl_ping_status.setY(self.final_y + self.ping_y_offset, True)
-            self.lbl_logo.setY(self.final_y + (self.rowHeight - 2) *5/38, True)
+            self.lbl_logo.setY(self.final_y + (self.rowHeight - 2) * 5/38, True)
             self.lbl_number.setY(self.final_y, True)
             # ------------------- Colors -----------------
-            if battles and ((self.race and Configuration.race_mode==8) or (not self.race and Configuration.qual_mode==4)) and self.isCurrentVehicule.value:
+            if battles and ((self.race and Configuration.race_mode == 8) or (not self.race and Configuration.qual_mode == 4)) and self.isCurrentVehicule.value:
                 self.lbl_name.set(background=Colors.tower_driver_highlight_odd_bg(), animated=True, init=True)
                 self.lbl_name_txt.set(color=Colors.tower_driver_highlight_odd_txt(), animated=True, init=True)
                 self.lbl_position.set(background=Colors.tower_position_highlight_odd_bg(), animated=True, init=True)
                 self.lbl_position_txt.set(color=Colors.tower_position_highlight_odd_txt(), animated=True, init=True)
-                #self.lbl_number_txt.set(color=Colors.black(), animated=True, init=True)
                 self.lbl_time.set(background=Colors.tower_time_highlight_odd_bg(), animated=True, init=True)
-                #self.lbl_time_txt.set(color=Colors.tower_time_highlight_txt(), animated=True, init=True)
                 self.lbl_logo_bg.set(opacity=Colors.tower_border_default_bg_opacity(), animated=True, init=True)
                 self.lbl_number.set(opacity=Colors.tower_border_default_bg_opacity(), animated=True, init=True)
             else:
@@ -899,7 +889,6 @@ class Driver:
                             self.lbl_position.set(background=Colors.tower_position_odd_bg(), animated=True, init=True)
                         self.lbl_position_txt.set(color=Colors.tower_position_odd_txt(), animated=True, init=True)
                     self.lbl_time.set(background=Colors.tower_time_odd_bg(), animated=True, init=True)
-                    #self.lbl_time_txt.set(color=Colors.tower_time_odd_txt(), animated=True, init=True)
                     self.lbl_logo_bg.set(opacity=Colors.tower_border_default_bg_opacity(), animated=True, init=True)
                     self.lbl_number.set(opacity=Colors.tower_border_default_bg_opacity(), animated=True, init=True)
                 else:
@@ -911,16 +900,11 @@ class Driver:
                     else:
                         self.lbl_position.set(background=Colors.tower_position_retired_bg(), animated=True, init=True)
                         self.lbl_position_txt.set(color=Colors.tower_position_retired_txt(), animated=True, init=True)
-                    #self.lbl_number_txt.set(color=Colors.black(), animated=True, init=True)
                     self.lbl_time.set(background=Colors.tower_time_retired_bg(), animated=True, init=True)
-                    #self.lbl_time_txt.set(color=Colors.tower_time_retired_txt(), animated=True, init=True)
                     self.lbl_logo_bg.set(opacity=Colors.tower_border_default_bg_opacity_retired(), animated=True, init=True)
                     self.lbl_number.set(opacity=Colors.tower_border_default_bg_opacity_retired(), animated=True, init=True)
 
-
-
-
-        self.fullName.setValue(ac.getDriverName(self.identifier))
+        self.fullName.setValue(Translate.drivername(ac.getDriverName(self.identifier)))
         if self.fullName.hasChanged():
             # Reset
             self.set_name()
@@ -944,6 +928,7 @@ class Driver:
             '''
 
     def format_name_tlc(self, name):
+        name = Translate.drivername(name)
         space = name.find(" ")
         if space > 0:
             name = name[space:]
@@ -953,6 +938,7 @@ class Driver:
         return name
 
     def format_name_tlc2(self, name):
+        # name = Translate.drivername(name)
         first = ""
         if len(name) > 0:
             first = name[0].upper()
@@ -967,6 +953,7 @@ class Driver:
         return name
 
     def format_last_name(self, name):
+        # name = Translate.drivername(name)
         space = name.find(" ")
         if space > 0:
             name = name[space:]
@@ -976,6 +963,7 @@ class Driver:
         return name
 
     def format_last_name2(self, name):
+        name = Translate.drivername(name)
         first = ""
         if len(name) > 0:
             first = name[0].upper()
@@ -988,6 +976,7 @@ class Driver:
         return name
 
     def format_first_name(self, name):
+        name = Translate.drivername(name)
         space = name.find(" ")
         if space > 0:
             name = name[:space]
