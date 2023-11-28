@@ -340,6 +340,7 @@ class ACInfo:
                 if len(name) > max_name_length:
                     return name[:max_name_length + 1]
                 return name
+            # return name[:space].lstrip() + name[space:]
             return name[:space].capitalize().lstrip() + name[space:]
         if len(name) > max_name_length:
             return name[:max_name_length+1].lstrip()
