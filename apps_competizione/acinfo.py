@@ -2,7 +2,7 @@ import ac
 import acsys
 import ctypes
 import math
-from .util.classes import Window, Label, Value, Colors, Font, lapTimeStart, Config
+from .util.classes import Window, Label, Value, Colors, Font, lapTimeStart, Translate, Config
 from .configuration import Configuration
 
 
@@ -810,7 +810,7 @@ class ACInfo:
 
                 lap_invalidated = bool(self.lastLapInvalidated == lap_count)
                 if current_vehicle_changed or self.driver_name_text.value == "":
-                    self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                    self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
                 # sector_delay = 5000
                 # live or info
                 #self.last_lap_start[self.currentVehicle.value] - session_time_left < 5000
@@ -1008,7 +1008,7 @@ class ACInfo:
                     self.lbl_logo.setBgColor(Colors.logo_for_car(car_name,self.get_driver_skin(self.race_fastest_lap_driver)))
                     self.visible_end = session_time_left - 10000
                     self.driver_name_visible = True
-                    self.driver_name_text.setValue(ac.getDriverName(self.race_fastest_lap_driver))
+                    self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.race_fastest_lap_driver)))
                     self.info_position.hide()
                     self.info_position_txt.hide()
                     self.lbl_fastest_split.setText(self.time_splitting(self.race_fastest_lap.value, "yes")).show()
@@ -1031,7 +1031,7 @@ class ACInfo:
                     if not self.forceViewAlways or is_in_pit:
                         self.visible_end = session_time_left - 8000
                     self.driver_name_visible = True
-                    self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                    self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
 
                     if not self.raceStarted:
                         if sim_info.graphics.completedLaps > 0 or sim_info.graphics.iCurrentTime > 12000:
@@ -1079,7 +1079,7 @@ class ACInfo:
             cur_lap_time = ac.getCarState(self.currentVehicle.value, acsys.CS.LapTime)
             is_in_pit = (bool(ac.isCarInPitline(self.currentVehicle.value)) or bool(ac.isCarInPit(self.currentVehicle.value)))
             if current_vehicle_changed or self.driver_name_text.value == "":
-                self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
             if is_in_pit:
                 self.driver_name_visible = False
                 self.timing_visible = False
@@ -1129,7 +1129,7 @@ class ACInfo:
                 if not self.forceViewAlways:
                     self.visible_end = session_time_left - 8000
                 self.driver_name_visible = True
-                self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
                 pos = self.get_race_standings_position_replay(self.currentVehicle.value)
                 self.pos = pos
                 self.info_position.set(background=Colors.info_position_bg(), animated=True, init=True)
