@@ -1035,7 +1035,7 @@ class ACTower:
                                 if driver.isAlive.value:
                                     norm_d1 = self.normalize_string(d[1])
                                     if norm_d1 == self.normalize_string(driver.fullName.value) and str(d[2]) == driver.carName:
-                                        driver.last_ping = ping #random.randint(3, 600)
+                                        driver.last_ping = ping # random.randint(3, 600)
                                         driver.steam_id = steam_id
                                         break
                 except:
