@@ -605,7 +605,19 @@ class Colors:
     def tower_time_best_lap_txt():
         if Colors.general_theme > 0:
             return Colors.get_color_for_key('tower_time_best_lap_txt')
-        return rgb([135, 31, 144])
+        # return rgb([135, 31, 144])
+        return rgb([255, 26, 133])
+        # TODO white, use when background is purple
+        # return rgb([250, 250, 250])
+
+    @staticmethod
+    def tower_time_best_lap_bg():
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('tower_time_best_lap_bg')
+        # return rgb([135, 31, 144])
+        # return rgb([255, 26, 133])
+        # TODO purple label bg, use when white text
+        return rgb([111, 66, 193])
 
     @staticmethod
     def tower_time_last_lap_txt():
