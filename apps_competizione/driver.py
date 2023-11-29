@@ -663,6 +663,7 @@ class Driver:
                     # Purple
                     display_time = "-" + self.format_time(best_time - sector_time)
                     display_color = Colors.tower_time_best_lap_txt()
+                    # display_color_bg = Colors.tower_time_best_lap_bg()
                 elif pb_time==0 or sector_time < pb_time:
                     # Green
                     display_time = "+" + self.format_time(sector_time - best_time)
@@ -746,6 +747,7 @@ class Driver:
             if (self.race and Configuration.race_mode < 5) or (not self.race and Configuration.qual_mode==4):
                 if time <= ac.getCarState(self.identifier, acsys.CS.BestLap):
                     self.lbl_time_txt.change_font_if_needed().setText(self.format_time(time)).setColor(Colors.tower_time_best_lap_txt(), animated=True, init=True)
+                    # self.lbl_time.set(background=Colors.tower_time_best_lap_bg(), animated=True, init=True)
                 else:
                     self.lbl_time_txt.change_font_if_needed().setText(self.format_time(time)).setColor(Colors.tower_time_last_lap_txt(), animated=True, init=True)
             elif Configuration.race_mode == 5:  # pit stops
