@@ -340,8 +340,8 @@ class ACInfo:
                 if len(name) > max_name_length:
                     return name[:max_name_length + 1]
                 return name
-            # return name[:space].lstrip() + name[space:]
-            return name[:space].capitalize().lstrip() + name[space:]
+            return name[:space].lstrip() + name[space:]
+            # return name[:space].capitalize().lstrip() + name[space:]
         if len(name) > max_name_length:
             return name[:max_name_length+1].lstrip()
         return name.lstrip()
@@ -355,6 +355,7 @@ class ACInfo:
             return name[:17]
         return name
 
+    """
     def time_splitting(self, ms, full="no"):
         ms=abs(ms)
         s = ms / 1000
@@ -378,6 +379,21 @@ class ACInfo:
                 return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), int(d))
             else:
                 return "{0}.{1}".format(int(s), int(d))
+"""
+    def time_splitting(self, ms, full="no"):
+        ms = abs(ms)
+        s = ms / 1000
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+
+        if full == "yes":
+            d, ms = divmod(ms, 1000)
+            time_format = "{:.0f}:{:02.0f}:{:02.0f}.{:03.0f}"
+        else:
+            d, ms = divmod(ms, 100)
+            time_format = "{:.0f}:{:02.0f}:{:02.0f}.{:0.0f}"
+
+        return time_format.format(h, m, s, d)
 
     def get_sector(self,vehicle):
         splits = ac.getCurrentSplits(vehicle)
