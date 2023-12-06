@@ -2237,50 +2237,12 @@ class GameData:
 class Translate:
     def drivername(name):
         # ac.console("acc driver:translating name: %s " % name)
-        dicNames = {
-            "panu artimo": "Löysä Töräys",
-            "janne pehkonen": "Jan Tinymessyhair",
-            "samuli seppanen": "Samuli Seppänen",
-            "anssi hyytiainen": "Anssi Hyytiäinen",
-            "heikki mehtanen": "Heikki Mehtänen",
-            "timo peratalo": "Timo Perätalo",
-            "jarkko kilpelainen": "Jarkko Kilpeläinen",
-            "ville setala": "Ville Setälä",
-            "sami rantamaki": "Sami Rantamäki",
-            "lipi": "Lipi",
-            "tuomas tahtela": "Tuomas Tähtelä",
-            "eero jarvinen": "Eero Järvinen",
-            "atte nykanen": "Atte Nykänen",
-            "mika nykanen": "Mika Nykänen",
-            "matti katajainen": "Matti Katajainen",
-            "jori laine": "Jori Laine",
-            "jani hook": "Jani Höök",
-            "jani hyvarinen": "Jani Hyvärinen",
-            "marko makela": "Marko Mäkelä",
-            "markku pietila": "Markku Pietilä",
-            "antti erkkila": "Antti Erkkilä",
-            "ossi takamaki": "Ossi Takamäki",
-            "roni lotjonen": "Roni Lötjönen",
-            "teemu polkki": "Teemu Pölkki",
-            "josua ali-keskikyla": "Josua Ali-Keskikylä",
-            "joonas makela": "Joonas Mäkelä",
-            "toni perkio": "Toni Perkiö",
-            "kimmo leppanen": "Kimmo Leppänen",
-            "jouko leskela": "Jouko Leskelä",
-            "eemeli virkajarvi": "Eemeli Virkajärvi",
-            "kimmo katajamaki": "Kimmo Katajamäki",
-            "joni vahakuopus": "Joni Vähäkuopus",
-            "tapio toysa": "Tapio Töysä",
-            "juha maki-jouppi": "Juha Mäki-Jouppi",
-            "peetu makinen": "Peetu Mäkinen",
-            "marcus johansson": "Marcus Johansson",
-            "lucky like fauntleroy": "Lucky like Fauntleroy",
-            "kyoesti hyyppae": "Kyösti Hyyppä",
-            "kyosti hyyppa": "Kyösti Hyyppä",
-            "harri hyyppa": "Harri Hyyppä",
-            "casperi kaitajarvi": "Casperi Kaitajärvi",
-            "oskari selinheimo": "Oskari Selinheimo"
-        }
+        dicNames = {}
+        with open('names.txt', 'r') as file:
+            for line in file:
+                key, value = line.strip().split(':')
+                dicNames[key.lower()] = value
+
         lower_name = name.lower()
         # ac.log("ACC Driver:translating name: %s " % dicNames.get(lower_name, name))
         # return dicNames.get(lower_name, name).upper()
