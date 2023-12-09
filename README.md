@@ -12,6 +12,10 @@ for Assetto Corsa
 
 
 ###Changelog.
+1.2.0.1
+* transate driver names on the fly with a look-up table (names.txt, dictionary)
+* some small code quality changes
+
 1.2.0.0
 * Tower: bug fix blue names in qualy
 * Tower: bug fix race start positions (progress)
