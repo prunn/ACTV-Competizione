@@ -2238,7 +2238,8 @@ class Translate:
     def drivername(name):
         # ac.console("acc driver:translating name: %s " % name)
         dicNames = {}
-        with open('names.txt', 'r') as file:
+        file_path = os.path.join(os.path.dirname(__file__), 'names.txt')
+        with open(file_path, 'r') as file:
             for line in file:
                 key, value = line.strip().split(':')
                 dicNames[key.lower()] = value
