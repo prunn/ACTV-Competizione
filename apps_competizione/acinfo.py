@@ -330,6 +330,7 @@ class ACInfo:
         return currentVehicle
 
     def format_name(self, name, max_name_length):
+        name = Translate.drivername(name)
         space = name.find(" ")
         if space > 0:
             if len(name) > max_name_length and space + 1 < len(name):
@@ -572,7 +573,7 @@ class ACInfo:
                 self.lbl_timing_text.hide()
                 team = self.get_team(self.currentVehicle.value)
                 if team != '':
-                    self.lbl_team_txt.setText(str(team)).show()
+                    self.lbl_team_txt.setText(Translate.drivername(str(team))).show()
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 4 / 38, font_size=font_size - self.row_height.value * 1 / 38, animated=True)
                 else:
                     self.lbl_team_txt.hide()
@@ -625,7 +626,7 @@ class ACInfo:
                 if team != '':
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 4 / 38,
                                                   font_size=font_size - 1, animated=True)
-                    self.lbl_team_txt.setText(str(team)).show()
+                    self.lbl_team_txt.setText(Translate.drivername(str(team))).show()
                 else:
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 2 / 38,
                                                   font_size=font_size + self.row_height.value * 14 / 38, animated=True)
@@ -641,7 +642,7 @@ class ACInfo:
                     self.lbl_fastest_lap_bg.hide()
                 team = self.get_team(self.currentVehicle.value)
                 if team != '':
-                    self.lbl_team_txt.setText(str(team)).show()
+                    self.lbl_team_txt.setText(Translate.drivername(str(team))).show()
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 4 / 38,
                                                   font_size=font_size - 1, animated=True)
                 else:
