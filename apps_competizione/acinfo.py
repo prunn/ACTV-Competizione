@@ -289,7 +289,7 @@ class ACInfo:
                   animated=True, init=True)#87
         for l in self.lbl_sectors_title_txt:
             l.set(h=self.row_height.value,
-                  y=self.row_height.value * 51 / 38 + Font.get_font_x_offset(),
+                  y=self.row_height.value * 48 / 38 + Font.get_font_x_offset(),
                   font_size=Font.get_font_size(self.row_height.value + font_offset) + 2,
                   color=Colors.info_sector_title_txt(),
                   opacity=0,
@@ -389,12 +389,20 @@ class ACInfo:
 
         if full == "yes":
             d, ms = divmod(ms, 1000)
-            time_format = "{:.0f}:{:02.0f}:{:02.0f}.{:03.0f}"
+            if h > 0:
+                return "{:.0f}:{:02.0f}:{:02.0f}.{:03.0f}".format(h, m, s, ms)
+            elif m > 0:
+                return "{:.0f}:{:02.0f}.{:03.0f}".format(m, s, ms)
+            else:
+                return "{:.0f}.{:03.0f}".format(s, ms)
         else:
-            d, ms = divmod(ms, 100)
-            time_format = "{:.0f}:{:02.0f}:{:02.0f}.{:0.0f}"
-
-        return time_format.format(h, m, s, d)
+            d = ms / 100 % 10
+            if h > 0:
+                return "{:.0f}:{:02.0f}:{:02.0f}.{:02.0f}".format(h, m, s, d)
+            elif m > 0:
+                return "{:.0f}:{:02.0f}.{:02.0f}".format(m, s, d)
+            else:
+                return "{:.0f}.{:02.0f}".format(s, d)
 
     def get_sector(self,vehicle):
         splits = ac.getCurrentSplits(vehicle)
@@ -487,7 +495,7 @@ class ACInfo:
         self.driver_name_text.setValue("")
 
     def set_width_and_name(self):
-        name = self.format_name(self.driver_name_text.value, 17)
+        name = self.format_name(self.driver_name_text.value, 12)
         width = (self.row_height.value * 49 / 36) + Font.get_text_dimensions(name, self.row_height.value)
         if width < self.row_height.value * 7.2:
             width = self.row_height.value * 7.2
