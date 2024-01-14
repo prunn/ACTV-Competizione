@@ -381,6 +381,7 @@ class ACInfo:
             else:
                 return "{0}.{1}".format(int(s), int(d))
 """
+
     def time_splitting(self, ms, full="no"):
         ms = abs(ms)
         s = ms / 1000
@@ -390,19 +391,19 @@ class ACInfo:
         if full == "yes":
             d, ms = divmod(ms, 1000)
             if h > 0:
-                return "{:.0f}:{:02.0f}:{:02.0f}.{:03.0f}".format(h, m, s, ms)
+                return "{:02d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
             elif m > 0:
-                return "{:.0f}:{:02.0f}.{:03.0f}".format(m, s, ms)
+                return "{:02d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
             else:
-                return "{:.0f}.{:03.0f}".format(s, ms)
+                return "{:02d}.{:03d}".format(int(s), int(ms))
         else:
-            d = ms / 100 % 10
+            d = ms % 1000 // 10
             if h > 0:
-                return "{:.0f}:{:02.0f}:{:02.0f}.{:02.0f}".format(h, m, s, d)
+                return "{:02d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
             elif m > 0:
-                return "{:.0f}:{:02.0f}.{:02.0f}".format(m, s, d)
+                return "{:02d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
             else:
-                return "{:.0f}.{:02.0f}".format(s, d)
+                return "{:02d}.{:02d}".format(int(s), int(d))
 
     def get_sector(self,vehicle):
         splits = ac.getCurrentSplits(vehicle)
