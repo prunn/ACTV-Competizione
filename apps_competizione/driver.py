@@ -988,10 +988,11 @@ class Driver:
         return name
 
     def format_time(self, ms):
+        ms = abs(ms)
         s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        d = ms % 1000
+        d, ms = divmod(ms, 1000)
         if math.isnan(s) or math.isnan(d) or math.isnan(m) or math.isnan(h):
             return ""
         if h > 0:
@@ -1029,17 +1030,17 @@ class Driver:
         s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        d, ms = divmod(ms, 1000)
+        d = int((ms % 1000) / 100)
 
         if any(math.isnan(t) for t in (s, d, m, h)):
             return "--.-"
 
         if h > 0:
-            return prefix+"{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
+            return prefix + "{:01d}:{:02d}:{:02d}.{:01d}".format(int(h), int(m), int(s), int(d))
         elif m > 0:
-            return prefix+"{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
+            return prefix + "{:01d}:{:02d}.{:01d}".format(int(m), int(s), int(d))
         else:
-            return prefix+"{:01d}.{:03d}".format(int(s), int(ms))
+            return prefix + "{:01d}.{:01d}".format(int(s), int(d))
 
     def is_compact_mode(self):
         if not self.race and Configuration.qual_mode==3:# and not self.highlight.value:
