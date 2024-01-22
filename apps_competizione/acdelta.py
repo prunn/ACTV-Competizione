@@ -389,10 +389,12 @@ class ACDelta:
                                       x=self.rowHeight.value * 87/38,
                                       y=self.rowHeight.value * 107/38,
                                       animated=True)
-            self.lbl_current_time_text.set(x=self.rowHeight.value * 115/38,
-                                           y=self.rowHeight.value * -12/38 + Font.get_font_x_offset(),
-                                           font_size=font_size+self.rowHeight.value * 25/38,
-                                           animated=True)  # Font.get_font_size(self.rowHeight.value*76/38+Font.get_font_offset())
+
+            self.lbl_current_time_text.set(x=self.rowHeight.value * 130 / 38,
+                                           y=self.rowHeight.value * -14 / 38 + Font.get_font_x_offset(),
+                                           font_size=font_size + self.rowHeight.value * 20 / 38,
+                                           animated=True)
+
             self.lbl_best_title_text.set(x=self.rowHeight.value * 104/38,
                                          y=self.rowHeight.value * 50/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
@@ -522,55 +524,107 @@ class ACDelta:
                     return str(self.currentVehicle.value)
         return str(self.currentVehicle.value)
     
+    #
+    # def time_splitting(self, ms, full="no"):
+    #     s = ms/1000
+    #     m, s = divmod(s, 60)
+    #     h, m = divmod(m, 60)
+    #     # d, h = divmod(h,24)
+    #     if full == "yes":
+    #         d = ms % 1000
+    #         if h > 0:
+    #             return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #         elif m > 0:
+    #             return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #         else:
+    #             return "{0}.{1}".format(int(s), str(int(d)).zfill(3))
+    #     else:
+    #         d = ms / 100 % 10
+    #         if h > 0:
+    #             return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), int(d))
+    #         elif m > 0:
+    #             return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), int(d))
+    #         else:
+    #             return "{0}.{1}".format(int(s), int(d))
+
     def time_splitting(self, ms, full="no"):
-        s = ms/1000
+        ms = abs(ms)
+        s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        # d, h = divmod(h,24)
+
         if full == "yes":
-            d = ms % 1000
+            d, ms = divmod(ms, 1000)
             if h > 0:
-                return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
-            elif m > 0:  
-                return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(3))
+                return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
+            elif m > 0:
+                return "{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
             else:
-                return "{0}.{1}".format(int(s), str(int(d)).zfill(3))
+                return "{:01d}.{:03d}".format(int(s), int(ms))
         else:
-            d = ms / 100 % 10
+            d = ms % 1000 // 10
             if h > 0:
-                return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), int(d))
-            elif m > 0:  
-                return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), int(d))
+                return "{:01d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
+            elif m > 0:
+                return "{:01d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
             else:
-                return "{0}.{1}".format(int(s), int(d))
+                return "{:01d}.{:02d}".format(int(s), int(d))
+
+    # def time_splitting_delta(self, ms):
+    #     s = ms/1000
+    #     m, s = divmod(s, 60)
+    #     h, m = divmod(m, 60)
+    #     # d, h = divmod(h,24)
+    #     d = ms % 1000 / 10
+    #     if h > 0:
+    #         return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(2))
+    #     elif m > 0:
+    #         return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(2))
+    #     else:
+    #         return "{0}.{1}".format(int(s), str(int(d)).zfill(2))
 
     def time_splitting_delta(self, ms):
-        s = ms/1000
+        ms = abs(ms)
+        s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        # d, h = divmod(h,24)
-        d = ms % 1000 / 10
+        d = ms % 1000 // 10
         if h > 0:
-            return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(2))
+            return "{:01d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
         elif m > 0:
-            return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(2))
+            return "{:01d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
         else:
-            return "{0}.{1}".format(int(s), str(int(d)).zfill(2))
+            return "{:01d}.{:02d}".format(int(s), int(d))
+
+
+    # def time_splitting_full(self, ms):
+    #     s = ms/1000
+    #     m, s = divmod(s, 60)
+    #     h, m = divmod(m, 60)
+    #     # d, h = divmod(h,24)
+    #     d = ms % 1000
+    #     if h > 0:
+    #         return "{0}:{1}:{2}.{3}".format(str(int(h)).zfill(2), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #     elif m > 0:
+    #         return "{0}:{1}.{2}".format(str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #     else:
+    #         return "00:{0}.{1}".format(str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #
 
     def time_splitting_full(self, ms):
-        s = ms/1000
+        ms = abs(ms)
+        s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        # d, h = divmod(h,24)
-        d = ms % 1000
-        if h > 0:
-            return "{0}:{1}:{2}.{3}".format(str(int(h)).zfill(2), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
-        elif m > 0:
-            return "{0}:{1}.{2}".format(str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
-        else:
-            return "00:{0}.{1}".format(str(int(s)).zfill(2), str(int(d)).zfill(3))
+        d, ms = divmod(ms, 1000)
 
-        
+        if h > 0:
+            return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
+        elif m > 0:
+            return "{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
+        else:
+            return "{:01d}.{:03d}".format(int(s), int(ms))
+
     def manage_window(self, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
