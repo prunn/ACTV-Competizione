@@ -55,10 +55,10 @@ class ACTimer:
         # Timer / lap
         self.lbl_session_info_txt = Label(self.window.app, "00:00")\
             .set(w=0, h=36,
-                 x=self.row_height.value, y=-82,
+                 x=self.row_height.value - 600, y=-82,
                  opacity=0,
-                 font_size=26,
-                 align="right")
+                 font_size=25,
+                 align="left")
         # Time
         self.lbl_time_of_day_txt = Label(self.window.app, "12:00")\
             .set(w=0, h=36,
@@ -199,7 +199,8 @@ class ACTimer:
             w_offset = (self.row_height.value - 38) * 22 / 38
             if self.session.value == 1:
                 # Qualifying
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=90 - self.row_height.value * 70 / 38 - w_offset, animated=True)
                 self.lbl_session_border.set(x=114 - self.row_height.value * 63 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 55 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 70 / 38 + w_offset, animated=True)
@@ -209,7 +210,8 @@ class ACTimer:
                 self.lbl_session_info.set(x=114 - self.row_height.value * 168 / 38, w=self.row_height.value * 336 / 38) #336 + 56 28
             elif self.session.value == 0:
                 # PRACTICE
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 81 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 81 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=90 - self.row_height.value * 81 / 38 - w_offset, animated=True)
                 self.lbl_session_border.setX(x=114 - self.row_height.value * 74 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.setX(x=114 + self.row_height.value * 66 / 38 + w_offset, animated=True) # 16
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 81 / 38 + w_offset, animated=True)
@@ -220,7 +222,8 @@ class ACTimer:
             elif self.session.value == 3:
                 #HOTLAP
                 w_offset = (self.row_height.value - 38) * 18 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=90 - self.row_height.value * 53 / 38 - w_offset, animated=True)
                 self.lbl_session_border.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 38 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 53 / 38 + w_offset, animated=True)
@@ -271,9 +274,9 @@ class ACTimer:
         h, m = divmod(m, 60)
         # d,h=divmod(h,24)
         if h > 0:
-            return "{0}:{1}:{2}".format(str(int(h)), str(int(m)).zfill(2), str(int(s)).zfill(2))
+            return "{:01d}:{:02d}:{:02d}".format(int(h), int(m), int(s))
         else:
-            return "{0}:{1}".format(str(int(m)).zfill(2), str(int(s)).zfill(2))
+            return "{:02d}:{:02d}".format(int(m), int(s))
 
     """
     def time_of_day(self, ms):
@@ -377,7 +380,8 @@ class ACTimer:
                 #self.lbl_session_title.set(x=114 - self.row_height.value * 27 / 38, w=self.row_height.value * 54 / 38)
             elif self.session.value == 1:
                 self.lbl_session_title_txt.setText("QUALIFYING")
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 70 / 38 - w_offset, animated=True)
                 self.lbl_session_border.set(x=114 - self.row_height.value * 63 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 55 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 70 / 38 + w_offset, animated=True)
@@ -387,7 +391,8 @@ class ACTimer:
                 self.lbl_session_info.set(w=self.row_height.value * 336 / 38, x=114 - self.row_height.value * 168 / 38) #336 + 56 28
             elif self.session.value == 0:
                 self.lbl_session_title_txt.setText("FREE PRACTICE")
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 81 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 81 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 81 / 38 - w_offset, animated=True)
                 self.lbl_session_border.setX(x=114 - self.row_height.value * 74 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.setX(x=114 + self.row_height.value * 66 / 38 + w_offset, animated=True) # 16
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 81 / 38 + w_offset, animated=True)
@@ -398,7 +403,8 @@ class ACTimer:
             elif self.session.value == 3:
                 self.lbl_session_title_txt.setText("HOTLAP")
                 w_offset = (self.row_height.value - 38) * 18 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 53 / 38 - w_offset, animated=True)
                 self.lbl_session_border.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 38 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 53 / 38 + w_offset, animated=True)
@@ -409,7 +415,8 @@ class ACTimer:
             elif self.session.value == 4:
                 self.lbl_session_title_txt.setText("TIME ATTACK")
                 w_offset = (self.row_height.value - 38) * 18 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 78 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 78 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 78 / 38 - w_offset, animated=True)
                 self.lbl_session_border.setX(x=114 - self.row_height.value * 71 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.setX(x=114 + self.row_height.value * 63 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 78 / 38 + w_offset, animated=True)
@@ -420,7 +427,8 @@ class ACTimer:
             elif self.session.value == 5:
                 self.lbl_session_title_txt.setText("DRIFT")
                 w_offset = (self.row_height.value - 38) * 8 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 46 / 38 - w_offset, animated=True)
                 self.lbl_session_border.set(x=114 - self.row_height.value * 39 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 31 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 46 / 38 + w_offset, animated=True)
@@ -431,8 +439,9 @@ class ACTimer:
             elif self.session.value == 6:
                 self.lbl_session_title_txt.setText("DRAG")
                 w_offset = (self.row_height.value - 38) * 8 / 38
+                #self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
                 self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
-                self.lbl_session_border.set(x=114 - self.row_height.value * 39 / 38 - w_offset, animated=True)
+                self.lbl_session_border.set(x=0 - self.row_height.value * 39 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 31 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 46 / 38 + w_offset, animated=True)
                 # self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 101 / 38 + w_offset, animated=True)
@@ -784,7 +793,8 @@ class ACTimer:
             self.lbl_session_border_2.set(background=Colors.timer_border_bg(),
                                           animated=True).show()
             w_offset = (self.row_height.value - 38) * 6 / 38
-            self.lbl_session_info_txt.set(x=114 - self.row_height.value * 50 / 38 - w_offset, animated=True)
+            # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 50 / 38 - w_offset, animated=True)
+            self.lbl_session_info_txt.set(x=50 - self.row_height.value * 50 / 38 - w_offset, animated=True)
             self.lbl_session_border.set(x=114 - self.row_height.value * 43 / 38 - w_offset, animated=True)
             self.lbl_session_border_2.set(x=114 + self.row_height.value * 35 / 38 + w_offset, animated=True)
             self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 50 / 38 + w_offset, animated=True)
