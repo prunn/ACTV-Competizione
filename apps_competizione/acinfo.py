@@ -391,19 +391,19 @@ class ACInfo:
         if full == "yes":
             d, ms = divmod(ms, 1000)
             if h > 0:
-                return "{:02d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
+                return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
             elif m > 0:
-                return "{:02d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
+                return "{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
             else:
-                return "{:02d}.{:03d}".format(int(s), int(ms))
+                return "{:01d}.{:03d}".format(int(s), int(ms))
         else:
             d = ms % 1000 // 10
             if h > 0:
-                return "{:02d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
+                return "{:01d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
             elif m > 0:
-                return "{:02d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
+                return "{:01d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
             else:
-                return "{:02d}.{:02d}".format(int(s), int(d))
+                return "{:01d}.{:02d}".format(int(s), int(d))
 
     def get_sector(self,vehicle):
         splits = ac.getCurrentSplits(vehicle)
