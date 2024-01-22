@@ -991,16 +991,15 @@ class Driver:
         s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        # d,h=divmod(h,24)
         d = ms % 1000
         if math.isnan(s) or math.isnan(d) or math.isnan(m) or math.isnan(h):
             return ""
         if h > 0:
-            return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
+            return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
         elif m > 0:
-            return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(3))
+            return "{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
         else:
-            return "{0}.{1}".format(int(s), str(int(d)).zfill(3))
+            return "{:01d}.{:03d}".format(int(s), int(ms))
 
     """
     def format_time_realtime(self, ms):
@@ -1027,21 +1026,20 @@ class Driver:
     def format_time_realtime(self, ms):
         prefix = "+" if ms >= 0 else "-"
         ms = abs(ms)
-
         s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        d = int((ms % 1000) / 100)
+        d, ms = divmod(ms, 1000)
 
         if any(math.isnan(t) for t in (s, d, m, h)):
             return "--.-"
 
         if h > 0:
-            return prefix+"{}:{:02d}:{:02d}.{}".format(int(h), int(m), int(s), int(d))
+            return prefix+"{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
         elif m > 0:
-            return prefix+"{}:{:02d}.{}".format(int(m), int(s), int(d))
+            return prefix+"{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
         else:
-            return prefix+"{}.{}".format(int(s), int(d))
+            return prefix+"{:01d}.{:03d}".format(int(s), int(ms))
 
     def is_compact_mode(self):
         if not self.race and Configuration.qual_mode==3:# and not self.highlight.value:
