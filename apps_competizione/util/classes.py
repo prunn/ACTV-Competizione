@@ -605,7 +605,19 @@ class Colors:
     def tower_time_best_lap_txt():
         if Colors.general_theme > 0:
             return Colors.get_color_for_key('tower_time_best_lap_txt')
-        return rgb([135, 31, 144])
+        # return rgb([135, 31, 144])
+        return rgb([255, 26, 133])
+        # TODO white, use when background is purple
+        # return rgb([250, 250, 250])
+
+    @staticmethod
+    def tower_time_best_lap_bg():
+        if Colors.general_theme > 0:
+            return Colors.get_color_for_key('tower_time_best_lap_bg')
+        # return rgb([135, 31, 144])
+        # return rgb([255, 26, 133])
+        # TODO purple label bg, use when white text
+        return rgb([111, 66, 193])
 
     @staticmethod
     def tower_time_last_lap_txt():
@@ -2221,3 +2233,18 @@ class GameData:
         if ctypes.windll.user32.GetCursorPos(ctypes.byref(pt)):
             self.cursor_x=pt.x
             self.cursor_y=pt.y
+
+class Translate:
+    def drivername(name):
+        # ac.console("acc driver:translating name: %s " % name)
+        dicNames = {}
+        file_path = os.path.join(os.path.dirname(__file__), 'names.txt')
+        with open(file_path, 'r') as file:
+            for line in file:
+                key, value = line.strip().split(':')
+                dicNames[key.lower()] = value
+
+        lower_name = name.lower()
+        # ac.log("ACC Driver:translating name: %s " % dicNames.get(lower_name, name))
+        # return dicNames.get(lower_name, name).upper()
+        return dicNames.get(lower_name, name)

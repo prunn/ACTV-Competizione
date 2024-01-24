@@ -175,10 +175,10 @@ class Configuration:
             self.__class__.names = 3
         self.__class__.refresh_rate = self.cfg.get("SETTINGS", "refresh_rate", "int")
         if self.__class__.refresh_rate == -1:
-            self.__class__.refresh_rate = 50
+            self.__class__.refresh_rate = 30
         Label.refresh_rate = self.__class__.refresh_rate
         #font_ini = self.cfg.get("SETTINGS", "font_ini", "string")
-        font_ini = Colors.app_path + "fonts/actvcpbold.ini"
+        font_ini = Colors.app_path + "fonts/quantico-700italic.ini"
         if font_ini != -1:
             Font.font_ini = font_ini
         else:

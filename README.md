@@ -2,7 +2,7 @@
 
 for Assetto Corsa
 
-###Contains:
+### Contains:
 * Tower (standings - battles-realtime)
 * Delta
 * Driver info (driver info - qualification time - fastest lap)
@@ -11,7 +11,11 @@ for Assetto Corsa
 * Config (Configuration)
 
 
-###Changelog.
+### Changelog.
+1.2.0.1
+* translate driver names on the fly with a look-up table (names.txt, dictionary)
+* some small code quality changes
+
 1.2.0.0
 * Tower: bug fix blue names in qualy
 * Tower: bug fix race start positions (progress)
