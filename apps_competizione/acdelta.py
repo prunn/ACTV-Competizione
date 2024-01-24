@@ -170,7 +170,7 @@ class ACDelta:
                  visible=1)
         self.lbl_best_title_text = Label(self.window.app, "BEST")\
             .set(w=77, h=0,
-                 x=0, y=0,
+                 x=0, y=16,
                  opacity=0,
                  font_size=26,
                  align="left",
@@ -189,7 +189,7 @@ class ACDelta:
                  visible=1)
         self.lbl_last_title_text = Label(self.window.app, "LAST")\
             .set(w=77, h=0,
-                 x=0, y=0,
+                 x=0, y=16,
                  opacity=0,
                  font_size=26,
                  align="left",
@@ -208,7 +208,7 @@ class ACDelta:
                  visible=1)
         self.lbl_prediction_title_text = Label(self.window.app, "PRED")\
             .set(w=77, h=0,
-                 x=0, y=10,
+                 x=0, y=16,
                  opacity=0,
                  font_size=26,
                  align="left",
@@ -395,14 +395,14 @@ class ACDelta:
                                            font_size=font_size + self.rowHeight.value * 20 / 38,
                                            animated=True)
 
-            self.lbl_best_title_text.set(x=self.rowHeight.value * 104/38,
-                                         y=self.rowHeight.value * 50/38 + Font.get_font_x_offset(),
+            self.lbl_best_title_text.set(x=self.rowHeight.value * 103/38,
+                                         y=self.rowHeight.value * 47/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
-            self.lbl_last_title_text.set(x=self.rowHeight.value * 104/38,
-                                         y=self.rowHeight.value * 77/38 + Font.get_font_x_offset(),
+            self.lbl_last_title_text.set(x=self.rowHeight.value * 103/38,
+                                         y=self.rowHeight.value * 74/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
-            self.lbl_prediction_title_text.set(x=self.rowHeight.value * 104/38,
-                                               y=self.rowHeight.value * 104/38 + Font.get_font_x_offset(),
+            self.lbl_prediction_title_text.set(x=self.rowHeight.value * 103/38,
+                                               y=self.rowHeight.value * 101/38 + Font.get_font_x_offset(),
                                                font_size=font_size-self.rowHeight.value * 6/38, animated=True)
             self.lbl_best_time_text.set(x=self.rowHeight.value * 245/38,
                                         y=self.rowHeight.value * 44/38 + Font.get_font_x_offset() / 2,
@@ -621,9 +621,9 @@ class ACDelta:
         if h > 0:
             return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
         elif m > 0:
-            return "{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
+            return "{:02d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
         else:
-            return "{:01d}.{:03d}".format(int(s), int(ms))
+            return "00:{:02d}.{:03d}".format(int(s), int(ms))
 
     def manage_window(self, game_data):
         win_x = self.window.getPos().x
