@@ -5,7 +5,7 @@ import os, threading, json, math
 import gzip
 import time
 from .util.func import rgb
-from .util.classes import Window, Label, Value, Colors, Font, Config, Log, Button, raceGaps
+from .util.classes import Window, Label, Value, Colors, Font, Config, Log, Button, raceGaps, Translate
 from .configuration import Configuration
 
         
@@ -170,7 +170,7 @@ class ACDelta:
                  visible=1)
         self.lbl_best_title_text = Label(self.window.app, "BEST")\
             .set(w=77, h=0,
-                 x=0, y=0,
+                 x=0, y=16,
                  opacity=0,
                  font_size=26,
                  align="left",
@@ -189,7 +189,7 @@ class ACDelta:
                  visible=1)
         self.lbl_last_title_text = Label(self.window.app, "LAST")\
             .set(w=77, h=0,
-                 x=0, y=0,
+                 x=0, y=16,
                  opacity=0,
                  font_size=26,
                  align="left",
@@ -208,7 +208,7 @@ class ACDelta:
                  visible=1)
         self.lbl_prediction_title_text = Label(self.window.app, "PRED")\
             .set(w=77, h=0,
-                 x=0, y=0,
+                 x=0, y=16,
                  opacity=0,
                  font_size=26,
                  align="left",
@@ -325,9 +325,11 @@ class ACDelta:
                                      y=Font.get_font_x_offset()-3,
                                      font_size=Font.get_font_size(self.rowHeight.value*44/38+Font.get_font_offset()),
                                      animated=True)
-            self.lbl_name_bg.set(w=self.rowHeight.value * 77/38,h=self.rowHeight.value * 21/38,y=self.rowHeight.value * 40/38, animated=True)
+            self.lbl_name_bg.set(w=self.rowHeight.value * 77/38, h=self.rowHeight.value * 21/38, y=self.rowHeight.value * 40/38, animated=True)
+
+            # / 2 moves the text driver 'name' down a little to put it to middle
             self.lbl_name_text.set(w=self.rowHeight.value * 77/38,
-                                   y=self.rowHeight.value * 33/38 + Font.get_font_x_offset(),
+                                   y=self.rowHeight.value * 33/38 + Font.get_font_x_offset() / 2,
                                    font_size=font_size,
                                    animated=True)
             self.lbl_position_text.set(x=self.rowHeight.value * 38/38,
@@ -387,28 +389,31 @@ class ACDelta:
                                       x=self.rowHeight.value * 87/38,
                                       y=self.rowHeight.value * 107/38,
                                       animated=True)
-            self.lbl_current_time_text.set(x=self.rowHeight.value * 115/38,y=self.rowHeight.value * -12/38 + Font.get_font_x_offset(),
-                                           font_size=font_size+self.rowHeight.value * 25/38,
-                                           animated=True)#Font.get_font_size(self.rowHeight.value*76/38+Font.get_font_offset())
-            self.lbl_best_title_text.set(x=self.rowHeight.value * 99/38,
-                                         y=self.rowHeight.value * 50/38 + Font.get_font_x_offset(),
+
+            self.lbl_current_time_text.set(x=self.rowHeight.value * 130 / 38,
+                                           y=self.rowHeight.value * -14 / 38 + Font.get_font_x_offset(),
+                                           font_size=font_size + self.rowHeight.value * 20 / 38,
+                                           animated=True)
+
+            self.lbl_best_title_text.set(x=self.rowHeight.value * 103/38,
+                                         y=self.rowHeight.value * 47/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
-            self.lbl_last_title_text.set(x=self.rowHeight.value * 99/38,
-                                         y=self.rowHeight.value * 77/38 + Font.get_font_x_offset(),
+            self.lbl_last_title_text.set(x=self.rowHeight.value * 103/38,
+                                         y=self.rowHeight.value * 74/38 + Font.get_font_x_offset(),
                                          font_size=font_size-self.rowHeight.value * 6/38, animated=True)
-            self.lbl_prediction_title_text.set(x=self.rowHeight.value * 99/38,
-                                               y=self.rowHeight.value * 104/38 + Font.get_font_x_offset(),
+            self.lbl_prediction_title_text.set(x=self.rowHeight.value * 103/38,
+                                               y=self.rowHeight.value * 101/38 + Font.get_font_x_offset(),
                                                font_size=font_size-self.rowHeight.value * 6/38, animated=True)
             self.lbl_best_time_text.set(x=self.rowHeight.value * 245/38,
-                                        y=self.rowHeight.value * 44/38 + Font.get_font_x_offset(),
+                                        y=self.rowHeight.value * 44/38 + Font.get_font_x_offset() / 2,
                                         font_size=font_size+self.rowHeight.value * 3/38,
                                         animated=True)
             self.lbl_last_time_text.set(x=self.rowHeight.value * 245/38,
-                                        y=self.rowHeight.value * 73/38 + Font.get_font_x_offset(),
+                                        y=self.rowHeight.value * 73/38 + Font.get_font_x_offset() / 2,
                                         font_size=font_size+self.rowHeight.value * 3/38,
                                         animated=True)
             self.lbl_prediction_time_text.set(x=self.rowHeight.value * 245/38,
-                                              y=self.rowHeight.value * 100/38 + Font.get_font_x_offset(),
+                                              y=self.rowHeight.value * 100/38 + Font.get_font_x_offset() / 2,
                                               font_size=font_size+self.rowHeight.value * 3/38,
                                               animated=True)
             #col 3
@@ -519,55 +524,107 @@ class ACDelta:
                     return str(self.currentVehicle.value)
         return str(self.currentVehicle.value)
     
+    #
+    # def time_splitting(self, ms, full="no"):
+    #     s = ms/1000
+    #     m, s = divmod(s, 60)
+    #     h, m = divmod(m, 60)
+    #     # d, h = divmod(h,24)
+    #     if full == "yes":
+    #         d = ms % 1000
+    #         if h > 0:
+    #             return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #         elif m > 0:
+    #             return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #         else:
+    #             return "{0}.{1}".format(int(s), str(int(d)).zfill(3))
+    #     else:
+    #         d = ms / 100 % 10
+    #         if h > 0:
+    #             return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), int(d))
+    #         elif m > 0:
+    #             return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), int(d))
+    #         else:
+    #             return "{0}.{1}".format(int(s), int(d))
+
     def time_splitting(self, ms, full="no"):
-        s = ms/1000
+        ms = abs(ms)
+        s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        # d, h = divmod(h,24)
+
         if full == "yes":
-            d = ms % 1000
+            d, ms = divmod(ms, 1000)
             if h > 0:
-                return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
-            elif m > 0:  
-                return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(3))
+                return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
+            elif m > 0:
+                return "{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
             else:
-                return "{0}.{1}".format(int(s), str(int(d)).zfill(3))
+                return "{:01d}.{:03d}".format(int(s), int(ms))
         else:
-            d = ms / 100 % 10
+            d = ms % 1000 // 10
             if h > 0:
-                return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), int(d))
-            elif m > 0:  
-                return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), int(d))
+                return "{:01d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
+            elif m > 0:
+                return "{:01d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
             else:
-                return "{0}.{1}".format(int(s), int(d))
+                return "{:01d}.{:02d}".format(int(s), int(d))
+
+    # def time_splitting_delta(self, ms):
+    #     s = ms/1000
+    #     m, s = divmod(s, 60)
+    #     h, m = divmod(m, 60)
+    #     # d, h = divmod(h,24)
+    #     d = ms % 1000 / 10
+    #     if h > 0:
+    #         return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(2))
+    #     elif m > 0:
+    #         return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(2))
+    #     else:
+    #         return "{0}.{1}".format(int(s), str(int(d)).zfill(2))
 
     def time_splitting_delta(self, ms):
-        s = ms/1000
+        ms = abs(ms)
+        s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        # d, h = divmod(h,24)
-        d = ms % 1000 / 10
+        d = ms % 1000 // 10
         if h > 0:
-            return "{0}:{1}:{2}.{3}".format(int(h), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(2))
+            return "{:01d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
         elif m > 0:
-            return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), str(int(d)).zfill(2))
+            return "{:01d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
         else:
-            return "{0}.{1}".format(int(s), str(int(d)).zfill(2))
+            return "{:01d}.{:02d}".format(int(s), int(d))
+
+
+    # def time_splitting_full(self, ms):
+    #     s = ms/1000
+    #     m, s = divmod(s, 60)
+    #     h, m = divmod(m, 60)
+    #     # d, h = divmod(h,24)
+    #     d = ms % 1000
+    #     if h > 0:
+    #         return "{0}:{1}:{2}.{3}".format(str(int(h)).zfill(2), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #     elif m > 0:
+    #         return "{0}:{1}.{2}".format(str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #     else:
+    #         return "00:{0}.{1}".format(str(int(s)).zfill(2), str(int(d)).zfill(3))
+    #
 
     def time_splitting_full(self, ms):
-        s = ms/1000
+        ms = abs(ms)
+        s = ms / 1000
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
-        # d, h = divmod(h,24)
-        d = ms % 1000
-        if h > 0:
-            return "{0}:{1}:{2}.{3}".format(str(int(h)).zfill(2), str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
-        elif m > 0:
-            return "{0}:{1}.{2}".format(str(int(m)).zfill(2), str(int(s)).zfill(2), str(int(d)).zfill(3))
-        else:
-            return "00:{0}.{1}".format(str(int(s)).zfill(2), str(int(d)).zfill(3))
+        d, ms = divmod(ms, 1000)
 
-        
+        if h > 0:
+            return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
+        elif m > 0:
+            return "{:02d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
+        else:
+            return "00:{:02d}.{:03d}".format(int(s), int(ms))
+
     def manage_window(self, game_data):
         win_x = self.window.getPos().x
         win_y = self.window.getPos().y
@@ -628,6 +685,7 @@ class ACDelta:
             self.last_lap_start[i] = -1
 
     def format_name_tlc(self, name):
+        name = Translate.drivername(name)
         space = name.find(" ")
         if space > 0:
             name = name[space:]
@@ -637,6 +695,7 @@ class ACDelta:
         return name
 
     def format_name_tlc2(self, name):
+        name = Translate.drivername(name)
         first = ""
         if len(name) > 0:
             first = name[0].upper()
@@ -790,7 +849,7 @@ class ACDelta:
         completed_laps = ac.getCarState(self.currentVehicle.value, acsys.CS.LapCount)
         self.lbl_laps_completed_text.setText(str(completed_laps))
         self.lbl_laps_completed_text_shadow.setText(str(completed_laps))
-        if completed_laps > 1:
+        if completed_laps != 1:
             self.lbl_laps_text.setText("LAPS")
             self.lbl_laps_text_shadow.setText("LAPS")
         else:
@@ -844,8 +903,8 @@ class ACDelta:
                             self.referenceLapTime.setValue(self.lastLapTime.value)
                             self.referenceLap = list(self.currentLap)
                             if len(self.referenceLap) > 2000:  # 2laps in
-                                ac.console("too many laps in reference----")
-                                ac.log("too many laps in reference----")
+                                # ac.console("too many laps in reference----")
+                                # ac.log("too many laps in reference----")
                                 how_much = math.floor(len(self.referenceLap)/1000)
                                 del self.referenceLap[0:math.floor(len(self.referenceLap)/how_much)]
                             if self.currentVehicle.value == 0 and Configuration.save_delta and len(self.referenceLap) > 20:

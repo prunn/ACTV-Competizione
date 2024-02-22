@@ -2,7 +2,7 @@ import ac
 import acsys
 import ctypes
 import math
-from .util.classes import Window, Label, Value, Colors, Font, lapTimeStart, Config
+from .util.classes import Window, Label, Value, Colors, Font, lapTimeStart, Translate, Config
 from .configuration import Configuration
 
 
@@ -289,7 +289,7 @@ class ACInfo:
                   animated=True, init=True)#87
         for l in self.lbl_sectors_title_txt:
             l.set(h=self.row_height.value,
-                  y=self.row_height.value * 51 / 38 + Font.get_font_x_offset(),
+                  y=self.row_height.value * 48 / 38 + Font.get_font_x_offset(),
                   font_size=Font.get_font_size(self.row_height.value + font_offset) + 2,
                   color=Colors.info_sector_title_txt(),
                   opacity=0,
@@ -330,6 +330,7 @@ class ACInfo:
         return currentVehicle
 
     def format_name(self, name, max_name_length):
+        name = Translate.drivername(name)
         space = name.find(" ")
         if space > 0:
             if len(name) > max_name_length and space + 1 < len(name):
@@ -340,7 +341,8 @@ class ACInfo:
                 if len(name) > max_name_length:
                     return name[:max_name_length + 1]
                 return name
-            return name[:space].capitalize().lstrip() + name[space:]
+            return name[:space].lstrip() + name[space:]
+            # return name[:space].capitalize().lstrip() + name[space:]
         if len(name) > max_name_length:
             return name[:max_name_length+1].lstrip()
         return name.lstrip()
@@ -354,6 +356,7 @@ class ACInfo:
             return name[:17]
         return name
 
+    """
     def time_splitting(self, ms, full="no"):
         ms=abs(ms)
         s = ms / 1000
@@ -377,6 +380,30 @@ class ACInfo:
                 return "{0}:{1}.{2}".format(int(m), str(int(s)).zfill(2), int(d))
             else:
                 return "{0}.{1}".format(int(s), int(d))
+"""
+
+    def time_splitting(self, ms, full="no"):
+        ms = abs(ms)
+        s = ms / 1000
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+
+        if full == "yes":
+            d, ms = divmod(ms, 1000)
+            if h > 0:
+                return "{:01d}:{:02d}:{:02d}.{:03d}".format(int(h), int(m), int(s), int(ms))
+            elif m > 0:
+                return "{:01d}:{:02d}.{:03d}".format(int(m), int(s), int(ms))
+            else:
+                return "{:01d}.{:03d}".format(int(s), int(ms))
+        else:
+            d = ms % 1000 // 10
+            if h > 0:
+                return "{:01d}:{:02d}:{:02d}.{:02d}".format(int(h), int(m), int(s), int(d))
+            elif m > 0:
+                return "{:01d}:{:02d}.{:02d}".format(int(m), int(s), int(d))
+            else:
+                return "{:01d}.{:02d}".format(int(s), int(d))
 
     def get_sector(self,vehicle):
         splits = ac.getCurrentSplits(vehicle)
@@ -469,7 +496,7 @@ class ACInfo:
         self.driver_name_text.setValue("")
 
     def set_width_and_name(self):
-        name = self.format_name(self.driver_name_text.value, 17)
+        name = self.format_name(self.driver_name_text.value, 12)
         width = (self.row_height.value * 49 / 36) + Font.get_text_dimensions(name, self.row_height.value)
         if width < self.row_height.value * 7.2:
             width = self.row_height.value * 7.2
@@ -555,7 +582,7 @@ class ACInfo:
                 self.lbl_timing_text.hide()
                 team = self.get_team(self.currentVehicle.value)
                 if team != '':
-                    self.lbl_team_txt.setText(str(team)).show()
+                    self.lbl_team_txt.setText(Translate.drivername(str(team))).show()
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 4 / 38, font_size=font_size - self.row_height.value * 1 / 38, animated=True)
                 else:
                     self.lbl_team_txt.hide()
@@ -608,7 +635,7 @@ class ACInfo:
                 if team != '':
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 4 / 38,
                                                   font_size=font_size - 1, animated=True)
-                    self.lbl_team_txt.setText(str(team)).show()
+                    self.lbl_team_txt.setText(Translate.drivername(str(team))).show()
                 else:
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 2 / 38,
                                                   font_size=font_size + self.row_height.value * 14 / 38, animated=True)
@@ -624,7 +651,7 @@ class ACInfo:
                     self.lbl_fastest_lap_bg.hide()
                 team = self.get_team(self.currentVehicle.value)
                 if team != '':
-                    self.lbl_team_txt.setText(str(team)).show()
+                    self.lbl_team_txt.setText(Translate.drivername(str(team))).show()
                     self.lbl_driver_name_text.set(y=Font.get_font_x_offset() + self.row_height.value * 4 / 38,
                                                   font_size=font_size - 1, animated=True)
                 else:
@@ -810,7 +837,7 @@ class ACInfo:
 
                 lap_invalidated = bool(self.lastLapInvalidated == lap_count)
                 if current_vehicle_changed or self.driver_name_text.value == "":
-                    self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                    self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
                 # sector_delay = 5000
                 # live or info
                 #self.last_lap_start[self.currentVehicle.value] - session_time_left < 5000
@@ -1008,7 +1035,7 @@ class ACInfo:
                     self.lbl_logo.setBgColor(Colors.logo_for_car(car_name,self.get_driver_skin(self.race_fastest_lap_driver)))
                     self.visible_end = session_time_left - 10000
                     self.driver_name_visible = True
-                    self.driver_name_text.setValue(ac.getDriverName(self.race_fastest_lap_driver))
+                    self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.race_fastest_lap_driver)))
                     self.info_position.hide()
                     self.info_position_txt.hide()
                     self.lbl_fastest_split.setText(self.time_splitting(self.race_fastest_lap.value, "yes")).show()
@@ -1031,7 +1058,7 @@ class ACInfo:
                     if not self.forceViewAlways or is_in_pit:
                         self.visible_end = session_time_left - 8000
                     self.driver_name_visible = True
-                    self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                    self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
 
                     if not self.raceStarted:
                         if sim_info.graphics.completedLaps > 0 or sim_info.graphics.iCurrentTime > 12000:
@@ -1079,7 +1106,7 @@ class ACInfo:
             cur_lap_time = ac.getCarState(self.currentVehicle.value, acsys.CS.LapTime)
             is_in_pit = (bool(ac.isCarInPitline(self.currentVehicle.value)) or bool(ac.isCarInPit(self.currentVehicle.value)))
             if current_vehicle_changed or self.driver_name_text.value == "":
-                self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
             if is_in_pit:
                 self.driver_name_visible = False
                 self.timing_visible = False
@@ -1129,7 +1156,7 @@ class ACInfo:
                 if not self.forceViewAlways:
                     self.visible_end = session_time_left - 8000
                 self.driver_name_visible = True
-                self.driver_name_text.setValue(ac.getDriverName(self.currentVehicle.value))
+                self.driver_name_text.setValue(Translate.drivername(ac.getDriverName(self.currentVehicle.value)))
                 pos = self.get_race_standings_position_replay(self.currentVehicle.value)
                 self.pos = pos
                 self.info_position.set(background=Colors.info_position_bg(), animated=True, init=True)

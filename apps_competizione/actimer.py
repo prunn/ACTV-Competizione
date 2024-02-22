@@ -55,26 +55,26 @@ class ACTimer:
         # Timer / lap
         self.lbl_session_info_txt = Label(self.window.app, "00:00")\
             .set(w=0, h=36,
-                 x=self.row_height.value, y=-76,
+                 x=self.row_height.value - 550, y=-82,
                  opacity=0,
-                 font_size=26,
-                 align="right")
+                 font_size=21,
+                 align="left")
         # Time
         self.lbl_time_of_day_txt = Label(self.window.app, "12:00")\
             .set(w=0, h=36,
-                 x=self.row_height.value, y=-76,
+                 x=self.row_height.value, y=-82,
                  opacity=0,
                  font_size=26,
                  align="left")
-        self.lbl_am_pm_txt = Label(self.window.app, "PM")\
-            .set(w=0, h=36,
-                 x=self.row_height.value, y=-76,
-                 opacity=0,
-                 font_size=26,
-                 align="left")
+        # self.lbl_am_pm_txt = Label(self.window.app, "PM")\
+        #     .set(w=0, h=36,
+        #          x=self.row_height.value, y=-76,
+        #          opacity=0,
+        #          font_size=26,
+        #          align="left")
         self.lbl_extra_lap_txt = Label(self.window.app, "+1 LAP")\
             .set(w=0, h=36,
-                 x=self.row_height.value, y=-76,
+                 x=self.row_height.value, y=-82,
                  opacity=0,
                  font_size=26,
                  align="right")
@@ -87,7 +87,7 @@ class ACTimer:
             .set(w=0, h=36,
                  x=114, y=-76,
                  opacity=0,
-                 font_size=26,
+                 font_size=24,
                  align="center")
         # Status
         self.lbl_session_border = Label(self.window.app)\
@@ -129,7 +129,7 @@ class ACTimer:
                                   float(session_6)*60000
                                   ]
         self.start_time_of_day_original = self.start_time_of_day=(780 + 3.75 * float(start)) * 60000 - (4000 * self.time_multiplier)
-        #ac.console("ini:" + str(self.start_time_of_day) + " = " + self.time_of_day(self.start_time_of_day))
+        # ac.console("ini:" + str(self.start_time_of_day) + " = " + self.time_of_day(self.start_time_of_day))
         self.last_start_time_offset=-1
         self.session_time_left=0
         self.session_info_imported=False
@@ -152,7 +152,7 @@ class ACTimer:
             self.lbl_session_info.set(background=Colors.timer_time_bg(), animated=True, init=True)
             self.lbl_session_info_txt.set(color=Colors.timer_time_txt(), animated=True, init=True)
             self.lbl_time_of_day_txt.set(color=Colors.timer_time_txt(), animated=True, init=True)
-            self.lbl_am_pm_txt.set(color=Colors.timer_time_txt(), animated=True, init=True)
+            # self.lbl_am_pm_txt.set(color=Colors.timer_time_txt(), animated=True, init=True)
             self.lbl_extra_lap_txt.set(color=Colors.timer_time_txt(), animated=True, init=True)
             self.lbl_session_title.set(background=Colors.white(bg=True), animated=True, init=True)
             self.lbl_session_title_txt.set(color=Colors.timer_title_txt(), animated=True, init=True)
@@ -163,9 +163,9 @@ class ACTimer:
             # Size
             font_size = Font.get_font_size(self.row_height.value+Font.get_font_offset())
             self.lbl_session_info_txt.set(h=self.row_height.value,
-                                          font_size=font_size + self.row_height.value*9/38,
-                                          y=-76 + Font.get_font_x_offset() - self.row_height.value*7/38)
-            #todo race qual pract... width
+                                          font_size=font_size + self.row_height.value * 9/38,
+                                          y=-82 + Font.get_font_x_offset() - self.row_height.value * 7/38)
+            # todo race qual pract... width
             height = round(self.row_height.value * 42/38)
             #corner_width = int(self.row_height.value * 27/38)
             #self.corner_width = round(height * 27/42) 57x83
@@ -178,10 +178,10 @@ class ACTimer:
             self.lbl_session_info.set(w=self.row_height.value * 4, h=height)
             self.lbl_time_of_day_txt.set(h=self.row_height.value,
                                          font_size=font_size + self.row_height.value*9/38,
-                                         y=-76 + Font.get_font_x_offset() - self.row_height.value*7/38)
-            self.lbl_am_pm_txt.set(h=self.row_height.value,
-                                   font_size=font_size - self.row_height.value*1/38,
-                                   y=-76 + Font.get_font_x_offset() + self.row_height.value*1/38)
+                                         y=-82 + Font.get_font_x_offset() - self.row_height.value * 7 / 38)
+            # self.lbl_am_pm_txt.set(h=self.row_height.value,
+            #                        font_size=font_size - self.row_height.value*1/38,
+            #                        y=-76 + Font.get_font_x_offset() + self.row_height.value*1/38)
             self.lbl_extra_lap_txt.set(h=self.row_height.value,
                                    font_size=font_size - self.row_height.value*1/38,
                                    y=-76 + Font.get_font_x_offset() + self.row_height.value*1/38)
@@ -191,7 +191,7 @@ class ACTimer:
                                        h=self.row_height.value*32/38)
             self.lbl_session_title_txt.set(h=self.row_height.value,
                                            font_size=font_size - self.row_height.value*1/38,
-                                           y=-76 + Font.get_font_x_offset() + self.row_height.value*1/38)
+                                           y=-82 + Font.get_font_x_offset() + self.row_height.value*1/38)
 
             self.lbl_session_border.set(w=self.row_height.value*8/38,h=self.row_height.value*32/38)
             self.lbl_session_border_2.set(w=self.row_height.value*8/38,h=self.row_height.value*32/38)
@@ -199,68 +199,70 @@ class ACTimer:
             w_offset = (self.row_height.value - 38) * 22 / 38
             if self.session.value == 1:
                 # Qualifying
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=20 - self.row_height.value * 70 / 38 - w_offset, animated=True, align="center")
                 self.lbl_session_border.set(x=114 - self.row_height.value * 63 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 55 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 70 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 125 / 38 + w_offset, animated=True)
+                # self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 125 / 38 + w_offset + Font.get_font_x_offset(), animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 168 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 168 / 38)
-                self.lbl_session_info.set(w=self.row_height.value * 336 / 38, x=114 - self.row_height.value * 168 / 38) #336 + 56 28
+                self.lbl_session_info.set(x=114 - self.row_height.value * 168 / 38, w=self.row_height.value * 336 / 38) #336 + 56 28
             elif self.session.value == 0:
                 # PRACTICE
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 81 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 81 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=20 - self.row_height.value * 70 / 38 - w_offset, animated=True, align="left")
                 self.lbl_session_border.setX(x=114 - self.row_height.value * 74 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.setX(x=114 + self.row_height.value * 66 / 38 + w_offset, animated=True) # 16
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 81 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 136 / 38 + w_offset, animated=True)
+                # self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 136 / 38 + w_offset + Font.get_font_x_offset(), animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 180 / 38 - self.corner_width) # 213
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 180 / 38)
-                self.lbl_session_info.set(w=self.row_height.value * 360 / 38, x=114 - self.row_height.value * 180 / 38) #372 + 92
+                self.lbl_session_info.set(x=114 - self.row_height.value * 180 / 38, w=self.row_height.value * 360 / 38) #372 + 92
             elif self.session.value == 3:
                 #HOTLAP
                 w_offset = (self.row_height.value - 38) * 18 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 53 / 38 - w_offset, animated=True, align="center")
                 self.lbl_session_border.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 38 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 53 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 108 / 38 + w_offset, animated=True)
+                # self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 108 / 38 + w_offset + Font.get_font_x_offset(), animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 150 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 150 / 38)
-                self.lbl_session_info.set(w=self.row_height.value * 300 / 38, x=114 - self.row_height.value * 150 / 38)
+                self.lbl_session_info.set(x=114 - self.row_height.value * 150 / 38, w=self.row_height.value * 300 / 38)
             elif self.session.value == 4:
                 #TIME ATTACK
                 w_offset = (self.row_height.value - 38) * 18 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 78 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 78 / 38 - w_offset, animated=True, align="center")
                 self.lbl_session_border.setX(x=114 - self.row_height.value * 71 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.setX(x=114 + self.row_height.value * 63 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 78 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 133 / 38 + w_offset, animated=True)
+                # self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 133 / 38 + w_offset + Font.get_font_x_offset(), animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 183 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 183 / 38)
-                self.lbl_session_info.set(w=self.row_height.value * 366 / 38, x=114 - self.row_height.value * 183 / 38)
+                self.lbl_session_info.set(x=114 - self.row_height.value * 183 / 38, w=self.row_height.value * 366 / 38)
             elif self.session.value == 5:
                 #DRIFT
                 w_offset = (self.row_height.value - 38) * 8 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 46 / 38 - w_offset, animated=True, align="center")
                 self.lbl_session_border.set(x=114 - self.row_height.value * 39 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 31 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 46 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 101 / 38 + w_offset, animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 144 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 144 / 38)
-                self.lbl_session_info.set(w=self.row_height.value * 288 / 38, x=114 - self.row_height.value * 144 / 38) #336 + 56 28
+                self.lbl_session_info.set(x=114 - self.row_height.value * 144 / 38, w=self.row_height.value * 288 / 38) #336 + 56 28
             elif self.session.value == 6:
                 #DRAG
                 w_offset = (self.row_height.value - 38) * 8 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=0 - self.row_height.value * 46 / 38 - w_offset, animated=True)
                 self.lbl_session_border.set(x=114 - self.row_height.value * 39 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 31 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 46 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 101 / 38 + w_offset, animated=True)
+                # self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 101 / 38 + w_offset + Font.get_font_x_offset(), animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 144 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 144 / 38)
-                self.lbl_session_info.set(w=self.row_height.value * 288 / 38, x=114 - self.row_height.value * 144 / 38)
+                self.lbl_session_info.set(x=114 - self.row_height.value * 144 / 38, w=self.row_height.value * 288 / 38)
 
 
 
@@ -271,10 +273,11 @@ class ACTimer:
         h, m = divmod(m, 60)
         # d,h=divmod(h,24)
         if h > 0:
-            return "{0}:{1}:{2}".format(str(int(h)), str(int(m)).zfill(2), str(int(s)).zfill(2))
+            return "{:01d}:{:02d}:{:02d}".format(int(h), int(m), int(s))
         else:
-            return "{0}:{1}".format(str(int(m)).zfill(2), str(int(s)).zfill(2))
+            return "{:02d}:{:02d}".format(int(m), int(s))
 
+    """
     def time_of_day(self, ms):
         ms = ms % (24*3600*1000)
         #if ms > 64800000:#18:00
@@ -290,6 +293,14 @@ class ACTimer:
         #if h > 12:
         #    h-=12
         return "{0}:{1}".format(str(int(abs(h))), str(int(m)).zfill(2))
+    """
+    def time_of_day(self, ms):
+        ms = ms % (24 * 3600 * 1000)
+        s = ms / 1000
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+
+        return "{:02d}:{:02d}".format(int(h), int(m))
 
     def get_sessions_data_from_server(self):
         try:
@@ -327,7 +338,7 @@ class ACTimer:
         self.lbl_session_info.animate()
         self.lbl_session_info_txt.animate()
         self.lbl_time_of_day_txt.animate()
-        self.lbl_am_pm_txt.animate()
+        # self.lbl_am_pm_txt.animate()
         self.lbl_extra_lap_txt.animate()
         self.lbl_session_title.animate()
         self.lbl_session_title_txt.animate()
@@ -364,69 +375,69 @@ class ACTimer:
             #    self.start_time_of_day=self.last_start_time_offset
             w_offset = (self.row_height.value - 38) * 22 / 38
             if self.session.value == 2:
-                self.lbl_session_title_txt.setText("RACE")
-                #self.lbl_session_title.set(x=114 - self.row_height.value * 27 / 38, w=self.row_height.value * 54 / 38)
+                self.lbl_session_title_txt.setText("RACE").setColor(Colors.timer_title_txt())
+                self.lbl_session_title_txt.set(x=152 - self.row_height.value * 42 / 38, animated=True, align="center")
             elif self.session.value == 1:
                 self.lbl_session_title_txt.setText("QUALIFYING")
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 70 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=22 - self.row_height.value * 70 / 38 - w_offset, animated=True, align="left")
                 self.lbl_session_border.set(x=114 - self.row_height.value * 63 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 55 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 70 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 125 / 38 + w_offset, animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 168 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 168 / 38)
                 self.lbl_session_info.set(w=self.row_height.value * 336 / 38, x=114 - self.row_height.value * 168 / 38) #336 + 56 28
             elif self.session.value == 0:
                 self.lbl_session_title_txt.setText("FREE PRACTICE")
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 81 / 38 - w_offset, animated=True)
+                # session time location, smaller font
+                self.lbl_session_info_txt.set(x=22 - self.row_height.value * 81 / 38 - w_offset, animated=True, align="left", font_size=22, y=-74)
                 self.lbl_session_border.setX(x=114 - self.row_height.value * 74 / 38 - w_offset, animated=True) # -8/38=self
                 self.lbl_session_border_2.setX(x=114 + self.row_height.value * 66 / 38 + w_offset, animated=True) # 16
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 81 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 136 / 38 + w_offset, animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 180 / 38 - self.corner_width) # 213
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 180 / 38)
                 self.lbl_session_info.set(w=self.row_height.value * 360 / 38, x=114 - self.row_height.value * 180 / 38) #372 + 92
             elif self.session.value == 3:
                 self.lbl_session_title_txt.setText("HOTLAP")
                 w_offset = (self.row_height.value - 38) * 18 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 53 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=22 - self.row_height.value * 53 / 38 - w_offset, animated=True, align="left")
                 self.lbl_session_border.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 38 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 53 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 108 / 38 + w_offset, animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 150 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 150 / 38)
                 self.lbl_session_info.set(w=self.row_height.value * 300 / 38, x=114 - self.row_height.value * 150 / 38)
             elif self.session.value == 4:
                 self.lbl_session_title_txt.setText("TIME ATTACK")
                 w_offset = (self.row_height.value - 38) * 18 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 78 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 78 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=22 - self.row_height.value * 78 / 38 - w_offset, animated=True, align="left")
                 self.lbl_session_border.setX(x=114 - self.row_height.value * 71 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.setX(x=114 + self.row_height.value * 63 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 78 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 133 / 38 + w_offset, animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 183 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 183 / 38)
                 self.lbl_session_info.set(w=self.row_height.value * 366 / 38, x=114 - self.row_height.value * 183 / 38)
             elif self.session.value == 5:
                 self.lbl_session_title_txt.setText("DRIFT")
                 w_offset = (self.row_height.value - 38) * 8 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
+                # self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=22 - self.row_height.value * 46 / 38 - w_offset, animated=True, align="left")
                 self.lbl_session_border.set(x=114 - self.row_height.value * 39 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 31 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 46 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 101 / 38 + w_offset, animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 144 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 144 / 38)
-                self.lbl_session_info.set(w=self.row_height.value * 288 / 38, x=114 - self.row_height.value * 144 / 38)
+                self.lbl_session_info.set(x=114 - self.row_height.value * 144 / 38, w=self.row_height.value * 288 / 38)
             elif self.session.value == 6:
                 self.lbl_session_title_txt.setText("DRAG")
                 w_offset = (self.row_height.value - 38) * 8 / 38
-                self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
-                self.lbl_session_border.set(x=114 - self.row_height.value * 39 / 38 - w_offset, animated=True)
+                #self.lbl_session_info_txt.set(x=114 - self.row_height.value * 46 / 38 - w_offset, animated=True)
+                self.lbl_session_info_txt.set(x=22 - self.row_height.value * 46 / 38 - w_offset, animated=True, align="left")
+                self.lbl_session_border.set(x=0 - self.row_height.value * 39 / 38 - w_offset, animated=True)
                 self.lbl_session_border_2.set(x=114 + self.row_height.value * 31 / 38 + w_offset, animated=True)
                 self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 46 / 38 + w_offset, animated=True)
-                self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 101 / 38 + w_offset, animated=True)
                 self.lbl_left_corner.set(x=114 - self.row_height.value * 144 / 38 - self.corner_width)
                 self.lbl_right_corner.set(x=114 + self.row_height.value * 144 / 38)
                 self.lbl_session_info.set(w=self.row_height.value * 288 / 38, x=114 - self.row_height.value * 144 / 38)
@@ -450,6 +461,7 @@ class ACTimer:
                 self.last_start_time_offset = self.start_time_of_day + (self.sessions_duration[self.session.value] - session_time_left)*self.time_multiplier
                 time_of_day=self.time_of_day(self.last_start_time_offset)
                 self.lbl_time_of_day_txt.setText(time_of_day).show()
+                """
                 am_pm_offset=""
                 if len(time_of_day) > 4:
                     am_pm_offset="  "
@@ -457,6 +469,7 @@ class ACTimer:
                     self.lbl_am_pm_txt.setText(am_pm_offset + "AM").show()
                 else:
                     self.lbl_am_pm_txt.setText(am_pm_offset + "PM").show()
+                """
                 if session_time_left < 0:
                     session_time_left = 0
                     self.lbl_session_info_txt.setColor(Colors.red(),True)
@@ -553,7 +566,6 @@ class ACTimer:
                     self.lbl_session_info_txt.setText("00:00").setColor(Colors.red(),True)
                 elif race_finished > 0:
                     self.lbl_session_info_txt.setText("{0} / {1}".format(self.numberOfLaps, self.numberOfLaps)).setColor(Colors.red(),True)
-                    #self.lbl_session_info_txt.setText("FINISH").setColor(Colors.red(),True)completed == self.numberOfLaps or
                 elif (
                         self.numberOfLaps == 0 and self.hasExtraLap == 0 and session_time_left < 0) or (
                         self.hasExtraLap == 1 and completed == self.numberOfLapsTimedRace):
@@ -581,20 +593,19 @@ class ACTimer:
                     self.lbl_session_title.show()
                     self.lbl_session_title_txt.setText("PIT WINDOW OPEN" + pit_window_remain).setColor(Colors.black_txt())
                     w_offset = (self.row_height.value - 38) * 50 / 38
-                    self.lbl_session_info_txt.set(x=114 - self.row_height.value * 122 / 38 - w_offset, animated=True)
+                    self.lbl_session_info_txt.set(x=0 - self.row_height.value * 122 / 38 - w_offset, animated=True)
                     self.lbl_session_border.set(x=114 - self.row_height.value * 117 / 38 - w_offset, animated=True)
                     self.lbl_session_border_2.set(x=114 + self.row_height.value * 109 / 38 + w_offset, animated=True)
                     self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 122 / 38 + w_offset, animated=True)
-                    self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 177 / 38 + w_offset, animated=True)
                     self.lbl_extra_lap_txt.set(x=114 - self.row_height.value * 190 / 38 - txt_extra_offset - w_offset, animated=True)
                     if self.hasExtraLap > 0:
                         self.lbl_left_corner.set(x=114 - self.row_height.value * 262 / 38 - self.corner_width - w_offset)
                         self.lbl_right_corner.set(x=114 + self.row_height.value * 262 / 38 + w_offset)
-                        self.lbl_session_info.set(w=self.row_height.value * 524 / 38 + w_offset*2, x=114 - self.row_height.value * 262 / 38 - w_offset)
+                        self.lbl_session_info.set(x=114 - self.row_height.value * 262 / 38 - w_offset, w=self.row_height.value * 524 / 38 + w_offset*2)
                     else:
                         self.lbl_left_corner.set(x=114 - self.row_height.value * 216 / 38 - self.corner_width - w_offset)
                         self.lbl_right_corner.set(x=114 + self.row_height.value * 216 / 38 + w_offset)
-                        self.lbl_session_info.set(w=self.row_height.value * 432 / 38 + w_offset*2, x=114 - self.row_height.value * 216 / 38 - w_offset)
+                        self.lbl_session_info.set(x=114 - self.row_height.value * 216 / 38 - w_offset, w=self.row_height.value * 432 / 38 + w_offset*2)
                     '''
                     right font
                     self.lbl_session_info_txt.set(x=114 - self.row_height.value * 114 / 38, animated=True)
@@ -624,23 +635,21 @@ class ACTimer:
                 else:
                     #sim_info.static.reversedGridPositions
                     # Normal race
-                    self.lbl_session_title.hide()
-                    self.lbl_session_title_txt.setText("RACE").setColor(Colors.timer_title_txt())
                     w_offset = (self.row_height.value - 38) * 6 / 38
-                    self.lbl_session_info_txt.set(x=114 - self.row_height.value * 42 / 38 - w_offset, animated=True)
-                    self.lbl_session_border.set(x=114 - self.row_height.value * 35 / 38 - w_offset, animated=True)
+                    # currentlap/total laps
+                    self.lbl_session_info_txt.set(x=100 - self.row_height.value * 42 / 38 - w_offset, animated=True, align="right")
+                    self.lbl_session_border.set(x=108 - self.row_height.value * 35 / 38 - w_offset, animated=True)
                     self.lbl_session_border_2.set(x=114 + self.row_height.value * 27 / 38 + w_offset, animated=True)
-                    self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 42 / 38 + w_offset, animated=True)
-                    self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 97 / 38 + w_offset, animated=True)
+                    self.lbl_time_of_day_txt.set(x=116 + self.row_height.value * 42 / 38 + w_offset, animated=True)
                     self.lbl_extra_lap_txt.set(x=114 - self.row_height.value * 110 / 38 - txt_extra_offset - w_offset, animated=True)
                     if self.hasExtraLap > 0:
                         self.lbl_left_corner.set(x=114 - self.row_height.value * 180 / 38 - self.corner_width)
                         self.lbl_right_corner.set(x=114 + self.row_height.value * 180 / 38)
-                        self.lbl_session_info.set(w=self.row_height.value * 360 / 38, x=114 - self.row_height.value * 180 / 38)
+                        self.lbl_session_info.set(x=114 - self.row_height.value * 180 / 38, w=self.row_height.value * 360 / 38)
                     else:
                         self.lbl_left_corner.set(x=114 - self.row_height.value * 140 / 38 - self.corner_width)
                         self.lbl_right_corner.set(x=114 + self.row_height.value * 140 / 38)
-                        self.lbl_session_info.set(w=self.row_height.value * 280 / 38, x=114 - self.row_height.value * 140 / 38)
+                        self.lbl_session_info.set(x=114 - self.row_height.value * 140 / 38, w=self.row_height.value * 280 / 38)
 
                 # Flags
                 if race_finished > 0:
@@ -684,6 +693,7 @@ class ACTimer:
                         self.last_start_time_offset = self.start_time_of_day + (self.sessionMaxTime - session_time_left)*self.time_multiplier
                     time_of_day = self.time_of_day(self.last_start_time_offset)
                     self.lbl_time_of_day_txt.setText(time_of_day).show()
+                    """
                     am_pm_offset = ""
                     if len(time_of_day) > 4:
                         am_pm_offset = "  "
@@ -691,9 +701,11 @@ class ACTimer:
                         self.lbl_am_pm_txt.setText(am_pm_offset + "AM").show()
                     else:
                         self.lbl_am_pm_txt.setText(am_pm_offset + "PM").show()
+                    """
                 else:
                     time_of_day = self.time_of_day(self.last_start_time_offset)
                     self.lbl_time_of_day_txt.setText(time_of_day).show()
+                    """
                     am_pm_offset = ""
                     if len(time_of_day) > 4:
                         am_pm_offset = "  "
@@ -701,6 +713,7 @@ class ACTimer:
                         self.lbl_am_pm_txt.setText(am_pm_offset + "AM").show()
                     else:
                         self.lbl_am_pm_txt.setText(am_pm_offset + "PM").show()
+                    """
                 #elif self.last_start_time_offset != -1: # Race restart
                 #    self.start_time_of_day=self.last_start_time_offset
             elif self.session.value >= 3:
@@ -716,12 +729,14 @@ class ACTimer:
                 time_of_day = self.time_of_day(self.last_start_time_offset)
                 self.lbl_time_of_day_txt.setText(time_of_day).show()
                 am_pm_offset = ""
+                """
                 if len(time_of_day) > 4:
                     am_pm_offset = "  "
                 if self.last_start_time_offset % (24*3600*1000)  < 12 * 3600 * 1000:
                     self.lbl_am_pm_txt.setText(am_pm_offset + "AM").show()
                 else:
                     self.lbl_am_pm_txt.setText(am_pm_offset + "PM").show()
+                """
                 if session_time_left < 0:
                     session_time_left = 0
                     self.lbl_session_info_txt.setColor(Colors.red(), True)
@@ -746,7 +761,7 @@ class ACTimer:
                 self.lbl_session_info.hide()
                 self.lbl_session_info_txt.hide()
                 self.lbl_time_of_day_txt.hide()
-                self.lbl_am_pm_txt.hide()
+                # self.lbl_am_pm_txt.hide()
                 self.lbl_extra_lap_txt.hide()
                 self.lbl_session_title.hide()
                 self.lbl_session_title_txt.hide()
@@ -761,18 +776,17 @@ class ACTimer:
             self.lbl_session_info.show()
             self.lbl_session_info_txt.show()
             self.lbl_time_of_day_txt.show()
-            self.lbl_am_pm_txt.show()
             self.lbl_session_title.hide()
             self.lbl_session_border.set(background=Colors.timer_border_bg(),
                                         animated=True).show()
             self.lbl_session_border_2.set(background=Colors.timer_border_bg(),
                                           animated=True).show()
             w_offset = (self.row_height.value - 38) * 6 / 38
-            self.lbl_session_info_txt.set(x=114 - self.row_height.value * 50 / 38 - w_offset, animated=True)
+            self.lbl_session_info_txt.set(x=20 - self.row_height.value * 50 / 38 - w_offset, animated=True)
             self.lbl_session_border.set(x=114 - self.row_height.value * 43 / 38 - w_offset, animated=True)
             self.lbl_session_border_2.set(x=114 + self.row_height.value * 35 / 38 + w_offset, animated=True)
             self.lbl_time_of_day_txt.set(x=114 + self.row_height.value * 50 / 38 + w_offset, animated=True)
-            self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 104 / 38 + w_offset, animated=True)
+            # self.lbl_am_pm_txt.set(x=114 + self.row_height.value * 104 / 38 + w_offset, animated=True)
 
             self.lbl_left_corner.set(x=114 - self.row_height.value * 168 / 38 - self.corner_width)
             self.lbl_right_corner.set(x=114 + self.row_height.value * 168 / 38)
